@@ -1,0 +1,315 @@
+<html>
+  <head>
+	  <title>Acorn Methods, Functions and Types</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Smart Parts</div>
+		</div>
+
+    <div class="text">
+
+	<p>To make our parts smart, we give them procedural instructions packaged up as methods and functions.
+	Methods and functions are basically a sequence of instructions that are performed when requested. 
+	There are many kinds of instructions, with expressions being the most commonly used. 
+	Others will be introduced over the next two chapters.</p>
+	<p>Acorn encourages a part-oriented architecture for the world's behavioral logic:</p>
+	<ul>
+	<li>The smart logic should be sensibly distributed out to all affected parts, rather than centralized in
+	some monolithic code structure.</li>
+	<li>A part's "look" and "behavior" should be elegantly interwoven within the part's resource program.</li>
+	</ul>
+	<p>These design principles make a world's design easier to understand and maintain.</p>
+	
+	<h2 id="method">Method Definition</h2>
+	<p>In the previous chapter, we introduced how to invoke type-specific methods on values.
+	Each of WOM's specialized parts for building a world (such as Scene or Entity) 
+	provide pre-defined methods for accessing a part's contents or controlling its behavior.</p>
+	<p>What's cool is that we can further customize a part's behavior by adding methods to it
+	which give it unique motion or interaction behaviors.
+	In Acorn, such methods are simply another type of keyed value that is added to a part.
+	similar to adding a property to a part (though in a different Index). For example:</p>
+<pre>
+# Teach frosty how to 'jump'
+frosty +[
+	# Define a method named 'jump', which takes a single parameter 'velocity'.
+	jump(velocity):>
+		# Tab-indented statements are performed when the method is called
+		::vel = velocity
+
+# Later on, we can use the method
+frosty.jump(5.0)
+</pre>
+	<p>	A method consists of its name and parameters to the left of the method definition operator 
+	<span class="pre">:></span>. Its indented instruction block follows. 
+	Instructions can make use of method-specific variables <span class="pre">self</span> and <span class="pre">this</span>.
+	Instructions can return value(s) to the method caller.
+	Let's explore each of these in greater detail.</p>
+	
+	<h3>Method Name</h3>
+	The method name is a symbol. It is used to store the method definition (which is a type of value)
+	in the part's method Index (distinct from the part's property Index) using the name as a key.</p>
+	<p>The nature of the name is meaningful:</p>
+	<ul>
+	<li><b>Symbols</b>. If the method name looks like a variable name, it will be properly understood as a Symbol, 
+	needing no extra punctuation.</li>
+	<li><b>Operators</b>. If the method name does not look like a variable name
+	(e.g., including invalid punctuation), it should look like a symbol literal, enclosed within single quotes.
+	This is how to define methods which provide the functionality for various operators
+	(e.g., <span class="pre">'+'(val):></span> would define a method for the arithmetic add operator).
+	</li>
+	<li><b>Expressions</b>. If the method's name is the calculated result of an expression 
+	(such as the contents of a variable), 
+	it should be enclosed in parentheses (e.g., <span class="pre">(methname)(parm):></span>.</li>
+	<li><b>Getters and setters</b>. Consider the expression:
+<pre>
+a.pos = b.pos
+</pre>
+	<p>The right side extracts a value from b using the getter method called <span class="pre">pos</span>.
+	The left side sets that value within a using the method called <span class="pre">'pos='</span>,
+	whose definition would begin: <span class="pre">'pos='(val):></span>.
+	Thus, invoked method setters have the '=' automatically appended to the symbol name.</p>
+	<p>The container selector operator <span class="pre">()</span> is implemented using the
+	<span class="pre">'()'</span> getter method and <span class="pre">'()='</span> setter method.</p>
+	</li>
+	<li><b>? and !</b>. By convention, if a method's name ends with '?'
+	(e.g., <span class="pre">empty?</span>), it returns a true or false value.
+	When the method name ends with a '!' (e.g, <span class="pre">clear!</span>), 
+	it modifies the contents of the collection it is applied to.</li>
+	</ul>
+
+	<h3>Parameters</h3>
+	<p>A method definition typically lists the names for parameters passed to the method when invoked.
+	These names may be enclosed in parentheses and are separated by commas. 
+	The names are used in the method's instructions to retrieve the passed values:</p>
+<pre>
+o = Part[
+	adder(a,b):>
+		a+b
+
+o.adder(3,4)	 # returns 7
+o.adder("a","b") # returns "ab"
+</pre>
+	<p>If a passed value is a collection or compound value, its content can be changed when passed to a method.
+	Numbers and other immediate values may change within a method, but are unchanged where they are passed.</p>
+<pre>
+o = Part[
+	changer(a,b):>
+		a=3       # within the method, a is now 3
+		b.clear!  # empty b's collection
+
+x=5
+y="abc"
+o.changer(x,y)  # will change the y collection, but cannot change a number
+m,n = x,y     # m is 5, but n is ""
+</pre>
+	<p>The number of parameters passed can be different than the number defined.
+	Any excess are ignored. Missing parameters are assigned to null.</p>
+	<p>To capture a variable number of parameters, use the ellipsis before a final parameter name.
+	The excess parameters will be turned into a Tuple and passed into that parameter name.
+<pre>
+o = Part[
+	printer(dev..parms):>
+		dev.print(parms)
+
+o.printer(console, "number is", 3)
+</pre>
+
+	<h3>Local variables</h3>
+	<p>Local variables (starting with a lower case letter) were introduced in the previous chapter.
+	Now we can clarify that local variables are local to the method they appear in.
+	Each use of a method has its own collection of values attached to its local variables. 
+	When a method is invoked, all local variables have a value of null.
+	When the method is finished, its local variable values cease to exist.</p>
+	<p>The method's parameters are in effect also local variables. However, their initial value 
+	is the values actually passed to the method when it is called.</p>
+	
+	<h3>self</h3>
+	<p>In addition to the named parameters, there is also an assumed parameter named "self".
+	The value of self is basically the value that the method was applied to.</p>
+<pre>
+slow(factor):>
+	noise = Float.rand  # noise is a local variable
+	factor *= noise     # parameter value can be altered
+	self.vel *= factor  # change self's velocity
+</pre>
+	
+	<h3>This variable and block</h3>
+	<p>Sometimes there is one variable in a method that is getting most of the attention.
+	Acorn knows this variable as "this", and allows it to be omitted from expressions before member look-ups
+	or method calls.</p>
+	<p>At the start of a method, this is assigned to self. However, it can be changed easily using a "this"
+	block. An expression instruction establishes the value of "this", which can then be used implicitly
+	by all tab-indented statements in the following block. 
+	This accomplishes something similar to jQuery's chaining, but in a more flexible way.</p>
+<pre>
+sample:>
+	v = .v  # local variable v assigned to self.x
+	.k      # resets 'this' to self.k
+		.vel += Xyz[1,0,0]  # .vel refers to self.k.vel
+		.move v
+	.v += 1 # this is back to self again
+</pre>
+	
+	<h3>Return value</h3>
+	<p>A method is called as part of an expression. 
+	When the method's code is done executing and ready to restore execution back to the 
+	calling expression, it returns back one or more values.</p>
+	<p>By default, the method returns the value of the last instruction's expression. 
+	However, a "return" instruction can be placed anywhere within a method's code that 
+	accomplishing the same this, returning control to the calling expression, passing 
+	back the value of any expression that follows the return instruction. 
+	</p>
+<pre>
+sq:>
+	self*self   # same as return self*self
+
+dist:>
+	return (self.x.sq + self.y.sq + self.z.sq).sqrt
+	self.sq     $ ignored, since we have already returned
+	
+Xyz[3,4,0].dist  # Calculates as 5.0
+</pre>	
+
+
+	<h2 id="function">Function Definition</h2>
+	<p>Functions are very much like methods:
+	they have parameters, local variables, and an instruction block. 
+	They also return values:</p>
+<pre>
+sq = (x)->   # -> is the operator for defining a function
+	x*x
+</pre>
+	<p>Notice that a function definition is a value (of type Function),
+	which means we can store it in a variable.
+	The sq variable can then be used to call the function, passing comma-separated parameters:</p>
+<pre>
+sq(4)  # calls the function stored in sq, passing 4 for x. Returns 16
+</pre>
+	<p>Notice that the grammar for a function call looks just like a selector for a collection. 
+	Acorn sees them as a conceptually similar way to do functional mapping.</p>
+	<p><b>Note</b>: Empty parentheses are required when a function call has no parameters to pass. 
+	When parameters and parentheses are both missing, the value returned is the function itself.
+	</p>
+
+	<h3>Function vs. Method</h3>
+	<p>Pretty much everything described earlier for methods apply to functions, 
+	other than these key differences:</p>
+	<ul>
+	<li>The function definition operator is <span class="pre">-></span> 
+	(rather than <span class="pre">:></span> for a method).</li>
+	<li>Function definitions are not named (anonymous), making them easier to
+	assign to variables or pass around for later use.</li>
+	<li>Functions do not have an implicit parameter called <span class="pre">self</span>,
+	as they are not attached or applied to a value, as a method is.
+	As self does not exist, <span class="pre">this</span> is undefined outside a this block.</li>
+	</ul>
+	<p>In most cases, reusable instructions should be packaged as a method, when the 
+	instructions focus on a value of a particular type. 
+	However, functions have a prominent role in several scenarios:</p>
+	<ul>
+	<li><b>Collection iterator methods</b> (e.g., <span class="pre">.each</span>) accept
+	a function value as a parameter, enabling local specialization of the iterator logic.
+	See <a href="flow.html#iterator">collection iterators</a> for more details.</li>
+	<li><b>Generic type functions</b> can be created where the function does not require
+	a specific self value, but is still heavily associated with a specific type. 
+	A good example of this is: Float::rand.</li>
+	<li><b>Acorn Programs</b>. Every Acorn program is implicitly a function
+	whose implied parameter is <span class="pre">(..args)</span> and whose return value
+	is always converted to a Part, if not one already.
+	Typically, program functions are run just once when loaded and then discarded,
+	leaving behind their returned value and any changes made to global variables.</li>
+	</ul>
+	
+	<h3>Local Variable Sharing</h3>
+	<p>Functions are often defined within methods or other functions.
+	Despite looking like one piece of code, there is no sharing of local variables 
+	between the inner function and the outer function or method it is declared within.
+	To share values, they must be passed as parameters or returned as values.</p>
+	<p>Put another way, Acorn functions are not closures.</p>
+	
+	<h2 id="type">Type Definition</h2>
+	<p>In this chapter, we have explained how to define a method or a function, 
+	either of which can be added to a part to define its behavior and give it interactive "smarts".
+	What if we wanted to create a collection or library of methods and/or functions 
+	that we could apply across multiple parts. 
+	For example, we might want to define a swinging open and close behavior for doors,
+	a generic walk and run behavior for all legged animals, etc.</p>
+	<p>That is what a Type really is: a Part that contains a reusable library of methods and/or functions 
+	that automatically apply to all values that have subscribed to it.
+	As always, the builder is used to define a new Type:</p>
+<pre>
+# Define a new Type called Animal
+Animal = Type[
+	Part     # Animals get all Part methods
+	
+	# Define a Animal method called 'speak'	
+	speak(word):>
+		$.play ::vocab(word)  # Look up the word in the animal's vocabulary, then play it
+</pre>
+	<p>Once a new type has been defined, the builder can be used to create a new part
+	based on that type:</p>
+<pre>
+# Create a new Animal using the brand-new type just defined		
+fred = Animal[
+	vocab: Index[hello: "I hate you"]
+
+# Ask fred to say 'hello' in his vocabulary
+fred.speak('hello')	# plays "I hate you"
+</pre>
+	<p>Every animal value we create using the new Animal type will use the same method. 
+	However, since each animal has a different
+	vocabulary, they will each say hello in all sorts of colorfully different ways.</p>
+	
+	<h3>Multiple Inheritance and Mixins</h3>
+	<p>When we defined Animal above, we started with a line <span class="pre">Part</span>,
+	which refers to the Acorn's Part type. 
+	Listing types within a new type is how one includes, by reference,
+	additional libraries of methods within a new library of methods.</p>
+	<p>The same technique can be used to add libraries of methods to a single part:</p>
+<pre>
+frosty +[
+	MoonBayFever   # Makes the MoonBayFever type's methods accessible to frosty, poor dear
+</pre>
+	<p>In effect, all Types and Parts keep a List of types whose methods they have access to.
+	Any changes to the methods for a type are automatically seen by all types or parts
+	subscribed to its methods.</p>
+	
+	<h3>Method Search</h3>
+	<p>Given all the interconnected method libraries used by values,
+	how does Acorn select which method to use against a value?</p>
+	<ol>
+	<li>If the value is a Part (but not a Type), it will first look up the method symbol
+	in the part's own method library. Even though a Type is a Part, we won't do this for a Type
+	because a Type's methods are intended for use by the values it makes, and not for the Type itself.
+	<p>Failing that, Acorn searches each of the part's added type libraries one-by-one, in the order
+	they were added to the part. Each of these type libraries may point to other type libraries 
+	to search through.</p></li>
+	<li>For non-Parts, Acorn looks for the method in the value's type, 
+	then recursively through any type libraries it references, 
+	going all the way back ultimately to the universal type All.</li>
+	<li>Failing that, Acorn call the "._mnf" method-not-found method, starting the search
+	all over again (TBD). Failing everything, the null value is returned.</li>
+	</ol>
+	<p>If for performance or other reasons, you wish to avoid this search,
+	do a method call by passing the method itself, rather than the method's Symbol name:</p>
+<pre>
+frosty.MoonBayFever::bayAtMoon
+</pre>
+	
+	<h2>Conclusion</h2>
+	<p>Now that you can add methods, functions, and type libraries to any part
+	in your 3-D world, how will you make your static world come alive with interesting, complex behaviors?</p>
+	<p>What else do you need to improve it further?  How about the ability to evaluate the state of the world
+	and change behavior accordingly...</p>
+
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="flow.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

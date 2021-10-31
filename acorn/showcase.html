@@ -1,0 +1,287 @@
+<html>
+  <head>
+	  <title>Acorn Showcase</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Showcase</div>
+		</div>
+
+    <div class="text">
+	<p>This chapter showcases Acorn's features using code examples 
+	and hyperlinks to the appropriate detailed documentation.</p>
+	<p><b>Comments</b></p>
+<pre>
+# Line comments start with a '#' and continue to end of line
+
+###
+Block comments start and end with three '#' symbols in a row.
+They can span multiple lines.
+###
+</pre>
+	<p><b><a href="reftoken.html#number">Literal values</a>:</b>
+	Each comment specifies the type of the values.</p>
+<pre>
+null          # <a href="../types/core/null.html">Null</a>
+true, false   # <a href="../types/core/bool.html">Bool</a>
+123, -3       # <a href="../types/core/integer.html">Integer</a>
+3.4, 0.3E-2   # <a href="../types/core/float.html">Float</a>
+'sum'         # <a href="../types/core/symbol.html">Symbol</a>
+"Χαίρετε"     # <a href="../types/core/text.html">Text</a>
+
+# Text values are mutable, Text literals are not.
+# Text literals may use escape sequences and span multiple lines
+#   (all control characters are stripped)
+"A line.\n\tIndented line\n
+\t\"Another line\u00BF\""
+</pre>
+
+	<p><b><a href="refterm.html#vars">Variables</a></b></p>
+<pre>
+# Global variables start with a capital letter or $
+Integer       # Capital letter globals are used for types
+$, $window    # $ globals hold environment values
+
+# Local and closure variables start with lower case letter, unicode value or _
+balance, π, temp2, toReturn, _temp_, funny?
+</pre>
+
+	<p><b><a href="refterm.html#assign">Assignment</a>:</b>
+	Assignments may be placed within expressions.</p>
+<pre>
+a = 3.4         # a now holds the Integer 3.4
+a,b = b,a       # parallel assignment (this swaps their values)
+a = b = c       # a and b now have the value found in c
+a = (b = c) + 1 # assignments may be embedded in expressions
+a += 1          # operator assignment, incrementing value of a
+</pre>
+
+	<p><b><a href="refpropuse.html">Property or Method Use</a></b></p>
+<pre>
+# Property names begin with a lowercase letter
+child.lastname = parent.lastname   # properties may be retrieved or assigned
+
+# Method names begin with a uppercase letter or symbol
+list.Sort             # parameters may be omitted
+list.Find('banana')   # parameters may be provided
+number.'+'(1)         # single quotes when method name is not like a variable
+(2).(op)(3)           # Calculated method. Result is 6 when op='*'
+frosty.Jump(10).Yell("Ow!").Grow(0.9)  # Method chaining
+
+# Shortcuts:
+funccall(a)           # Equivalent to self.funccall(a)
+letters[5]            # Index. Equivalent to letters.'[]'(5)
+glyphs[4] = "π"       # Uses the setter method for '[]': glyphs.'[]'("π", 4)
++List('a','b')        # Creates a new list. Equivalent to: List.New('a', 'b')
++Regex"abc"           # Equivalent to Regex.New("abc")
+1 .. 4                # equivalent to: +Range(1,4)
+
+# Arithmetic operators
+a+b*c                 # equivalent to a.'+'(b.'*'(c))
+</pre>
+
+	<p><b><a href="refmethod.html">Method Definition</a>:</b>
+	Methods are always anonymous first-class values</p>
+<pre>
+# [] begins a method declaration and encloses parameter variables
+#    undeclared parameter 'self' is always received
+#    parameter b defines a default value: b=1 if b===null
+#    '...' indicates variable number of additional parameters
+newfunc = [a, b=1, ...]
+	# method's body is a statement block with tab-indented lines
+	# each line's statement implicitly ends with ';'
+	local c,d = 4,'abc'     # declare and initialize local variables 'c' and 'd'
+	a = sum(self, a, ...)   # pass variable parameters on to sum method
+	a*b, c+d.size           # implicitly return two values
+	
+(5).newfunc(3, 2, 5, 7)     # returns 40, 7 (5 is treated as self's value)
+newfunc(3)                  # returns 10, 7 (if self is 7 when called)
+</pre>
+
+	<p><b><a href="refmethod.html#closure">Closure Definition</a>:</b>
+	Closures bind their state by value</p>
+<pre>
+# Explicitly declared closure: +[ ] encloses closure variables
+# Note: explicit is only way to bind 'self' in closure (e.g., for event handling)
+next = +[count=0] []
+	count += 1  $ increment and return count
+next() # 1
+next() # 2
+
+# Implicitly defined closure - equivalent to above
+count = 0
+next = []
+	# since 'count' is declared before method, this wraps method within a closure
+	# 'count' is treated as a closure variable whose value is bound to 0
+	count += 1  # increment and return count
+</pre>
+
+	<p><b><a href="refmethod.html#getset">Get/set Closure</a>:</b>
+	Useful for computed properties</p>
+<pre>
+# This get/set closure binds the 'count' closure variable to two methods
+iter = +[count=0]
+	[] { count += 1; }
+	[v] { count = v; }
+
+# Using the closure
+iter() # 1 - uses the 'get' method
+iter() # 2
+iter() = 0 # reset counter to 0 - uses the 'set' method
+iter() # 1 - count starts over
+</pre>
+
+	<p><b><a href="refmethod.html#yielder">Yielder Definition</a>:</b>
+	(methods that preserve execution state; co-routines)</p>
+<pre>
+fibo: *[start=1, inc=0]
+	while true
+		yield start
+		start,inc = start+inc, start
+
+fiboi = fibo() # Create a new yielder iterator
+fiboi(), fiboi(), fiboi(), fiboi(), fiboi()    # 1, 1, 2, 3, 5
+</pre>
+
+	<p><b><a href="refcondexp.html">Conditions</a> and <a href="refcontrol.html#if">if</a>:</b></p>
+<pre>
+# if block
+if needs_more?        # fails when false or null, succeeds otherwise
+	fill_it_up()
+elif shape==='square' # exact equivalence: same object
+	shape = 'rectangle'
+elif height&lt;5.4       # Uses '<=>' method: -1/less, 0/equal, 1/more, null/uncomparable
+	grow()
+elif 5 ~~ 1 .. 7        # match operator. Equivalent to +Range(1,7).'~~'(5)
+	"I knew that"
+elif a or b and not c # boolean operators
+	"Illogical!"
+else
+	default_action()
+
+# three ways to assign a default value to 'a' if it is null
+a = a ? a else 1     # ternary operator
+a = 1 if not a       # if clause
+a = a or 1           # boolean expression
+</pre>
+
+	<p><b><a href="refcontrol.html#match">match block</a>:</b></p>
+<pre>
+# match applies '~~' method to each 'with' value
+match ship.speed
+with 0.0 .. 1.5
+	ship.state = 'landing'
+with 1.5 .. 4.0
+	ship.state = 'crashing'
+else
+	ship.state = 'flattened'
+</pre>
+
+	<p><b><a href="refcontrol.html#while">while</a>:</b></p>
+<pre>
+x = 0
+while x&lt;=10
+	x += 1
+	continue if x===3     # 'continue' goes back to start of loop
+	Vm.Log("DANGER, DANGER! Will Robinson")
+	break if x===5        # 'break' halts loop
+	
+# while clause
+item = get_next() while item!='slurpy'
+</pre>
+
+	<p><b><a href="refcollect.html">'this' blocks</a>:</b></p>
+<pre>
+npcs[i]                   # establishes value of 'this' for following block
+	scene.Register(this)
+	.Jump(10.)            # equivalent to: this.Jump(10.)
+	shape = .shape        # equivalent to: shape = this.shape
+	.Grow(1.1)
+
+# Use 'this' blocks to build multi-layered, typed content
+smaug = +Dragon
+	name: "Smaug"         # equivalent to: this::name="Smaug"
+	color: 'green'
+	loot: +List           # 'this' = the new List for following block
+		&lt;&lt; 'gem'              # appends 'gem' to the smaug.loot list
+		&lt;&lt; 'ring'             # equivalent to: this.'&lt;&lt;'('ring')
+</pre>
+
+	<p><b><a href="refcollect.html#each">Iteration and 'each'</a>:</b></p>
+<pre>
+# Calculate 30 using 'each' block
+sum = 0
+each n in 1 .. 10
+	if n.Even?
+		sum += n
+
+sum += n if n.Even? each n in 1 .. 10  # equivalent, using 'each' clause
+
+# 'each' iterates over collections
+yield item each item in list           # uses list.Each to create closure iterator for list
+yield key,value each key:value in index
+vm.Log(msg) each msg in ...            # iterate over variable parameters
+
+# Use 'each' with 'this' blocks to build procedural content
+# This creates a list of fibonacci integers from 1 to 89 (&lt;100)
+fiblist = +List
+	each n in fibo()      # 'each' works with yielders/closures
+		break if n>100
+		&lt;&lt; n
+</pre>
+
+	<p><b><a href="reftype.html">Types</a>:</b> Prototypes, Mixins, Classes</p>
+<pre>
+# Create a new type derived from Character
+WingedHorse = +Character
+	.Mixin FlyingMount             # add mixin for multiple inheritance
+	sprite: winghorse_image        # inherited property
+	Launch: []                     # inherited method
+		velocity.Delta(0., 5.)
+	joy: +[_joy]                  # inherited computed property
+		[] {_joy}
+		[v] {_joy=v if v~~1 .. 5} # domain validation
+
+# Create an instance of WingedHorse
+pegasus = +WingedHorse
+	name: "Pegasus"
+	joy: 5
+	position: +Xy(200, 0)          # Initialize starting position
+	.Launch                        # Use inherited method to launch him flying
+</pre>
+
+	<p><b><a href="refresource.html">Programs and Resources</a>:</b>
+	Acorn programs are "snap-together" resources (files)</p>
+<pre>
+# This Acorn program's url is http://tinyurl.com/wingedhorse.acn
+# A programs is a method that is run when loaded. Its return value is the value of the program.
+# This program implicitly returns a new Character type (WingedHorse)
++Character
+	.Mixin @flyingmount            # get mixin from flyingmount.acn
+	sprite: @images/winghorse.gif  # get image from relative url
+	Launch: []                     # inherited method
+		velocity.Delta(0., 5.)
+	joy: +[_joy]                  # inherited computed property
+		[] {_joy}
+		[v] {_joy=v if v~~1 .. 5} # domain validation
+</pre>
+	<p>Another program uses the value from the above program:</p>
+<pre>
+# This Acorn program's url is http://tinyurl.com/pegasus.acn
++@wingedhorse                      # use type defined in named program (above)
+	name: "Pegasus"
+	joy: 5
+	position: +Xy(200, 0)          # Initialize starting position
+	.Launch                        # Use inherited method to launch him flying
+</pre>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refterm.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

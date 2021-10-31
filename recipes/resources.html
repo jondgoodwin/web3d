@@ -1,0 +1,139 @@
+<html>
+  <head>
+	  <title>Resource Organization - Recipes</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Recipes</div></a>
+			<div id="sub">Resource Organization</div>
+		</div>
+
+    <div class="text">
+	<p>One of the greatest challenges of delivering 3-D worlds via the Internet is that 
+	3-D content is often massive in comparison to the speed of the Internet delivering it.
+	World explorers are understandably impatient: they will give up on worlds that take too long to start up.</p>
+	<p>Several approaches can be pursued to overcome this challenge:</p>
+	<ul>
+	<li><b>Minimize resource size</b>, using procedural generation of content, compression, 
+	and <a href="https://en.wikipedia.org/wiki/Minification_(programming)">minification</a>.</li>
+	<li><b>Minimize server round trips to get resources</b>,
+	by using zip archives, parallelized resource loading, and local caches.</li>
+	<li><b>Schedule just-in-time loading</b>, sequencing when resources are loaded according to when the user needs them</li>
+	</ul>
+	<p>Acorn provides support for many of these approaches
+	(refer to the Acorn <a href="../acorn/refresources.html">Resources</a> chapter).
+	This recipe highlights various ways that world-builders can take advantage of Acorn's built-in features 
+	to significantly reduce load lag.
+	These techniques should be applied when creating a world's resource assets and when
+	packaging them for deployment to an Internet server.</p>
+	
+	<h2>Create Small-sized Resources</h2>
+	<h3>Be Creative about Procedural Content</h3>
+	<p>Procedural generation of a world's shapes and textures often yields the most dramatic
+	reductions in resource size, as meshes and textures are usually a world's worst size offenders.
+	It is not uncommon for multi-polygon models or high-resolution textures to be many megabytes big, 
+	each of which can potentially add seconds to load time over a slow Internet connection, wireless or otherwise.
+	Add those delays up across all of a scene's assets and users could end up waiting minutes (or longer)
+	before the scene is ready for them to explore.</p>
+	<p>Since Acorn is a full programming language, take advantage of its flexibility
+	by writing custom Acorn code that uses clever algorithms to transform a small, low-fidelity "skeleton"
+	into something that looks complex and interesting. For example:</p>
+	<ul>
+	<li>Begin with a few simple downloaded geometic shapes. 
+	Once downloaded, run them through Acorn code that extrudes, lathes, randomizes, and otherwise enriches that geometry.
+	Finally, apply some subdivision algorithm, such as Catmull-Clark, to smooth the finished model.</li>
+	<li>Download only a single template part, such as a roof tile, grass tuft or a bridge trestle, then
+	algorithmically generate a shape mesh which duplicates that part hundreds of times at set positions</li>
+	<li>Make use of texture shaders or algorithms to create visually complex surfaces, such as water, wood, stone, etc.</li>
+	<li>Use random noise generators to generate terrain (or add realistic bumpiness to a coarsely-defined terrain)
+	or visual variety to a small, predictable texture.</li>
+	<li>Procedurally re-color one texture to create other similar ones</li>
+	</ul>
+	<p>Procedural generation of a world's assets will not be effective in all situations.
+	It can also add to the time and effort needed to create meshes and textures, particularly 
+	since most asset creation tools do not naturally support this ability.
+	However, the technique can sometimes reduce resource size by one or more orders of magnitude.</p>
+	
+	<h3>Low-fidelity Look</h3>
+	<p>Some worlds may deliberately choose a low-fidelity art style,
+	such as a retro design that mimics the pixelated look of older generation games,
+	makes use of blocky voxels (like Minecraft), or resembles the stylized landscapes and figures of cartoons.
+	These art styles can often get away with using low-poly shapes and simply-colored textures,
+	both of which will take up far less space than an art design aiming for photo-realistic landscapes and models.</p>
+	<p>Also, not every part of a scene requires the same level of detail. 
+	Those parts of a scene that are far away or rarely looked at can get away with less-detailed assets.
+	It's a judgment call, as always.</p>
+	
+	<h3>Resource compression</h3>
+	<p>Minifying and compressing resources can provide some modest reductions in resource size.
+	Minifying mostly involves removing comments and white space.
+	Resource compression should be performed when a world's resources are being prepared for deployment,
+	a subject which we will return to in the summary.</p>
+
+	<h2>Minimize Internet Round-trips</h2>
+	<p>Every time the browser requests a resource from the server, time is taken up waiting for the 
+	request to get to the server and then waiting for the requested information to transmitted back. 
+	If a world has hundreds of resources and they are requested one at-a-time, that wait time
+	can quickly add up to seconds or minutes.</p>
+	
+	<h3>Package resources into zip archives</h3>
+	<p>The best way to reduce this wait time is to package up a number of resources into
+	a single zip archive. Thus, one request retrieves multiple resources, which Acorn automatically detects and unpacks.
+	In addition to dramatically reducing server request delays, this approach also speeds up the
+	return trip back to the browser, as resource are automatically shrunk due to zip archive compression.</p>
+	<p>It is common, for example, to have any world's initial world.acn file actually 
+	be a zip archive which includes within it the world.acn acorn program as well as all other resources
+	that world.acn needs at start-up.</p>
+	
+	<h3>Simultaneous Resource Retrieval</h3>
+	<p>There are situations where using zip archive resource packaging is not possible (e.g., cross-domain resources) 
+	or desirable (e.g., when resources are staged to be available at varying times).
+	In such situations, it can be beneficial to take advantage of Acorn's ability to 
+	request more than one resource at the same time, while continuing to also allow user's to interact with the world.</p>
+	<p>One should time any resource load request far enough ahead of time that we can expect it to be available
+	when the user needs it. Various early-warning signals might trigger this, such as knowing the 
+	user is a few seconds away from walking around a corner where new vistas open up.</p>
+	
+	<h2>Loading Resources Just-In-Time</h2>
+	<p>That brings us to the last strategy, which takes advantage of two truths:
+	<ul>
+	<li>Not all resources are needed at the same time</li>
+	<li>Users are less bothered by waiting if they have something interesting to do while waiting</li>
+	</ul>
+	<p>So, rather than forcing the user to wait a long time while all of a world's resources can be loaded,
+	just start by loading only the resources the user sees and needs first.
+	Then, while the user is busy looking at or doing stuff, start loading the next resources the user will need.
+	This approach mimics how Youtube handles video streaming: rather than loading the entire video,
+	it just loads the first few seconds and then starts playing that video segment.
+	While the user watches what has already been downloaded, the next needed video segment
+	is already being retrieved in the background.</p>
+	
+	<p>For example: a user entering a world might see a quickly-retrieved splash page with a progress bar 
+	whose motion sets expectations and provides hope. 
+	Meanwhile, additional resources are being loaded and then presented: perhaps offering a login screen, 
+	an action menu, or an avatar selection/creation dressing room.
+	While the user is interacting with this content, 
+	the world might anticipate what happens next and starts to load the entryway to the next scene.
+	The 3-D content nearest the spawn point might appear first, 
+	with further out or lesser important content appearing as it becomes available
+	or paging in as the user starts navigating the scene.</li>
+	<p>The point behind this approach is to sequence and stage the loading of resources
+	so that the user becomes engaged early and constantly thereafter.</p>
+	
+	<h2>Summary</h2>
+	<p>To tame the load lag monster, a world-builder should:</p>
+	<ul>
+	<li>Keep the world's resources as small and reusable as the world's aesthetic allows,
+	taking advantage of procedural generation of shapes and textures.</li>
+	<li>Organize the resources into folder groups according to when the resources need to be loaded and available.</li>
+	<li>Create a resource production pipeline that automates the process of deploying the world to a production server.
+	This pipeline would handle minifying all Acorn programs and
+	creating compressed zip archives that package together resources that load together.</li>
+	</ul>
+	
+	</div>
+	</body>
+</html>

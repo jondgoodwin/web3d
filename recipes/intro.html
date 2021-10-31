@@ -1,0 +1,114 @@
+<html>
+  <head>
+	  <title>Hello, World - Recipes</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Recipes</div></a>
+			<div id="sub">Hello, World</div>
+		</div>
+
+    <div class="text">
+	
+	<p>The most effective way to learn something is to do it.
+	These "Getting Started" recipes show how to build 3-D worlds using the
+	<a href="..\acorn\index.html">Acorn language</a> and its accompanying 
+	<a href="..\types\index.html">Type libraries</a>.
+	Each recipe focuses on a specific world-building goal, explaining key concepts using code examples. 
+	The recipes become progressively more advanced, building on concepts covered earlier.</p>
+	<p>To "cook" these recipes, you will need the Pegasus 3D browser,
+	a text editor (e.g., Notepad++),
+	and access to the Internet.</p>
+
+	<h2>Goal</h2>
+	<p>This first recipe offers a twist on a venerable programming language tradition:
+	showing how to use a language to print out the text "Hello, World!"
+	The twist is that instead of printing out text, 
+	we show how to make Acorn render a 3-D model of the world we call Earth.</p>
+
+	<h2>Recipe</h2>
+	<ol>
+	<li>On an HTTP server, or your PC, create a new folder called 'helloworld'.</li>
+	<li>Copy into the new folder the following files retrieved from http:://ddd.pegasus3d.com/helloworld:
+	<ul>
+	<li>helloworld.acn</li>
+	<li>earth.jpg</li>
+	<li>texture_shader.acn</li>
+	</ul>
+	<li>Run the Pegasus3D browser and specify the location of your helloworld folder
+	(e.g., http://ddd.yourserver.com/helloworld or file:///yourfolder).</li>
+	<li>When you see your Earth displayed by the browser, feel free to greet it enthusiastically with "Hello, World!".</li>
+	</ol>
+	
+	<h2>How it works</h2>
+	<p>'helloworld.acn' is an Acorn program (Acorn programs use the extension '.acn').
+	When you open the 'helloworld.acn' program using a text editor, 
+	you will see this code:</p>
+<pre>
+$ = +World
+	scene: +Group
+		parts: +List &lt;&lt;
+			+Shape.Sphere(1.0)
+				shader: TextureMaterial
+				image: @'earth.jpg'
+</pre>
+	<p>Acorn programs look like outlines, with indented lines belonging
+	to the line they are indented under.
+	Indentations at the start of each line must be created using tabs.
+	Each line is a distinct statement, an instruction to the browser on how to set up the world.</p>
+	<p>This is what this program does:</p>
+	<ul>
+	<li>The first line creates a new <a href="../types/world/world.html">World</a> ('+' means 'new').
+	A World is a container that organizes everything about a 3-D world.
+	The newly created world is stored in the global variable $,
+	which represents the current world that the Pegasus browser should render.</p>
+	<p>All indented lines that follow add information about the new world we are creating.
+	Acorn calls these indented lines a "this" block.</p></li>
+	<li>The next line creates a new <a href="../types/world/group.html">Group</a> that will specify
+	all the object's in our world's scene. This group is assigned to the world's 'scene' property.
+	Notice that once again the lines under this statement are indented, which means all those lines 
+	apply to the world's scene group. This is a second 'this' block found inside the world's 'this' block.</li>
+	<li>The third line creates a new <a href="../types/core/list.html">List</a>, 
+	which is assigned to the group's 'parts' property.
+	The '&lt;&lt;' operator ensures that every listed part that follows is appended to this list.</li>
+	<li>The next line creates a new spherical <a href="../types/world/shape.html">Shape</a>, 
+	whose radius size is 1 meter. 	This is the shape we use for our Earth.
+	The lines that follow specify the properties for this shape:</p>
+	<ul>
+	<li>The shape's <b>shader</b> describes how to paint a colored skin onto our spherical shape.
+	In this case, the '@' operator indicates that we should use an Acorn program found at the specified URL.
+	This program defines a <a href="../types/world/shader.html">Shader</a> able to 
+	wrap a colored picture around the sphere.</li>
+	<li>The shape's <b>texture</b> property specifies the colored picture we want to wrap around the sphere. 
+	The picture is a JPEG image found on the Internet at the specified URL.
+	It depicts the continents and oceans of Earth.</li>
+	</ul>
+	</ul>
+
+	<h2>Variations</h2>
+	<p>Many simple changes can be made to spice up this simple world. For example:</p>
+	<ul>
+	<li>To change the size of the Earth, alter the helloworld.acn program to change the sphere's 
+	radius from 1.0 to 2.0. Then re-run the browser. The size of the displayed world will double.</li>
+	<li>To make the Earth look like another celestial body, just alter the texture:
+	Put an image file for the Moon (moon.jpg) in your 'helloworld' folder,
+	change the name of the texture's image file in the helloworld.acn program, and re-run the browser.
+	Voila, impact craters!</li>
+	</ul>
+	<p>Using subsequent recipes, more sophisticated capabilities can be implemented. For example:</p>
+	<ul>
+	<li>Alter the camera's position property to move it to a different position. 
+	If you move it further back to (0., 0., 20.0) the earth will appear smaller (as it is further away).
+	Similarly, change the 'lookat' property to make the camera look in a different direction.</li>
+	<li>Add other planets, the moon or the sun to the scene.</li>
+	<li>Start the earth spinning. Orbit it around a sun.</li>
+	<li>Create a star field background.</li>
+	<li>Create a controllable camera, allowing you to move around the scene.</li>
+	</ul>
+
+	</div>
+	</body>
+</html>

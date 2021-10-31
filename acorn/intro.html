@@ -1,0 +1,129 @@
+<html>
+  <head>
+	  <title>Acorn Introduction</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Introduction</div>
+		</div>
+
+    <div class="text">
+		<p style="text-align:center;"><i>"Grow mighty worlds from little acorns."</i></p>
+
+		<p>Acorn is a flexible, powerful, lightweight, embeddable programming language.
+		Although it is a general-purpose language, 
+		its design decisions were driven by <a href="des3d.html">one clear objective</a>:</p>
+		
+		<p style="margin-left: 2em">
+		<i>Make it easy to rapidly assemble rich, interactive, Internet-shareable, three-dimensional worlds.</i></p>
+
+		<p>To serve that goal well, Acorn is:
+		<ul>
+		<li>a <b>modelling</b> language, as it enables specification of complex systems
+		that can be simulated via real-time high-quality rendering, 
+		timely interactions between people and parts, and rule-driven changes of state.</li>
+		<li>an <b>event-driven</b> language, to ensure worlds stay calm and responsive 
+		even while juggling a blur of competing workload demands.</li>
+		<li>an <b>object-oriented</b> language, as snapping together flexibly typed, modular parts,
+		each with its own content and behavior, is ideally suited to the object-oriented paradigm.</li>
+		<li>a <b>dynamic</b> language, to minimize how much language-and-tool-wrestling one must endure 
+		to quickly and incrementally bring a world to life.</li>
+		</ul>
+		
+		<h2>Features</h2>
+		<p>For a lightweight language, Acorn offers a surprisingly rich set of features 
+		(see the <a href="showcase.html">Showcase</a> for code examples):</p>
+		<ul>
+		<li>Readable, modular content handling:
+			<ul>
+			<li><a href="refcollect.html#this">'this' blocks and operators</a>
+			for in-code content assembly (static and procedurally-generated)</li>
+			<li><a href="refresource.html">@ operator</a> for url-based, snap-together inclusion of Internet-hosted content</li>
+			<li>Content <a href="refcollect.html#iterator">iterators</a> and 'each' control block</li>
+			</ul></li>
+		<li>Url-based <a href="refresource.html">resource handling</a>:
+			<ul>
+			<li>Dynamic, asynchronous-capable resource loading and link-edit</li>
+			<li>Automatic resource unzip and de-compression</li>
+			<li>Acorn programs are treated as dynamically loadable resources</li>
+			<li>Relative url addressing</li>
+			<li>Extensible url schemes and content type de-serialization</li>
+			</ul></li>
+		<li>Comprehensive object-oriented, mutable, higher order <a href="reftype.html">types</a>:
+			<ul>
+			<li>Classical and protypical dynamic inheritance</li>
+			<li>Multiple inheritance via constructor-capable mixins</li>
+			<li>Method overloading for arithmetic, comparison, indexing operators</li>
+			<li>Inheritable, and computable (get/set) properties</li>
+			<li>Singleton objects with custom behavior and properties</li>
+			<li>No automatic type coercion</li>
+			</ul></li>
+		<li>Stateless and stateful, higher-order <a href="refmethod.html">methods</a>:
+			<ul>
+			<li>Explicit, Implicit and Get/set Closures</li>
+			<li>Yielders (co-routines)</li>
+			<li>Variable-sized parameter lists</li>
+			<li>Multiple return values</li>
+			<li>Tail-call optimization</li>
+			</ul></li>
+		<li>Extensible <a href="refcontrol.html#match">pattern matching</a>:
+			<ul>
+			<li>Type-defined '~~' match operator</li>
+			<li>'match' blocks using custom match methods</li>
+			<li>Content extraction during matching</li>
+			</ul></li>
+		<li><a href="refcontrol.html#do">'do' block</a> for context management</li>
+		<li><a href="showcase.html">Concise, readable code</a>:
+			<ul>
+			<li>Off-side rule</li>
+			<li>'this'-implied prefix operators for method cascading, etc.</li>
+			<li>Implicit return</li>
+			<li>Control clauses for 'if', 'while', 'each'</li>
+			<li>Parallel assignment</li>
+			</ul></li>
+		<li>Distinguishes immutable, atomic symbols ('a') from mutable text strings ("a")</li>
+		<li>Unicode-aware text strings and variable names</li>
+		</ul>
+		<p>Many of Acorn's features are gathered from other scripting languages,
+		particularly <a href="compare.html">Lua, Javascript and Ruby</a>.
+
+		<h2>The Acorn implementation:</h2>
+		<ul>
+		<li>Is an embeddable re-entrant library written in C-89-compliant, well-documented code </li>
+		<li>provides a built-in core type library</li>
+		<li>Has no external dependencies beyond a few standard C functions in stdio and stdlib.</li>
+		<li>Is lightweight. Its C code is just a few thousand LOC.
+		Its executable footprint is typically smaller than 400K.</li>
+		<li>Offers a <a href="../arch/avmcapi.html">C API</a>, useful for creating 
+		high-performance types using C code and libraries</li>
+		<li>Manages memory use via a low impact, built-in generational <i>and</i> incremental 
+		mark-and-sweep garbage collector</li>
+		<li>Compiles Acorn programs on the fly into quickly interpreted byte-code</li>
+		</ul>
+		
+		<h2>Reference Sections</h2>
+		<p>As should be obvious by now, this Acorn Language Reference is written
+		for people comfortable and familiar with programming concepts and code.
+		It contains the following sections:</p>
+
+		<ul>
+		<li><b><a href="showcase.html">Showcase</a></b>.
+		A few selected examples that demonstrate Acorn's visual style and idioms.</li>
+		<li><b><a href="refterm.html">Language Reference</a></b>.
+		Comprehensive explanation (with examples) of Acorn's features.</li>
+		<li><b><a href="diagram.xhtml">Syntax</a></b>.
+		Formal grammar using railroad diagrams and EBNF notation.</li>
+		<li><b><a href="des3d.html">Design Rationale</a></b>.
+		Explains the objectives and inspirations that guided the design decisions for Acorn.</li>
+		</ul>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="showcase.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

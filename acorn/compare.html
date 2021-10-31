@@ -1,0 +1,243 @@
+<html>
+  <head>
+	  <title>Acorn vs. Lua, Javascript, Ruby</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Acorn vs. Lua, Javascript, Ruby</div>
+		</div>
+
+    <div class="text">
+	
+		<p>Acorn is a golden love child who inherits valuable features
+		from many languages, such as:</p>
+		<ul>
+		<li><b>Ruby</b>'s class- and multiple-inheritance, control clauses, implied returns, 
+		explicit symbol type, and type-based core library.</li>
+		<li><b>Javascript</b>'s prototypical inheritance and easily-propertied objects.</li>
+		<li><b>Lua</b>'s gift at packing advanced features 
+		(e.g., first-class closures, co-routines, and tail-calls)
+		into a lightweight grammar and architecture.</li>
+		<li><b>Python</b>'s off-side rule and context manager.</li>
+		<li><b>YAML</b>'s indented, readable format for describing ready-to-use content</li>
+		</ul>
+		<p>Acorn is more than the sum of its borrowed features.
+		It contributes a number of useful improvements:</p>
+		<ul>
+		<li><b>parts as internet resources</b>.
+		Every type and part in a world is a distinct program, stored as an internet resource. 
+		They are easily snapped together by reference, using the <span class="pre">@</span> operator and a url address.
+		This simple modularity ensures that a world can source its parts from many Internet domains.</li>
+		<li><b><span class="pre">this</span> and <span class="pre">self</span> as distinct identifiers</b>.
+		<span class="pre">self</span> represents the value a Method is acting on.
+		<span class="pre">this</span> represents a value being focused on by a 'this' block within a Method.
+		'this' blocks are particularly useful for building and manipulating content collections, aided by 
+		fundamental operators (such as '.', ':', '&lt;&lt;') which use <span class="pre">this</span> for context.</li>
+		<li><b>get/set closures</b>, a closure may bind two methods to the same set of values,
+		one used when getting its 'value' and the other when setting its 'value'.
+		These are invaluable for defining a type's "calculated" (rather than stored) properties.
+		They can also be useful for state hiding and triggering property change events.</li>
+		<li><b>computed properties</b>, 
+		that automatically trigger method behavior whenever a value is retrieved or changed.</li>
+		<li><b>pattern matching and decoding</b>, a simple but flexible mechanism
+		(using <span class="pre">~~</span> and <span class="pre">match</span>)
+		which can not only match a value against one or more patterns, 
+		but can also select and extract desired values from the source.
+		Since patterns are custom types, countless types of patterns can be defined, 
+		each able to intelligently decode, translate or search for elements within a source value 
+		whose internal structure matches its criteria.</li>
+		<li><b>generic iterator</b>.
+		A simple, flexible <span class="pre">each</span> mechanism for iterating through not only 
+		ordered and indexed collections,
+		but also ranges, splats, lazily calculated methods, and custom types.</li>
+		<li><b>Unicode character support</b>. Acorn assumes that characters are Unicode (rather than Ascii).
+		Text and symbol values are collections of properly-indexed Unicode characters. 
+		Acorn programs (encoded using UTF-8) permit Unicode characters within variable names.</li>
+		</ul>
+		<p>Acorn is no franken-language, whose dissimilar limbs have been crudely sewn together. 
+		Its concise, consistent grammar is more like a pleasing cordial whose excess water has been boiled away, 
+		leaving behind a bouquet of flavors that mingle together in sweet harmony.</p>
+		<p>if you know its heritage languages, Acorn should feel conceptually and grammatically familiar.
+		However, it does vary from their terms and grammar conventions here and there. For example:</p>
+		<ul>
+		<li>Acorn refers to strings as text. Other core types are similarly given more intuitive english names.</li>
+		<li>Single quotes signify a symbol literal, e.g.: 'New'. Double quotes are for text literals.</li>
+		<li>The <span class="pre">+</span> operator creates a new instance of a type.</li>
+		<li>Square brackets are used to declare variable names for an anonymous method or match.</li>
+		</ul>
+		
+		<h2>Feature Comparison Chart</h2>
+		<p>The following chart compares Acorn's features with equivalent features from Lua, Javascript and Ruby.</p>
+		
+		<table style="width:100%;">
+		<thead>
+		<td><b>Acorn</b></td>
+		<td><b>Lua</b></td>
+		<td><b>Javascript</b></td>
+		<td><b>Ruby</b></td>
+		</thead>
+		<tbody>
+		
+		<tr>
+		<td>
+		<b>Core types</b><br/>
+		- <a href="../types/core/null.html">Null</a><br/>
+		- <a href="../types/core/bool.html">Bool</a><br/>
+		- <a href="../types/core/integer.html">Integer</a><br/>
+		- <a href="../types/core/float.html">Float</a><br/>
+		<br/>
+		- <a href="../types/core/range.html">Range</a><br/>
+		- <a href="../types/core/symbol.html">Symbol</a><br/>
+		- <a href="../types/core/text.html">Text</a><br/>
+		- <a href="../types/core/list.html">List</a><br/>
+		- <a href="../types/core/indextype.html">Index</a><br/>
+		- <a href="../types/core/type.html">Type</a><br/>
+		<br/>
+		- <a href="../types/core/method.html">Method</a><br/>
+		- <a href="../types/core/closure.html">Closure</a><br/>
+		- <a href="../types/core/yielder.html">Yielder</a><br/>
+		</td>
+		<td>
+		<br/>- nil (Nil)
+		<br/>- Boolean
+		<br/>- Number
+		<br/>- Number
+		<br/>
+		<br/>  (missing)
+		<br/>- String
+		<br/>- String
+		<br/>- Table
+		<br/>- Table
+		<br/>- Table (metatable)
+		<br/>
+		<br/>- Function
+		<br/>- Closure
+		<br/>- Co-routine (thread)
+		</td>
+		<td>
+		<br/>- null / undefined
+		<br/>- Boolean
+		<br/>- Number
+		<br/>- Number
+		<br/>
+		<br/>  (missing)
+		<br/>- Symbol (ES6)
+		<br/>- String
+		<br/>- Array
+		<br/>- Map
+		<br/>- Object
+		<br/>
+		<br/>- Function
+		<br/>- Closure
+		<br/>- Generator
+		
+		</td>
+		<td>
+		<br/>- nil (NilClass)
+		<br/>- TrueClass / FalseClass
+		<br/>- Integer
+		<br/>- Float
+		<br/>
+		<br/>- Range
+		<br/>- Symbol
+		<br/>- String
+		<br/>- Array
+		<br/>- Hash
+		<br/>- Class
+		<br/>
+		<br/>- Method
+		<br/>- Proc
+		<br/>- Fiber
+		</td>
+		</tr>
+		
+		<tr>
+		<td><b>Text</b><br/>- mutable<br/>- Unicode indexing</td>
+		<td><br/>- immutable<br/>(no)</td>
+		<td><br/>- immutable<br/>- partial (16-bit)</td>
+		<td><br/>- mutable<br/>(no)</td>
+		</tr>
+
+		<tr>
+		<td><b>Dynamic Types</b><br/>- classical inheritance<br/>- prototypical inheritance<br/>- multiple inheritance</td>
+		<td><br/>(missing)<br/>- prototypical inheritance<br/>(missing)</td>
+		<td><br/>(missing)<br/>- prototypical inheritance<br/>(missing)</td>
+		<td><br/>- classical inheritance<br/>(missing)<br/>- multiple inheritance</td>
+		</tr>
+
+		<tr>
+		<td><b>Variables</b><br/>- global: explicit<br/>- local: explicit/implicit<br/>- closure: explicit/implicit
+			<br/>- instance: explicit<br/>- class: namespaced</td>
+		<td><br/>- implicit<br/>- explicit<br/>- implicit<br/>(missing)<br/>(missing)</td>
+		<td><br/>- implicit<br/>- explicit/implicit<br/>- implicit<br/>- this.<br/>- namespaced</td>
+		<td><br/>- explicit<br/>- implicit<br/>- implicit<br/>- explicit<br/>- explicit</td>
+		</tr>
+
+		<tr>
+		<td><b>Assignment</b><br/>- embedded/sequential<br/>- parallel<br/>- arithmetic</td>
+		<td><br/>(missing)<br/>- parallel<br/>(missing)</td>
+		<td><br/>- embedded/sequential<br/>- parallel<br/>- arithmetic/shift/logic</td>
+		<td><br/>- embedded/sequential<br/>- parallel<br/>- arithmetic/logic</td>
+		</tr>
+
+		<tr>
+		<td><b>Property and Method Use</b><br/>- [] indexing<br/>- property get/set<br/>
+			- function call<br>- arithmetic methods<br/>- method get/set<br/>
+			- calculated method call<br/>- new constructor: +<br/>- method chain/cascade</td>
+		<td><br/>- [] (__index/__newindex)<br/>property get/set<br/>- function call<br/>- arith/shift/bit methods<br/>
+			- method get<br/>(missing)<br/>- .new<br/>- method chaining</td>
+		<td><br/>- [] (arrays only)<br/>- property get/set<br/>- function call<br/>- built-in arith/shift/bit<br/>
+			- method get<br/>- computed property names<br/>- 'new' constructor<br/>- method chain</td>
+		<td><br/>- [] method<br/>- property get/set<br/>- function call<br/>- arithmetic/shift methods<br/>
+			- method get/set<br/>- .method(name).call()<br/>- 'new' constructor<br/>- method chain</td>
+		</tr>
+
+		<tr>
+		<td><b>Method Definition</b><br/>- first-class methods<br/>- parameter defaults<br/>- ... variable parameters<br/>
+			- block scope for locals<br/>- multiple return values<br/>- implicit return</td>
+		<td><br/>first-class functions<br/>(missing)<br/>- ...<br/>
+		- block scope<br/>- multiple return values<br/>- explicit return</td>
+		<td><br/>- first-class functions<br/>- parameter defaults<br/>- ...<br/>
+		- function scope<br/>(missing)<br/>- explicit return</td>
+		<td><br/>- first-class methods<br/>- parameter defaults<br/>- *variable parameters<br/>
+		- method scope<br/>- multiple return values<br/>- implicit return</td>
+		</tr>
+
+		<tr>
+		<td><b>Closures</b><br/>- bind by value<br/>- explicit/implicit closures<br/>- get/set capability</td>
+		<td><br/>- bind by reference<br/>- implicit closures<br/>(missing)</td>
+		<td><br/>- bind by reference<br/>- implicit closures<br/>(missing)</td>
+		<td><br/>- bind by reference<br/>- implicit closures<br/>(missing)</td>
+		</tr>
+
+		<tr>
+		<td><b>Conditional Control</b><br/>- <=> comparisons<br/>- if block<br/>- while block<br/>
+			- ~~ matching<br/>- match block<br/>- each block<br/>- if/while/each clauses</td>
+		<td><br/>- __eq, __lt, __le<br/>- if block<br/>- while block<br/>
+			(missing)<br/>(missing)<br/>- for block<br/>(missing)</td>
+		<td><br/>(missing)<br/>- if block<br/>- while block<br/>
+			(missing)<br/>- switch block<br/>- for block<br/>(missing)</td>
+		<td><br/>- <=> comparisons<br/>- if block<br/>- while block<br/>
+			- ~~ matching<br/>- case block<br/>- for block<br/>- if/while modifiers</td>
+		</tr>
+
+		<tr>
+		<td><b>Content Handling</b><br/>- this blocks<br/>- build blocks<br/>- this operators<br/>- @ resource inclusion</td>
+		<td><br/>(missing)<br/>(missing)<br/>(missing)<br/>(missing)</td>
+		<td><br/>(missing)<br/>(missing)<br/>(missing)<br/>(missing)</td>
+		<td><br/>(missing)<br/>(missing)<br/>(missing)<br/>(missing)</td>
+		</tr>
+
+		</tbody>
+		</table>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="desclarity.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

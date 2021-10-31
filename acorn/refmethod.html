@@ -1,0 +1,544 @@
+<html>
+  <head>
+	  <title>Method Definition - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Method Definition</div>
+		</div>
+
+    <div class="text">
+
+	<p>The previous chapter showed how to call a method.
+	This chapter shows how to specify the executable logic that transforms
+	a method's provided parameters into the value(s) returned.</p>
+	<p>Acorn supports three types of executable methods.</p>
+	<ul>
+	<li><a href="../types/core/method.html"><b>Method</b></a>. 
+	A stateless procedure that remembers nothing from one use to the next.</li>
+	<li><a href="../types/core/closure.html"><b>Closure</b></a>. 
+	A stateful procedure that preserves bound, mutable values across all uses of the closure.</li>
+	<li><a href="../types/core/yielder.html"><b>Yielder</b></a>. 
+	A stateful procedure that preserves its local variables and execution state across all uses of the yielder.</li>
+	</ul>
+	<p>Like everything in Acorn, all three types of methods are implemented as first-class values.
+	The value that represents a specific method can be stored in a variable, passed to another method as a parameter,
+	returned by a method, called, or have properties or methods applied to it.
+	Use the <a href="../types/core/all.html">'.callable?' property</a>
+	to determine if a value is an executable method.</p>
+	<p>This chapter shows how to define the procedural logic for all three types of methods.
+	Along the way it explains
+	parameters (including self), local and closure variables (including declaration), the statement block,
+	the return statement, and the use of 'yield' in yielders.</p>
+	<p>	This chapter only deals with methods as standalone (anonymous) values. 
+	Please refer to the <a href="reftype.html">Type Definition</a> chapter 
+	to see how to assemble named properties and methods into a type.</p>
+
+	<h2>Method Definition</h2>
+	<p>Let's begin with the Method, the simplest and purest type of executable method.
+	It is the foundation on which Closures and Yielders are built.
+	It keeps no state from one use to the next and is completely synchronous, only returning to its caller
+	when it has completely finished its work.</p>
+	<p>As mentioned earlier, the definition of the procedural logic for every Method 
+	is captured as an anonymous value. 
+	To assign a "name" to a Method, simply store the Method's value within a variable or property.
+	A Method's defined logic is not performed when defined.
+	To perform its logic, you simply specify its value followed by passed parameters enclosed in parentheses
+	(as explained in the previous chapter). For example:</p>
+<pre>
+# Define the 'square' Method, and assign its value to the variable square
+square = [a]
+	return a*a
+
+# Use square's method to calculate the area of a circle	
+area = Float.pi * square(r)
+</pre>
+	
+	<p>This shows the two parts of an Method definition:</p>
+	<ul>
+	<li>The names of <b>parameter</b> variables are enclosed within square brackets. 
+	Brackets must be used, even when the method requires no named parameters.
+	See the <a href="#parms">Parameter Definition</a> section for more details.</li>
+	<li>The <b>statement block</b> contains all indented statement(s) that follow the square brackets.
+	These statements are implicitly bounded by curly braces
+	(as per Acorn's rules for <a href="reftoken.html#line">line, block and statement formatting</a>).
+	See the <a href="#stmt">Statement Block</a> section for more details.</li>
+	</ul>
+	 
+	<h3 id="parms">Parameter Declaration</h3>
+	<p>In the simplest case, the declaration of a Method's parameters is a comma-separated list of variable names, 
+	enclosed in square brackets.
+	Each parameter variable corresponds on a one-to-one basis to the values passed to the function when it is called.
+	If more values are passed than declared, the excess values are ignored. 
+	If the caller does not pass enough values, all remaining parameter variables are given the value 'null'.</p>
+<pre>
+# Define a method that returns the addition of its two parameters
+add = [a,b]
+	a+b
+
+add(2,3)  # returns 5, since a is set to 2 and b to 3
+add(2)    # returns null, since a is 2 and unpassed b is null
+add("x","y","z")  # return "ab", as a is "x", b is "y" and "z" is ignored
+</pre>
+	<p>Within the statement block, a parameter variable is treated just like a local variable.
+	This means its value can be changed. Changing a parameter variable's value has no effect on the caller.
+	However, any change to a passed value's content, such as altering values within a collection,
+	will continue to persist for the caller. 
+	However, all atomic values passed as parameters, such as numbers, are just copies, 
+	so changes to these parameter values have no effect on the corresponding values in the caller.</p>
+<pre>
+weird = [a,b]
+	a[0]='x'
+	b = 4
+
+text = "abc"
+number = 3
+weird(text, number)
+# text is now "xbc". number is still 3
+</pre>
+	
+	<h4>Parameter Initialization</h4>
+	<p>If desired, default values may be specified for any parameter value after the assignment operator '='.
+	The default value is what we want the parameter to have if its passed or implied value is 'null'.
+	The expression that follows the '=' is calculated within the context of the method, rather than the caller.</p>
+<pre>
+sq = [a=0]
+	a*a
+
+# is equivalent to:
+sq = [a]
+	a=a or 0   # Uses a, or else 0 (if a is null) 
+	a*a
+</pre>
+
+	<h4 id="multparms">Variable parameter splat (...)</h4>
+	<p>To enable a method to receive a variable number of parameters, 
+	declare '...' after the last named parameter value.</p>
+	<p>Within the method's code body, use the '...' pseudo-variable to access its values.
+	The only sure way to obtain all its values (if you have no idea how many were passed)
+	is to iterate through them using an <a href="refcollect.html#eachsplat">'each' block</a>.</p>
+	<p>Additionally, '...' may also be used anywhere a pseudo-variable is allowed.
+	In most cases, its value will be the first value of the variable parameters.
+	However, when specified by itself or at the end of a comma-separated list of values,
+	'...' will evaluate to all (or some of) the values it holds:</p>
+	<ul>
+	<li>As part of <a href="refpropuse.html#varparms">parameters</a> specified for a method call</li>
+	<li>On the right side of a <a href="refterm.html#parallel">parallel assignment</a>
+	(this retrieves only the number of variable parameters that match the number of variables to the left)</li>
+	<li>On a <a href="#return">return statement</a></li>
+	</uL>
+	<p>This example demonstrates all those situations:</p>
+<pre>
+# this method accepts variable number of parameters, because of the ... after 'a'
+sum = [a, ...]
+	x = ... + 1                 # Only gets the first value of ...
+	log("doing sum of ", ...)	# pass all variable parameters on to log
+	a, b = ...                  # sets a and b to the first two values of ...
+	'a', ...                    # return 'a' followed by all the variable parameters
+</pre>
+	
+	<h4 id="self">self variable</h4>
+	<p>The <span class="pre">self</span> pseudo-variable is a hidden parameter that is always passed to every method.
+	If a method is called using the '.' operator, the passed value of 'self' will be the
+	base value to the left of the '.' operator.
+	However, if a method is called directly, the passed value of 'self' will be the current value of 'self'.</p>
+<pre>
+user = [x]
+	sq = []
+		self*self
+	dir = sq()      # direct call passes user's self as self
+	obj = x.(sq)()  # object call passes x as self
+	dir, obj        # return both calculated values
+
+(2).(user)(3)  # returns 4, 9
+</pre>
+	<p>In order to preserve and use the value of 'self' in use when the method is created
+	(which event handlers require), use a closure (see <a href="#bindself">below</a>).</p>
+	<p>Unlike other parameter values, the value assigned to <span class="pre">self</span> cannot be changed.</p>
+	
+	<h3>Statement Block</h3>
+	<p>The indented statements that follow the parameter definition are the statement block.
+	Let's cover three important aspects of a method's statement block: the type of statements it contains,
+	declaring local variables, and specifying the method's return value.</p>
+	
+	<h4>Statements in a Block</h4>
+	<p>A block is a indented sequence of statements that are intended to be performed one after another.
+	The not-indented line that precedes the indented statements is considered part of the block,
+	as it provides important context for how those indented statements are performed.
+	In addition to method blocks, Acorn offers other <a href="refcontrol.html">types of blocks</a>.
+	The type of the block is distinguished by its first token (e.g., 'if', 'while', 'each).</p>
+	<p>Each statement in a block is either a solitary statement or a sub-block (noticeable via increased indentation).
+	In most cases, a solitary expression is just an expression or variable assignment.
+	However, a solitary statement can also be one of the following
+	(distinguished by the first token of the statement):</p>
+	<ul>
+	<li><a href="#return">return</a> or <a href="#yield">yield</a>, to return value(s) back to a method's caller.</li>
+	<li><a href="refcontrol.html#break">break or continue</a>, to redirect the execution flow of statements in certain blocks.</li>
+	</ul>
+
+	<h4 id="local">Local variable declaration</h4>
+	<p>Local variables (as introduced <a href="refterm.html#varscope">earlier</a>) are
+	named stores for values, allocated anew for each call of the method whose statements manipulate their values.
+	A method's parameters are considered to be local variables, declared by the method's parameter list.
+	Methods do not preserve state between uses, so this collection of values goes away when the Method is finished.</p>
+	<p><span class="pre">local</span> is used to explicitly declare local variables:</p>
+<pre>
+# define a method that accepts two parameters
+[a,b]
+	local div = a / b
+	local sum, mult = a + b, a * b
+	return sum, mult
+</pre>
+	<p>This method declares five local variables: 'div', 'sum', 'mult' and the parameters 'a' and 'b'.
+	As this example shows, <span class="pre">local</span> can assign an initial value for the local variable.
+	If no initial value is assigned, the declared local variable will be initialized to null.
+	<span class="pre">local</span> also supports the comma-separated declaration 
+	and initialization of multiple variables in a single statement.</p>
+	<p>Although local variables do not have to be declared before they are used,
+	doing so provides several safety benefits:</p>
+	<ul>
+	<li>It establishes the lexical scope for use of the variable.
+	Local variables are scoped to the block where they are first encountered.
+	A variable's value is not visible outside that lexical scope.</li>
+	<li>It avoids confusing the variable with an identically named variable in an outer lexical scope,
+	which might bind that variable undesirably as part of a stateful closure (see below).</li>
+	<li>It ensures the variable is initialized with a useful value.</li>
+	</ul>
+	
+	<h4 id="return">Return Statement</h4>
+	<p>A <span class="pre">return</span> statement may be placed anywhere within a method.
+	When return is encountered, execution of the method ceases and
+	all comma-separated values specified after <span class="pre">return</span> are returned to the caller.
+	Acorn automatically converts a return statement that calls a single method into a "tail call".
+	This optimization helps ensure that recursive methods do not overrun the execution stack.</p>
+	<p>In the absence of an explicit return statement at the end of the method,
+	the following implicit return rules are applied depending on the method's final statement:</p>
+	<ul>
+	<li>An expression returns its evaluated value(s).</li>
+	<li>A <a href="refcollect.html">'this' block</a> returns the value of 'this' at the end of that block.</li>
+	<li>An <a href="refcontrol.html#if">'if'</a> or <a href="refcontrol.html#match">'match'</a>
+	returns the last statement in each of its distinct blocks (this is handled recursively). 
+	If the 'if' or 'match' fails to provide an 'else' block, one is implicitly added that returns 'null'.</li>
+	<li>A <a href="refcontrol.html#while">'while'</a> or <a href="refcollect.html#each">'each'</a> loop 
+	generates an implicit return of 'null'.</li>
+	</ul>
+	<p><b>Note:</b> 
+	If a method is not normally expected to return a value,
+	it can be helpful for it to explicitly return <span class="pre">self</span>,
+	as doing this facilitates method call chaining.</p>
+
+	<h3 id="recursive">Recursive Methods and selfmethod</h3>
+	<p>Acorn allows a method to call itself recursively.
+	Recursive object-oriented calls work as expected:</p>
+<pre>
+# Add factorial to the Integer type
+Integer.traits
+	Fact:= [prod=1]
+		return prod if self&lt;=1
+		.Fact(self-1, prod*self)
+		
+(4).Fact   # 24
+</pre>
+	However, recursive direct method calls won't work when done the "obvious" way:</p>
+<pre>
+# This factorial generator won't work
+fact = [x, prod=1]
+	return prod if x&lt;=1
+	fact(x-1, prod*x)  # it fails here
+</pre>
+	<p>It fails because the Method refers to a local variable (fact) defined outside that method.
+	Acorn will treat this an implicit closure variable (see below), which might be fine, but ...
+	The value of the local variable fact at the time the closure is created is still null
+	(as the value of fact is not loaded until after the closure is fully created).
+	So, this code will effectively call null in the last line, which does nothing.</p>
+	<p>The fool-proof way to fix this is to use the pseudo-variable selfmethod instead.
+	'selfmethod' refers to the currently running method, so calling it effectively
+	always performs a recursive call:</p>
+<pre>
+fact = [x, prod=1]
+	return prod if x&lt;=1
+	selfmethod(x-1, prod*x)  # this works
+</pre>
+	<p>Note: Acorn performs automatic tail-call optimization to reduce the execution context impact of recursive calls.
+	In order for tail-call optimization to work, the recursive call
+	needs to be the only thing the method's final return statement evaluates to return its value.</p>
+
+	<h2 id="closure">Closure Definition</h2>
+	<p>A Closure binds a specific state (a collection of values) to one or two stateless Methods
+	(they may not be Closures or Yielders).
+	The Closure's logic may retrieve or alter its state's values using closure variables.</p>
+	<p>Because closures preserve state information, they are used to implement:</p>
+	<ul>
+	<li><a href="refcollect.html#iterator"><b>Iterators</b></a>, which retrieve a sequence of
+	values one-at-a-time from a defined collection.</li>
+	<li><a href="reftype.html#computedprop"><b>Computed property</b></a> getter and setter methods.</li>
+	<li>Event-triggered callbacks, whose state preserves information about the impact an event
+	should have on specific values.</li>
+	</ul>
+	
+	<h3>Explicit Closure Definition</h3>
+	<p>The clearest way to define a closure is explicitly.
+	Use '+[ ]' to enclose declarations for the closure's closure variables and initialize their bound values.
+	Follow that with a declaration for the Method that provides the logic for the Closure:</p>
+<pre>
+# Define a closure with one state value: the closure variable count
+# (notice we must also separately declare the Method's passed parameters)
+next = +[count=0] [incr=1]
+	count = count + incr
+
+# Use/call the 'next' closure:
+# Note: the returned value keeps increasing because of the closure's preserved state
+next()  # 1
+next(2) # 3
+</pre>
+	<p>As with method parameter definitions, the closure variable definitions name
+	each closure variable to the left of the '=', followed by 
+	an expression that calculates its initial value to the right.
+	Unlike parameter definitions, the initializing expressions for closure variables
+	are calculated within the scope of the outer method as part of creating the closure. 
+	Thus, those expressions may use values local to that outer method.</p>
+	<p>If a closure variable specifies no initial value (e.g., 'count'), 
+	it is treated as if it had been specified as: 'count=count',
+	effectively copying the value of count in the outer method into a closure variable used by the closure's method. 
+	<p>Using the Closure performs the appropriate Method, giving it ready access to the closure variables.
+	The Method can freely change the value of these closure variables as needed.
+	Unlike local variables, closure variables preserve their values across successive uses of the Closure.
+	They only go away when the Closure does.</p>
+	<p>Explicit declaration of closure variables offers several benefits:</p>
+	<ul>
+	<li><b>Clarity</b>. Explicit declaration signals quickly that this is a Closure, rather than a Method.
+	It lists all closure variables in one, easy-to-find place, with a specified order (signature).
+	It helps reduce any confusion between the closure variable and the local variable it is based on.</li>
+	<li><b>Economy</b>. It allows one to establish the initial values of closure variables using a literal or expression,
+	without requiring the use of an otherwise-unneeded local variables in the enclosing method.</li>
+	</ul>
+	<p><b>Note:</b> A Closure may be created that uses a method defined elsewhere.
+	To do this, follow the closure variable declaration with an expression that evaluates to a Method,
+	rather than explicitly using an anonymous Method declaration.
+	Make sure the expression's computed method has the same closure variable signature as the declaration, 
+	or unusual results may result.</p>
+
+	<h5 id='bindself'>Binding 'self' in a closure</h5>
+	<p>Acorn allows the value of 'self' to be explicitly named and bound as part of a closure.
+	Event handlers benefit from this capability, as it allows event handling code to work with the 
+	same 'self' value as the running method that created the handler. When 'self' is explicitly
+	bound to a closure, the value of 'self' normally passed to that closure is effectively ignored
+	in favor of the bound value.</p>
+<pre>
+# Define a method that returns a closure
+factory = []
+	# this closure binds 'self' to factory's 'self' value
+	+[self] []
+		self * self
+
+clo = (4).(factory)()  # Use 'factory' to create a closure that binds 4 to self
+clo()                  # returns 16
+(3).(clo)()            # returns 16 (ignores the 3)
+</pre>
+	
+	<h3>Implicit Closure Definition</h3>
+	Like other languages, Acorn also supports the implicit creation of closures,
+	thereby avoiding having to explicitly declare the closure variables.
+	Implicit closures look just like a Method definition except for one difference:
+	they refer to local variables declared in the outer, enclosing method.
+	For example:</p>
+<pre>
+# Because 'next's method references the program's 'count' variable, 
+# it is created as a Closure (rather than a Method)
+count = 0
+next = []
+	count = count + 1  # count here becomes a closure variable
+
+# The results from using the Closure (it is called the same way as a Method)
+next() # 1
+next() # 2
+next() # 3
+
+# The 'count' closure variable inside the Closure is a copy. 
+# Thus, the original 'count' local variable's value is unchanged.
+count  # 0
+</pre>
+	<p>The closure variable declaration for an implicit closure is the same as if
+	one explicitly listed all the outer variable's in order of their first use within the closure.
+	Thus, the above example's closure is equivalent to an explicit closure that
+	specifies '+[count]' (or, more completely: '+[count=count]').</p>
+	<p>As this example shows, Acorn binds closure variables by value, not by reference.
+	Thus, the 'count' closure variable inside the closure refers to a different value
+	than the local variable in the outer variable. The closure variable starts its life as a copy.
+	Subsequent changes to the closure variable do not affect the outer variable, or vice versa.
+	This is a different behavior that the bind by reference approach used by most other languages.</p>
+	<p>One key benefit of bind by value is that it avoids the often confusing "shared binding" problem
+	that bind by reference encounters when creating	multiple closures iteratively.</p>
+	
+	<h3 id="getset">Get/set Closure Definition</h3>
+	<p>One of Acorn's innovative features is being able to bind two Methods into a single Closure value,
+	both sharing the same bound closure variable values. 
+	The 'get' Method is performed whenever the Closure is used to retrieve a value.
+	The 'set' Method is performed when the closure is used to the left of an assignment operator. 
+	This is classic get/set behavior, powered by a Closure, and used to 
+	implement <a href="reftype.html#computedprop">computed properties</a>.</p>
+	<p>For example:</p>
+<pre>
+# Create a get/set closure that binds the 'count' closure variable to two methods
+iter = +[count=0]
+	# This method gets a value from the Closure
+	[] { count += 1; }
+	# This method sets the Closure's value to v
+	[v] { count = v; }
+
+# Using the Closure
+iter() # 1
+iter() # 2
+iter() = 0 # reset counter to 0
+iter() # 1 - count starts over
+</pre>
+	<p>To build a get/set Closure, follow the closure variable declaration with a block.
+	Within the block, specify the definitions for the 'get' and 'set' Methods, as shown above.</p>
+	<p>The get and set methods can define multiple parameters, if desired. 
+	The set method should always define at least one parameter, and one more than explicitly passed to it when used.
+	This is because its first parameter receives the right hand value from the assignment expression.</p>
+	<p>Explicit and implicit singleton closures, as described earlier,
+	are really just get/set Closures with only the 'get' method defined. 
+	If you try to assign a value to a singleton Closure (as with a Method), nothing happens.
+	Closures without a set method may be used to implement read-only (immutable) properties.</p>
+	
+	<h2 id="yielder">Yielder Definition</h2>
+	<p>Like a Closure, a Yielder preserves its state between uses, but does so in a different way. 
+	Rather than using closure variables, it preserves its entire execution state (context). 
+	Other programming languages offer a similar capability using a different name, 
+	such as generator, co-routine, fiber or green thread.</p>
+	<p>Think of a Yielder as like a person, preserving any work-in-process from one job to the next.
+	The relationship it has with its caller is like that between an inventory employee and a customer.
+	The customer makes a request of the yielder then waits while the yielder retrieves a value. 
+	Once delivered, the yielder is put on hold while the customer goes off to play with the delivered value.
+	Although only one of them can be active at a time, they have separate workspaces.
+	Crucially, the yielder remembers all they know and where they are, 
+	while patiently awaiting the next customer request.</p>
+	<p>A Yielder is preferable to a Closure whenever the logic would be convoluted and hard to understand 
+	if every use required it to start over again from the beginning or required the logic to be divided
+	across multiple methods
+	(although one should never underestimate the expressive power of a well-designed state machine).
+	Yielders are useful for:</p>
+	<ul>
+	<li><a href="refcollect.html#iterator">iterators</a> able to lazily generate a sequence (stream) of values
+	particularly when interacting with file or network i/o.</li>
+	<li>Actors who have independent logic that defines their behavior and are willing to
+	cooperate in a multi-tasking manner with other actors in the context of a centralized event dispatcher.</li>
+	<li>Non-blocking subprocesses operating under the control of a centralized event manager and scheduler</li>
+	</ul>
+
+	<h3 id="yield">Yielder example using 'yield'</h3>
+	<p>This yielder generates the integers from a Fibonacci sequence one-at-a-time:</p>
+<pre>
+# Define a yielder method
+fibonacci = *[start=1, inc=0]
+	while true
+		yield start
+		start,inc = start+inc, start
+</pre>
+	<p>A yielder method definition looks like a method, marked by the '*' in front of the square bracket.
+	The yielder method must not be an implicit closure that references variables outside its lexical scope.
+	Acorn will generate a compile error if this is detected.</p>
+	<p>Unlike a regular method, calling a yielder method does not perform the specified method logic.
+	What it does is create and return a brand new yielder context:</p>
+<pre>
+# Create a yielder context by calling the yielder method
+fibo = fibonacci()
+</pre>
+	<p>Calling the returned yielder context is what actually performs the method logic:</p>
+<pre>
+# Call the yielder context to generate the next value in a sequence
+fibo()  # 1
+fibo()  # 1
+fibo()  # 2
+fibo()  # 3
+fibo()  # 5
+</pre>
+	<p>Yielders make use of <span class="pre">yield</span> as an in-process 'return'.
+	It suspends the yielder's execution and returns the specified value ('start') to the caller. 
+	Subsequent calls to the yielder continue right where it left off.</p>
+	
+	<h3>Initializing the Yielder Context</h3>
+	<p>Transforming a yielder method into a yielder context before we can use it may seem silly at first.
+	We do it this way because yielders preserve state.
+	If we want to re-use a yielder's logic many times, this approach makes it possible to
+	start each use with a yielder context whose execution and data state starts from the beginning.
+	The yielder method acts like a factory, each call producing a sparkly new, ready-to-use yielder context.</p>
+	<p>Parameters may be specified on the yielder method call.
+	These values initialize (bind to) the yielder method's parameters (and self) in the new yielder context:</p>
+<pre>
+fibo = fibonacci(2,4)
+fibo()  # 2
+fibo()  # 6
+fibo()  # 8
+</pre>
+	<p><b>Note:</b> Yielders are commonly used as iterators within 'each' blocks.
+	Under the covers, the 'each' block automatically creates a new yielder context each time the loop is started.
+	See <a href="refcollect.html#implicititer">this section</a> to view an example of this.</p>
+	
+	<h3>Passing values back-and-forth</h3>
+	<p>'yield' does more then return one or more values to the caller,
+	it also receives values passed back from subsequent calls that resume the yielder.
+	This mechanism allows values to be exchanged between a caller and a yielder.</p>
+	<p>It is important to understand that the <b>first</b> call to a yielder context 
+	works differently from all subsequent calls.
+	Any values specified on the first yielder call are effectively ignored since the iterator is
+	just getting started and has not yet run across its first 'yield'.
+	By contrast, parametric values on all <b>subsequent</b> yielder calls are returned as values 
+	from the yield which suspended the yielder's execution (just as if they were return values from a method call).</p>
+	<p>Additionally, during execution of a yielder, 'return' works just like 'yield', with one important exception:
+	'return' will change the yielder's status to 'done' and not allow it to be called again.</p>
+	<p>This following example demonstrates the back-and-forth exchange of values between caller and yielder:</p>
+	
+<pre>
+# Define a ridiculous yielder
+sillyyielder = *[x]
+	local a = yield 2,x
+	local b = yield a+10
+	yield a+b
+	x
+
+# Use it
+silly = sillyyielder(9)
+silly.status   # returns 'ready'
+silly() # returns 2,9
+silly.status   # returns 'active'
+silly(3) # returns 13
+silly(1) # returns 4
+silly()  # returns 9
+silly.status   # returns 'done'
+</pre>
+	<p>Notice how the status of the yielder changes from 'ready', when created, to 'active' after first use,
+	to 'done', when method does a return instead of a yield. Any attempt to use a yielder in 'done' state simply
+	returns a null value.</p>
+
+	<h3>Initializing a Yielder's State</h3>
+	<p>Creation of a yielder is somewhat expensive, as memory has to be allocated for both its execution and data state.
+	To avoid having to create a new Yielder every time we want a new Fibonacci stream,
+	we can use the .Reset method to re-initialize a yielder back to its initial condition, ready for re-use.</p>
+	<p>Thus, after using silly once above, we can easily re-use it:</p>
+<pre>
+silly.Reset
+silly.status   # returns 'ready'
+silly() # returns 2,9
+</pre>
+	<p>.Reset has another use: If parameters are specified on .Reset, they will bind to the method's parameter values,
+	thereby avoiding the need for the first 'yield' call to set these values.
+	Unusually, it is critical to remember that the first value must specify the value for 'self':</p>
+<pre>
+silly.Reset(self, 5)
+silly.status   # returns 'active'
+silly() # returns 2,5
+</pre>
+	
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refcondexp.html"><img alt="_" src="next.png" /></a>
+		</p>
+
+	</div>
+	</body>
+</html>

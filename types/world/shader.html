@@ -1,0 +1,93 @@
+<html>
+  <head>
+	  <title>Shader Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Shader Type</div>
+		</div>
+
+    <div class="text">
+
+	<p>The shader is the <a href="https://www.opengl.org/documentation/glsl/">GLSL</a> program 
+	used to render a Shape's vertices into colored pixels.
+	Basic shaders define the skin material for a shape's mesh, using light sources, textures, and 
+	other information to color every pixel of the mesh's surfaces. 
+	More complex shaders can re-define the geometry of a shape as well as establishing the "skin".</p>
+<pre>
++Shader
+	attributes: +List('positions', 'colors')
+	uniforms: +List('mvpmatrix')
+
+	vertex: "
+		// Vertex shader for a self-lit mesh where each vertex has its own color\n
+		#version 130\n
+		uniform mat4 mvpmatrix;
+		in  vec3 position;
+		in  vec4 color;
+		out vec4 vert_color;
+		void main(void) {
+			gl_Position = mvpmatrix * vec4(position, 1.0);
+			vert_color = color;
+		}"
+
+	fragment: "
+		// Fragment shader passes along interpolated, full opacity vec3 color from vertex shader\n
+		#version 130\n
+		in  vec4 vert_color;
+		void main(void) {
+			gl_FragColor = vert_color;
+		}"
+</pre>
+	<p>A shader is compiled the first time it is used.
+	The compiled shader resides in the GPU until no longer referenced by anything.
+	This can be encouraged by assigning ._program to null.</p>
+	
+	<h2>Class Properties</h2>
+	<dl>
+	<dt>New</dt>
+	<dd>Create a new shader. 
+	</dl>
+
+	<h2>Instance Properties</h2>
+	<dl>
+	<dt>attributes</dt>
+	<dd>A list of symbols for vertex attributes which should match the vertex properties found in every
+	<a href="shape.html">Shape</a> which uses the shader.
+	The order they are listed must match the order they are defined in the GLSL shaders.
+	Their names need not match the shader's names.
+	Some common vertex attributes used by shaders:
+	<dl>
+		<dt>positions</dt> <dd>The positions of the vertices in Xyz coordinates.</dd>
+		<dt>normals</dt> <dd>The vertice's normals (in Xyz coords).</dd>
+		<dt>tangents</dt> <dd>The vertice's tangents (in Xyz coords).</dd>
+		<dt>binormals</dt> <dd>The vertice's binormal (in Xyz coords).</dd>
+		<dt>uvs</dt> <dd>The vertice's texture mapping coordinates.</dd>
+		<dt>colors<i></i></dt> <dd>The vertice's colors (self-lit or diffuse when lit)</dd>
+	</dl></dd>
+	<dt>fragment</dt>
+	<dd>The GLSL source Text for the fragment shader</dd>
+	<dt>uniforms</dt>
+	<dd>A List of symbols required by the shader as uniform variables
+	The shader's listed uniform properties should match properties found in a shape or rendering context
+	for a shape using this shader. 
+	The names listed must match the names of uniforms defined in the GLSL shaders.
+	Some common uniform properties:</p>
+	<dl>
+		<dt>cameraOrigin</dt> <dd>The origin of the rendering camera</dd>
+		<dt>mvmatrix</dt> <dd>The model-view matrix</dd>
+		<dt>mvpmatrix</dt> <dd>The model-view-perspective matrix</dd>
+		<dt>color<i></i></dt> <dd>The diffuse color for vertices.</dd>
+		<dt>specular<i></i></dt> <dd>The specular (shiny) colors for vertices.</dd>
+	</dl>
+	<dt>vertex</dt>
+	<dd>The GLSL source Text for the vertex shader</dd>
+	</dl>
+		
+	</div>
+	</body>
+</html>

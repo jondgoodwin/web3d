@@ -1,0 +1,80 @@
+<html>
+  <head>
+	  <title>Acorn Parts</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Parts</div>
+		</div>
+
+    <div class="text">
+	
+	<h1>Part Magic</h1>
+	<p>Already talked about:</p>
+	<ul>
+	<li>What a part is in "scene.html"</li>
+	<li>Accessing properties & members of a part, in expressions</li>
+	<li>Adding methods and types to a part in methods</li>
+	<li>Parts as resources ...</li>
+	</ul>
+	<p>Now we need to talk about 2-way binding, part selection via matchers, ...</p>
+	
+	<p><<<<<<<<<<<<<<<  OLD STUFF >>>>>>>>>>>>>>>>>>></p>
+		<p>Nearly every element in a 3-D scene is (deep down inside) a Part, 
+		simply because such elements are pieces within a larger hierarchical structure (the scene). 
+		In addition to the hierarchical structure, each Part offers up the following information about itself:
+		<ul>
+		<li>Attributes, as a Dict, including its name and parent.</li>
+		<li>Sub-parts, as an ordered List.</li>
+		<li>Unique methods which can act on the part, beyond those provided by its type</li>
+		<li>Mixin types??, offering additional methods which can act on the part</li>
+		</ul>
+<pre>
+sun = Lightbulb[
+	name: 'Sun'
+	parent: $
+	pos: Xyz[0,0,0]
+	color: Rgba[1,1,1]
+	on:> 
+		#turn it on
+</pre>
+
+		</div>
+		<h2>Attributes</h2>
+		<p>Access to (.attr), changing</p>
+		<p>Special attributes: parent, name, </p>
+		
+		<h2>Subparts</h2>
+		<p>each</p>
+		
+		<h2>Methods</h2>
+		<p>defining, using</p>
+		<p>self goes to attr&subparts, type vars</p>
+		
+		<h2>Mixins</h2>
+		<p>Keep here??? super</p>
+		
+		<h2 id="sel">Part selection patterns</h3>
+		<p>'/' operator for splitting?  '%' for selecting?</p>
+		<p>Any part can be queried for a part within it. .select() returns List of all that match the pattern.
+		A special pre-parsed Sel"...." pattern: An element can be</p>
+		<ul>
+		<li>Type (the major type, or one contained within?)</li>
+		<li>id (a symbol)</li>
+		<li>method invocation plus parameters. Very powerful for adding all sorts of unusual matches
+		(all with non-zero velocity, those with severe aggro, etc.)</li>
+		</ul>
+		<p>These can be combined with others with logical operators, and parentheses</p>
+		<p>They can be within statement sequences, separated by ;. A separator of .. is allowed to match spaced matches></p>
+		<p>They can be within parent sequences, separated by '/'. A separator of .. is allowed here as well.</p>
+		<p>Explore more ideas <a href="http://code.tutsplus.com/tutorials/the-30-css-selectors-you-must-memorize--net-16048">CSS</a>
+		and <a href="http://www.w3schools.com/xpath/xpath_syntax.asp">XPath</a>.</p>
+		
+		<h2 id="bind">2-way binding</h2>
+		<p>TBD</p>
+	</body>
+</html>

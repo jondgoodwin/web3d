@@ -1,0 +1,78 @@
+<html>
+  <head>
+	  <title>Text - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Text (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>A <b>Text</b> is an mutable sequence of Unicode characters (code points).</p>
+		<p><b>Note:</b> A text literal (for example, "abc") is immutable and cannot be altered.
+		Any attempt to do so simply fails, generating no error.
+		To create a mutable text value from of a literal, clone it: +Text("abc").</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>Creates a new text value. With no parameter, it creates an empty Text string.
+		Otherwise, it converts the parameter to a Text value (applying .Text method to it).
+		If the attempted conversion fails with null, an empty Text string is returned.</dd>
+		</dl>
+		
+		<h3>Instance Methods</h3>
+		<dl>
+		<dt>&lt;&lt;</dt>
+		<dd>Append (push) the passed value (converted, if needed, to Text using .Text) to the end of 'self'</dd>
+		<dt>&gt;&gt;</dt>
+		<dd>Insert (or shift) the value(s) to the beginning of 'self'.</dd>
+		<dt>&lt;=&gt;</dt>
+		<dd>Compare two text values based on their unicode character code points.
+		Returns 0 if equal, 1 if 'self' is greater, -1 if 'self' is less, 
+		and null if the passed value is not text.</dd>
+		<dt>+</dt>
+		<dd>Create a new Text value that concatenates 'self' with the passed string.</dd>
+		<dt>*</dt>
+		<dd>Create a new Text value that duplicates 'self' n times</dd>
+		<dt>[]</dt>
+		<dd><b>Get</b> the character(s) specified by the indexed parameter.
+		A single integer parameter selects the character at that position (starting with 0).
+		If negative, it selects from the end of the text (-2 would be the last character).
+		A second integer parameter specifies the last character desired (negative index allowed).</p>
+		<p><b>Set</b> replaces the character(s) at the specified from and to integer indexes with
+		the text string specified as the first parameter.</dd>
+		<dt>Clone</dt>
+		<dd>Create and return new Text that is a copy of 'self'.</dd>
+		<dt>Each</dt>
+		<dd>Returns an closure that iterates over the text value, returning the character index 
+		and a new Text value for the next sequential character each time it is called.</dd>
+		<dt>empty?</dt>
+		<dd>Return true if 'self' has no characters</dd>
+		<dt>Find</dt>
+		<dd>Return the index of the first character starting a sequence of characters matching the characters 
+		in the passed Text value. A second parameter can be given specifying which character to begin the find at.</dd>
+		<dt>Insert</dt>
+		<dd>Insert one or more values into the List starting at the index specified by the integer parameter.
+		If the integer value is negative, it indexes relative to the end of the list.</dd>
+		<dt>Remove</dt>
+		<dd>Remove one or more values from the List starting at the index specified by an integer.
+		If the integer value is negative, it indexes relative to the end of the list.
+		A second parameter can specify the last character in the sequence to remove.</dd>
+		<dt>Replace</dt>
+		<dd>Replaces the character(s) at the specified from and to integer indexes with
+		the text string specified as the first parameter.</dd>
+		<dt>size</dt>
+		<dd>Get (or set) the number of unicode characters held in the text value.
+		One cannot set a size larger than the current size. 
+		Setting a smaller size effectively truncates characters off from the end.</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

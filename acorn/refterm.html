@@ -1,0 +1,159 @@
+<html>
+  <head>
+	  <title>Term and Assignment - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Term and Assignment</div>
+		</div>
+
+    <div class="text">
+
+		<p>These reference chapters comprehensively describe the Acorn language.
+		They assume the reader has some familiarity with programming languages
+		as well as how an Acorn program is built up from basic <a href="reftoken.html">tokens</a>.
+		For a gentler introduction to the language, seek out an <a href="../guide/index.html">Acorn Guide</a>.</p>
+
+		<h2>Values, Collections, Methods and Types</h2>
+		<p>Before getting into the details, let's introduce some key concepts:
+		<ul>
+		<li>Every piece of data we work with (including methods and types) is a <b>value</b>.
+		As with other dynamic languages, every value specifies both its contents and its type.
+		For example, the value <span class="pre">12</span> has the type Integer and the contents of 12.</li>
+		<li>Multiple values can be gathered together into <b>collections</b>.
+		There are several types of collections (e.g., List, Index or Part) which organize their values in different ways.
+		A collection's individual values can be accessed using its integer position or symbolic index.</li>
+		<li>Every time we want to do something (which is always), we do it with a <b>method</b>.
+		A <b>method</b> is a procedure which, when given some values (the parameters),
+		performs work, and returns back one or more value(s).
+		There are several types of methods, as detailed in the <a href="refmethod.html">method definition</a> chapter.</li>
+		<li>A value's <b>type</b> establishes the named <b>properties</b> that apply to any value of that type.
+		A property can hold any value, but most often hold methods able to manipulate any value
+		whose type the property belongs to.
+		For example: the Integer type has the property '+', a method used to add one integer to another.</p>
+		<p>Although Acorn allows the creation of arbitrarily many custom types,
+		the language's <a href="../types/core/index.html">core types</a> are globally available.
+		These core types are regularly mentioned in this reference.
+		The names of global types begin with a capital letter.</p></li>
+		</ul>
+		<p>These concepts are deeply intertwined:  Every value has a type. Every type is a collection of properties.
+		A property can hold a method.
+		Every method operates on values. Every method and type is itself a value.</p>
+		
+		<h2>Term</h2>
+		<p>The term is the basic building block for an expression. 
+		A term can be one of the following: a literal, a variable, 
+		or a <a href="#pseudo">pseudo-variable</a> (e.g., 'this', 'self' or '...').
+		With the exception of the splat ('...'), a simple term references a single stored value.</p>
+		
+		<h3>Literal</h3>
+		<p>A literal is a specific unchangeable value,
+		as represented by a <a href="reftoken.html#number">number</a> token, 
+		<a href="reftoken.html#quote">symbol or text</a> token,
+		or the reserved names <span class="pre">null</span>, 
+		<span class="pre">true</span> or <span class="pre">false</span>.
+		For example (with comments to indicate each literal's type):</p>
+<pre>
+123     # Integer
+3.4     # Float
+"Hello" # Text
+'sum'   # Symbol
+false   # Bool
+null    # Null (represents the absence of a value)
+</pre>
+		<p><b>Note</b>
+		Text literals are flagged as read-only. Any attempt to modify them fails.
+		This ensures the literal can never be corrupted by any downstream method.</p>
+		
+		<h3 id="#pseudo">Pseudo-variables: self, this, context, selfmethod, baseurl and ...</h3>
+		<p>These pseudo-variables look like variables, but are not, as their value is managed by Acorn based on the
+		context where they are encountered. Programs cannot change their value.
+		<ul>
+		<li><a href="refmethod.html#self">self</a>
+		is the value which is passed to a method, indicating what the method is supposed to be acting on.</li>
+		<li><a href="refcollect.html#this">this</a>
+		is the value that is the focus of attention within a 'this' block.</li>
+		<li><a href="refmethod.html#yielder">context</a>
+		holds the value of the current execution context 
+		that preserves state information about all currently running methods and their local variables.
+		Using its properties, one can obtain information about all
+		actively-running methods, and their local variables.</li>
+		<li><a href="refmethod.html#recursive">selfmethod</a>
+		holds the value of the currently executing running Method or Closure.
+		<li><a href="refmethod.html">baseurl</a>
+		holds the url symbol for the program resource that defined the currently running method.
+		Any relative addresses for resources are resolved based on this baseurl.</li>
+		<li><a href="refmethod.html#multparms">... (splat)</a>
+		refers to all remaining parameters passed to a method after the ones that have been given variable names.</li>
+		</ul>
+
+		<h3 id="vars">Variable</h3>
+		<p>A variable holds a single value. A variable's value is set, modified and retrieved using its name.
+		A variable's value may be changed as often as desired.
+		Acorn does not enforce or restrict what type of value a variable can hold.</p>
+		<p>Variables are always represented with a non-reserved <a href="reftoken.html#name">name token</a>.</p>
+		
+		<h4 id="assign">Variable Assignment</h4>
+		<p>The value of a variable is set using an assignment expression:
+<pre>
+a = 3.4     # a's value is now 3.4
+b = 'abc'   # b's value is now the symbol 'abc'
+a = b       # changes a's value to the symbol 'abc'
+b = true    # changes b's value to the literal true
+</pre>
+		<p>Any variable to the left of the assignment operator '=' sets the variable's value. 
+		A variable found anywhere else retrieves (gets) the value of the variable.</p>
+		
+		<h4 id="parallel">Parallel Assignment</h4>
+		<p>There are several situations where it is helpful to assign multiple values to multiple variables:</p>
+<pre>
+# Swap the variable values for a and b
+a,b = b,a
+
+# Capture multiple return values from a method,
+# such as destructuring the values held by a collection
+x,y,z = position.unpack
+
+# Obtain certain values from the splat
+template, val1, val2 = ...
+</pre>
+
+		<h4 id="varscope">Variable Scope</h4>
+		<p>A variable's value is stored within a larger collection of values, which we call its <b>scope</b>.
+		A variable's scope is determined by the first character of the variable name:</p>
+		<ul>
+		<li>Each method has its own <b>parameter</b>, <b>local</b> and <b>closure</b> variables,
+		all of which start with a lowercase letter ('a' to 'z'):
+		<ul>
+		<li>the <a href="refmethod.html#parms">parameters</a> passed to the method.</li>
+		<li>the <a href="refmethod.html#local">local</a> variables which are 
+		created anew each time the method is performed, so that 
+		two identically-named local variables in different scopes will not collide with each other.
+		These local variables are destroyed as soon as the work of the method is complete.</li>
+		<li>the <a href="refmethod.html#closure">closure</a> variables, which stick around
+		every time a closure's method is re-performed. 
+		Closure variables are kept separately from the temporary local variables,
+		assembled as part of a created closure and lasting as long as the closure does.</li>
+		</ul>
+		</li>
+		<li><b>private instance</b> variables, members of <a href="refmethod.html#self">'self'</a>,
+		start with an underscore ('_').</li>
+		<li><b>global</b> variables, shared across all methods, 
+		start with a capital letter (global Types) or '$' (environment variables).
+		<p>Any method can retrieve or change a global value at any time, 
+		Unless one is careful to restrict use of global variables only to a few that are widely needed,
+		there is a great risk of global variable pollution and corruption.
+		Generally, the global context is used for types and environment variables (e.g., '$').</p></li>
+		</ul>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refpropuse.html"><img alt="_" src="next.png" /></a>
+		</p>
+
+	</div>
+	</body>
+</html>

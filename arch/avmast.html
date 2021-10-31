@@ -1,0 +1,145 @@
+<html>
+  <head>
+	  <title>Abstract Syntax Tree - AcornVM</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<div id="title">AcornVM</div>
+			<div id="sub">Abstract Syntax Tree</div>
+		</div>
+
+    <div class="text">
+	
+	<p>The Abstract Syntax Tree is the Acorn compiler's intermediate representation of a program or method
+	between its <a href="../acorn/ebnf.html">source code form</a> 
+	and the compiled <a href="avmbytecode.html">byte-code</a> version.
+	It is essentially an s-expression that captures the structured essence of the code.
+	The AST structures closely mirror Acorn's syntactic structures.</p>
+	<p>Its purpose is to simplify compiler processing by normalizing out the look-ahead complexities 
+	found in the more human-readable format, such as: infix operator precedence, syntactic sugar (e.g., '+' for .new),
+	and terms to the left and right of an assignment operator that look the same, but have different meanings.
+	Creation of the AST takes only one pass through the source code and requires almost no state information;
+	the language's syntax guides the reassembly of the lexer's tokens into the AST.
+	Now simplified, only a single recursive descent through the AST is required to generate clean byte-code.</p>
+	
+	<dl>
+	<dt>Method</dt>
+	<dd>('method', local, parminitstmts, block)<br />
+	This is always the root node of the AST, for programs and embedded methods alike.
+	<i>local</i> is a list of the method's local variables (with first entry a link to outer method's local variables).
+	<i>closure</i> is a list of the method's closure variables.
+	<i>parminitstmts</i> points to statements that set default values for null value parms.
+	<i>statements</i> is a pointer to the statements node.
+	Implicit returns are managed through this node.</dd>
+	<dt>do</dt>
+	<dd>('do', locals, exp, block)<br />
+	Captures a 'do' block. exp may be 'null' or a comma separated list.</dd>
+	<dt>This block</dt>
+	<dd>('thisblock', this_exp, locals, using_exp, block)<br />
+	The value of this_exp becomes 'this' within the block of statements.
+	using_exp specifies the method to apply to 'this' on the value(s) returned by every statement in the block.</dd>
+	<dt>if</dt>
+	<dd>('if', condexp, locals, block, cond2, local2, block2, ..., 'else', elselocal, elseblock)<br />
+	Captures a full if/elif/else structure. 
+	The local/cond/block triples after 'if' are processed together, jumping beyond block if condition fails.
+	A condexp can be 'not','and', 'or', a comparison operator, or an expression (compared to true/false).
+	All but the 'elseblock' jump to the statement after the 'if' structure.
+	A condition of 'else' always evaluates to true.</dd>
+	<dt>match</dt>
+	<dd>('match', match_exp, using_exp, with1, local1, nexp1, block1, ..., 'else', elselocal, elsenexp, elseblock)<br />
+	Captures a full match/with structure. 
+	match_exp is the value to match against. using_exp is the method used for matching.
+	nexp is the number of expected return values from each match.
+	The local/with/block triples are processed together, jumping beyond block if match fails.
+	'with' is an expression calculated to a value to match with. 
+	All but the 'elseblock' jump to the statement after the 'if' structure.
+	A with of 'else' always matches.</dd>
+	<dt>while</dt>
+	<dd>('while', locals, condexp, block)<br />
+	Captures a 'while' structure. If condition fails, it jumps beyond the block 
+	(which ends with a jump back to re-evaluate the condition).</dd>
+	<dt>each</dt>
+	<dd>('each', locals, nexpected, iterator, block)<br />
+	Captures a 'each' structure. If iterator fails, it jumps beyond the block 
+	(which ends with a jump back to re-perform the iterator).
+	locals is the block locals (including 'each' vars).
+	nexpected is how many values to expect back from iterator (usually 2).</dd>
+	<dt>break</dt>
+	<dd>('break')<br />
+	Indicates to break from the current inner-most 'while' 
+	and continue execution at the first statement following the 'while'.</dd>
+	<dt>continue</dt>
+	<dd>('continue')<br />
+	Indicates to jump back to the top of the 'while' block, and reevaluate the condition.</dd>
+	<dt>return</dt>
+	<dd>('return', expression)<br />
+	Stop current method and return values to caller. expression can be aNull or a comma separated expression
+	containing multiple values.</dd>
+	<dt>yield</dt>
+	<dd>('yield', expression)<br />
+	Suspend current execution context and return values to caller. 
+	expression can be aNull or a comma separated expression containing multiple values.</dd>
+	<dt>block</dt>
+	<dd>(';', stmt1, stmt2, ...)<br />
+	This holds all statements in a block that have the same level of indentation.
+	A statement node can be another block, a proper statement (e.g., 'if') or an expression with a value.
+	With 'if', 'while', etc. below, a block can point to a ';' statements segment or just a single statement.</dd>
+	<dt>not</dt>
+	<dd>('not', condexp)<br />
+	Effectively reverses its condexp and/or status and condition tests</dd>
+	<dt>and</dt>
+	<dd>('and', cond1, cond2, ..., condn)<br />
+	Jumps to failure if any listed condition fails</dd>
+	<dt>or</dt>
+	<dd>('or', cond1, cond2, ..., condn)<br />
+	Jumps to success if any condition succeeds</dd>
+	<dt>Conditional</dt>
+	<dd>(condop, value1, value2)<br />
+	Compares value1 to value2 using condop then jumps around code based on that test.
+	condop can be '===', '~=', '--', '!=', '<', '<=', '>', or '>='</dd>
+	<dt>Assignment</dt>
+	<dd>('=', lval, rval)<br />
+	This evaluates rval's value then stores that in lval (using the appropriate 'set' context).</dd>
+	<dt>OrAssignment</dt>
+	<dd>('||=', lval, rval)<br />
+	This changes lval to rval if lval is null. lval should be a local.</dd>
+	<dt>Closure</dt>
+	<dd>('Closure', clovars, newclosure)<br />
+	clovars is the list of closure variables. 
+	newclosure is a 'callprop' used to create a new closure.</dd>
+	<dt>Call property</dt>
+	<dd>('callprop', self, property, parm1, parm2, ...<br />
+	If this is an assignment's lval, it is called in 'set' mode, otherwise in 'get' mode.</dd>
+	<dt>Active property</dt>
+	<dd>('activeprop', self, property)<br />
+	If this is an assignment's lval, it is called in 'set' mode, otherwise in 'get' mode.</dd>
+	<dt>Global variable</dt>
+	<dd>('global', symbol-name)<br />
+	References a global variable, is 'set' if an assignment lval, otherwise is a 'get'.</dd>
+	<dt>Local variable</dt>
+	<dd>('local', symbol-name)<br />
+	References a local or closure variable (look up in lexical declared variables to see which).
+	Is 'set' if an assignment lval. Otherwise is a 'get'.</dd>
+	<dt>Literal value</dt>
+	<dd>('lit', value)<br />
+	A single literal value (never settable)</dd>
+	<dt>this</dt>
+	<dd>'this'<br />
+	Gets the value of 'this' pseudo-variable.</dd>
+	<dt>self</dt>
+	<dd>'self'<br />
+	Gets the value of 'self' pseudo-variable.</dd>
+	<dt>selfmethod</dt>
+	<dd>'selfmethod'<br />
+	Gets the value of the currently running method or closure</dd>
+	<dt>this</dt>
+	<dd>'baseurl'<br />
+	Gets the value of 'baseurl' pseudo-variable.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

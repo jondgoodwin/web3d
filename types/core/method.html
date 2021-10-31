@@ -1,0 +1,57 @@
+<html>
+  <head>
+	  <title>Method - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Method type</div>
+		</div>
+
+    <div class="text">
+
+		<p>A <b>method</b> is a stateless procedure which receives some values, does some work using those value,
+		and returns one or more values. New methods are typically defined either by compiling an Acorn source program
+		or from loading a shared library containing types defined using the C API.
+		Use of a method most often happens within the context of using any value's active properties,
+		although it is possible to invoke them directly as a function (having no defined self) using '()'.</p>
+		
+		<h3>Class Properties <i>(see Type)</i></h3>
+		<dl>
+		<dt>New</dt> 
+		<dd>(pgmsrc, baseurl) -> method
+		<p>Compile the program source (a Text value) and return the compiled method.
+		A single program may include definitions of other methods which are also compiled
+		each as its own method instance which is stored appropriately.</p>
+		<p>baseurl is a symbol indicating the URL where the program source came from. 
+		This provides needed context to resolve any relative url's specified within the program.
+		baseurl may be null.</p>
+		</dd>
+		<dt>_newtype</dt>
+		<dd>-> mixin
+		<p>The mixin whose properties are used by instances of Method.</p>
+		</dl>
+		
+		<h3>Instance Properties</h3>
+		<dl>
+		<dt>[]</dt> 
+		<dd>[...] -> values
+		<p>Perform the method with a self of null, passing all specified parameters to it.
+		All return values from the method are returned.</p></dd>
+		<dt>arity</dt> 
+		<dd>-> integer
+		<p>Return the number of fixed parameters expected by the method (not including self).</p></dd>
+		<dt>Link</dt>
+		<dd>->count
+		<p>Attempt to resolve any externs (static resources). Return null if all resolved,
+		or else a count of the number of externs still unresolved (typically due to resources not finished loading).</dd>
+		<dt>varargs?</dt> 
+		<dd>-> bool
+		<p>True if method accepts an arbitrary number of additional arguments (after the fixed set).</p></dd>
+		</dl>
+	</div>
+	</body>
+</html>

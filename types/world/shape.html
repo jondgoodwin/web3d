@@ -1,0 +1,117 @@
+<html>
+  <head>
+	  <title>Shape Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Shape Type</div>
+		</div>
+
+    <div class="text">
+	
+	<p>A Shape is a geometrical mesh consisting of vertices 
+	that are rendered using a single <a href="shader.html">Shader</a>.
+	It specifies several types of properties:</p>
+	<ul>
+	<li><b>Coordinate</b> positioning, mapping this shape's vertex coordinates to those of its parent.
+	'view' describes the technique to use and establishes the properties required to calculate the transformation,
+	such as 'location' position, 'lookat' or 'rotation' orientation, and 'scale' factor.</li>
+	<li><b>Rendering</b> instructions. Most are set by the .render? method, especially the shader to use
+	and the values for the uniform values it requires. 'draw' indicates what sort of geometry to draw.</li>
+	<li><b>Vertices</b> data. These names of these properties are determined by the shader.
+	Common vertex properties are: 'positions', 'normals' and 'uvs'.
+	A shape can make use of vertex data from another shape using the 'shape' property.</li>
+	<li><b>Boundary</b> shape that encloses all vertices, used for culling and collision detection.</li>
+	</ul>
+	<p>For example:</p>
+<pre>
++Shape
+	render?: []
+		shader: @'selflit.acn'
+	draw: 'Polygon'
+	positions: +Xyzs"
+		0.0,  1.0, -1.0,
+		1.0,  0.0, -1.0,
+		0.0, -1.0, -1.0,
+		-1.0,  0.0, -3.0"
+	colors: +Colors"
+		1.0,  0.0,  0.0, 1.0,
+		0.0,  1.0,  0.0, 1.0,
+		0.0,  0.0,  1.0, 1.0,
+		1.0,  1.0,  1.0, 1.0"
+</pre>
+	<p>To reuse a shape, subtype it.</p>
+	
+	<h2>Methods</h2>
+	<dl>
+	<dt>New</dt>
+	<dd>Create a new Shape</dd>
+	</dl>
+	
+	<h2>Instance Properties (see <a href="region.html">Region</a>)</h2>
+	<p>A shape <b>must</b> specify all vertex attribute properties
+	required by the rendering shader and may also specify its required uniform properties.
+	See <a href="shader.html">Shader</a> for more details.</p>
+	<dl>
+	<dt>boundary</dt>
+	<dd>TBD - the bounding box, sphere or cylinder for clipping and other purposes</dd>
+	<dt>colors</dt>
+	<dd>A Colors collection holding the r,g,b,a values of the shape's vertices.</dd>
+	<dt>draw</dt>
+	<dd>A symbol specifying the graphical primitive to use when rendering the vertices.
+	If not specified, the default is 'Triangles'.
+	<dl>
+	<dt>Points</dt><dd>Individual points</dd>
+	<dt>Lines</dt><dd>Line segments from vertex pairs</dd>
+	<dt>LineStrip</dt><dd>Series of connected line segments</dd>
+	<dt>LineLoop</dt><dd>Series of connected line segments, plus one connecting last vertex to first</dd>
+	<dt>Triangles</dt><dd>Triangles from vertex triples</dd>
+	<dt>TriangleStrip</dt><dd>Connected triangles: 0,1,2 2,1,3 2,3,4 ...</dd>
+	<dt>TriangleFan</dt><dd>Connected triangles: 0,1,2 0,2,3 0,3,4 ...</dd>
+	<dt>LinesAdjacency<dt><dd>Adjacent line segments for a Geometry Shader</dd>
+	<dt>LineStripAdjacency<dt><dd>Adjacent line strips for a Geometry Shader</dd>
+	<dt>TrianglesAdjacency<dt><dd>Adjacent triangles for a Geometry Shader</dd>
+	<dt>TriangleStripAdjacency<dt><dd>Adjacent triangle strips for a Geometry Shader</dd>
+	<dt>Patches</dt><dd>Vertices used in a Tessalation Shader</dd>
+	</dl>
+	</dd>
+	<dt>indices</dd>
+	<dd>Integers that hold index values indicating the order to draw the vertices using the 'draw' primitive.
+	Each index value maps to a vertex whose attributes are stored at that position in the vertex properties.
+	This is economical when the shape's vertices are used by multiple faces.
+	If not specified, the vertices are drawn in the order specified in the vertex properties.</dd>
+	<dt>normals</dt>
+	<dd>An Xyzs collection holding the x,y,z normals for the shape's vertices.</dd>
+	<dt>orientation</dt>
+	<dd>A Quat specifying the rotation used to orient the shape in its parent's coordinate system.
+	If not specified, no rotation takes place.</dd>
+	<dt>origin</dt>
+	<dd>The location of this shape's 0,0,0 position in the shape's parent's coordinate system.
+	This can be used to specify where to render this shape within its parent group's space.
+	If not specified, +Xyz(0,0,0) is assumed.</dd>
+	<dt>positions</dt>
+	<dd>An Xyzs collection holding the x,y,z positions of the shape's vertices.</dd>
+	<dt>render?</dt>
+	<dd>The method that is performed before rendering the shape. 
+	The method should return 'false' if the shape is not to be rendered. 
+	This method will have the <a href="rendercontext.html">render context</a> as 'self', 
+	enabling the shape to make use of shared uniforms (minimize use of '+' new here).</dd>
+	<dt>scale</dt>
+	<dd>An Xyz vector specifying how much to re-size the shape's vertices when rendering in the parent group,
+	The default is no scaling: +Xyz(1.,1.,1.)</dd>
+	<dt>shader</dt>
+	<dd>The shader used when rendering this shape.</dd>
+	<dt>transparent</dt>
+	<dd>If true, the shape uses translucent colors (their alpha is less than 1).
+	Specifying this is necessary to proper rendering.</dd>
+	<dt>uvs</dt>
+	<dd>A Uvs collection holding the u,v texture coordinates for the shape's vertices.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

@@ -1,0 +1,68 @@
+<html>
+  <head>
+	  <title>Object Mesh - Recipes</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Recipes</div></a>
+			<div id="sub">Object Mesh</div>
+		</div>
+
+    <div class="text">
+	<p>TBD.  Some notes follow ...</p>
+	<p>triangles (dolphin), build/convert from tool, binding a single material (gray), xyz, 
+	position/orientation/scale (matrix), modularize in its own Acorn program resource</p>
+	<h2>Space</h2>
+	<p>Let's introduce some fundamental spatial concepts.</p>
+	
+	<h3>Xyz coordinates</h3>
+	<p>The <a href="types/xyz.html">Xyz</a> type creates a point (or vector) in three-dimensional space, 
+	specifying its x, y, and z coordinates:</p>
+	<img src="xyz.png" alt="" height="240" width="240" />
+	<p>Positive coordinates for x go right, for y go up, and for z come towards you from the screen
+	(essentially in the direction of the labels for each axis).
+	Going the opposite direction uses negative coordinates.</p>
+	<p>The Xyz type implements the arithmetic operators, allowing coordinates to be added,
+	multiplied by a scalar number, etc.</p>
+	
+	<h3>Mesh</h3>
+	<p>A <a href="types/mesh.html">mesh</a> is a geometric shape in space built using Xyz points
+	that are connected with each other into triangles.</p>
+	<img src="dolphin_mesh.png" alt="" height="195" width="317" />
+	<p>All objects in your scene, including the terrain and sky,
+	use a mesh to define their shape. The scene's earth uses a generated mesh for a sphere, segmented by
+	longitude and latitude lines.</p>
+	<p>Typically, 3-D artists use sophisticated 3-D modeling tools, such as Blender, Maya, or 3DS Studio,
+	to create a mesh. 
+	The resulting mesh file (typically not an Acorn program) can then be loaded as a resource.</p>
+	
+	<h3>Position, Rotation and Scaling</h3>
+	<p>Every object in a scene can specify its position, rotation and scale with those properties:</p>
+	<dl>
+	<dt>position</dt>
+	<dd>This indicates the object's position relative to its owner's coordinates.
+	So, if the earth is given a position of Xyz[40,0,0], then every point in its mesh
+	has its Xyz position shifted to the right by 40.</dd>
+	<dt>rotation</dt>
+	<dd>This indicates the object's orientation in space, relative to its owner.
+	The rotation is specified as pitch, yaw and roll, specified as radians 
+	(where 2*pi is equivalent to 360 degrees):
+	<img src="pitch.png" alt="" />
+	<p>The positive direction for each rotation is determined by the right-hand rule:
+	point the thumb of your right hand in the positive direction of an axis, and your 
+	fingers will curl in the positive direction for that rotation.</p></dd>
+	<dt>scale</dt>
+	<dd>This indicates how much to magnify (or reduce) the object, relative to its owner.
+	A scaling of Xyz[2.0, 2.0, 2.0) would double an object's size.</dd>
+	</dl>
+	<p>Let's say that you combined several objects together into a <a href="types/group.html">Group</a>.
+	Changing the position, rotation or scale of the group would affect all objects in that group.</p>
+	<p>As a fun exercise, trying adding more planets to the scene, experimenting with 
+	various positions, rotations and scalings.</p>
+
+	</div>
+	</body>
+</html>

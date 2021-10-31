@@ -1,0 +1,43 @@
+<html>
+  <head>
+	  <title>Index - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Index (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>An <b>Index</b> is an collection of key/value pairs.
+		Keys are typically symbols (but do not have to be).</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>With no parameter, it creates an empty Index.
+		With a single Integer, it creates a list with space for that many values.</dd>
+		</dl>
+		
+		<h3>Traits</h3>
+		<dl>
+		<dt>[]</dt>
+		<dd>Get (or set) the element specified by the key index.</dd>
+		<dt>Each</dt>
+		<dd>Returns an closure that iterates over the Index, returning the next key and value
+		out of the Index each time it is called.</dd>
+		<dt>empty?</dt>
+		<dd>Return true if Index has no elements</dd>
+		<dt>Remove</dt>
+		<dd>Remove the value from the Index referenced by the specified key.</dd>
+		<dt>size</dt>
+		<dd>Get the number of values held in the Index.</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

@@ -1,0 +1,632 @@
+<html>
+  <head>
+	  <title>Types: Objects, Classes and Mixins - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Types: Objects, Classes and Mixins</div>
+		</div>
+
+    <div class="text">
+	<p>Every value has a type, which is a collection of properties and methods aggregated (via inheritance) 
+	from one or more objects, classes or mixins:</p>
+	<ul>
+	<li><b>Objects</b>
+	support <a href="https://en.wikipedia.org/wiki/Prototype-based_programming">prototypical</a> 
+	inheritance (similar to Javascript or Lua).</li>
+	<li><b>Classes</b>
+	support <a href="https://en.wikipedia.org/wiki/Class-based_programming">classical</a> inheritance
+	(similar to Ruby, Smalltalk, Java, or C++), 
+	which segregates the class properties and methods (e.g., constructors) from the instance properties and methods
+	.</li>
+	<li><b>Mixins</b>
+	enable <a href="https://en.wikipedia.org/wiki/Multiple_inheritance">multiple inheritance</a> 
+	(much like Ruby),
+	which allows objects or classes to be dynamically augmented
+	with a mixin's methods and properties.</li>
+	</ul>
+	<p>Objects, classes, and mixins are mutable, first-class values.
+	<a href="../types/core/object.html">Object</a>,
+	<a href="../types/core/class.html">Class</a>,
+	<a href="../types/core/mixin.html">Mixin</a> and various collection types
+	are <a href="https://en.wikipedia.org/wiki/Metaclass">metaclasses</a>,
+	used to create and define the properties and methods for a new type.
+	Like other collections,	the property and method content of an object, class or mixin
+	is typically built using a 'this' block.</p>
+	
+	<h2>Objects</h2>
+	<p>Objects offer the simplest structure for inheritable properties and methods.
+	This simple structure makes them very convenient to use.
+	Despite their structural simplicity, objects are quite versatile.</p>
+	
+	<h3>Creating a new Object</h3>
+	<p>Let's start by creating a basic "singleton", an object which has its own
+	distinct state (properties) and behavior (methods). 
+	To build a new object, use +Object with a 'this' block.
+	In the block, specify the object's named properties (using ':') and methods (using ':='):</p>
+<pre>
+# Create a new object
+thing = +Object
+	# Specify and initialize its properties
+	position: +Xyz(0.0, 0.0, 0.0)
+	velocity: +Xyz(1.0, 0.0, 0.0)
+	
+	# Define method that calculates new position after dt seconds
+	Move:= [dt]
+		.position = .position + .velocity * dt
+</pre>
+	<p>Having now created 'thing' and described its two properties and method,
+	we may now call its defined .Move method on itself, thereby altering its position:</p>
+<pre>
+thing.Move(0.1)  # calculates new .position to be (0.1, 0.0, 0.0)
+</pre>
+	
+	<h3>Properties and Methods</h3>
+	<p>An earlier chapter described how to <a href="refmethuse.html">use a value's properties and methods</a>.
+	Here we talk about their names and content.</p>
+	
+	<h4 id="propnames">Property and Method Names</h4>
+	<p>An object has a single namespace for uniquely naming each of its properties and methods.
+	These helpful (but not enforced) <i>conventions</i> apply to property and method names:</p>
+	<ul>
+	<li>If it ends with '?' (e.g., '.empty?'), it returns a true or false/null value.</li>
+	<li>If it starts capitalized (e.g., '.New') or using punctuation (e.g., '*'), 
+	it is a method called to perform a specific action.</li>
+	<li>If it starts with '$' (e.g., '$cache'), it is a class ("global") property 
+	shared in common across	all its many instances.</li>
+	<li>If it starts with a lower-case letter (e.g., '.size'), it is a property whose
+	value might be retrieved or changed. This applies to computed properties as well.
+	It also applies to constants, even if they are implemented as read-only using a closure.</li>
+	<li>If it starts with a '_' (e.g., '._cache'), it is intended to be private,
+	a part of the plumbing that may change from implementation to implementation.
+	The following letter is capitalized for methods and lowercase for properties.</li>
+	</ul>
+	<p>These distinctions can have practical consequences. One might want to use 'each' to 
+	iterate over a type to see only the current state of its properties.
+	One might want to 'freeze' a type, so that only its properties can be altered, but not its methods
+	(even those that underly computed properties).</p>
+	
+	<h4>Specifying the Value of an Object's Property or Method</h4>
+	<p>An object has only one namespace. Any name in any object can hold any type of value:
+	null, true, a number, string, symbol, collection, method, closure, yielder, class, etc.
+	As a helpful convention, we often label a certain object's name 
+	a <b>method</b> when it stores any kind of method, closure or yielder,
+	and a <b>property</b> otherwise.</p>
+	<p>Part of the reason we do this is because this distinction matters to the '.' and ':' operators,
+	which <i>access</i> a name's stored value when it is a property, 
+	but <i>call</i> it when it is some kind of method.
+	Because of this behavior:</p>
+	<ul>
+	<li>A named property's value should be set using the ':' operator.
+	This ensures that the new value is processed by any methods defined by a computed property (see below).</li>
+	<li>A named method should be specified using the ':=' operator.
+	This ensures the new method value is not accidentally processed by 
+	trying to set the new value using the name's current 'set' method (which we want to change, not use).</li>
+	</ul>
+
+	<h4 id="computedprop">Computed Properties</h4>
+	<p>Computed properties are part-property and part-method. They look and behave like simple properties,
+	However, under the covers they make use of a method or 
+	<a href="refmethod.html#getset">get/set closure</a> to retrieve or change its value.
+	The following example defines 'radians' as a normal property and 'degrees' as a computed property:</p>
+<pre>
+angle = +Object
+	radians: 0.
+	degrees:= +[]
+		[] {.radians * 180. / Float.Pi}
+		[a] {.radians = a * Float.Pi / 180.}
+</pre>
+	<p>Notice that we used the ':=' operator for 'degrees', since we are storing a get/set closure into it.
+	However, if we later want to assign its property value to some number (in degrees),
+	we would then use ':' or '.', which will automatically make use of this get/set closure to retrieve or alter its value.</p>
+	<p>The get/set closure used by the 'degrees' computed property
+	links the computed value accessible via 'degrees' to the float value held in 'radians'.
+	As a result, angle's single value can now be accessed in either radians or degrees:</p>
+<pre>
+# Set the angle using degrees...
+angle.degrees = 45.
+# ... retrieve it in radians
+angle.radians # 0.785398
+</pre>
+
+	<p>Computed properties are useful and convenient in many situations:</p>
+	<ul>
+	<li>Permitting methods to look and act like properties, sparing the code that uses them of having to know
+	how they are implemented and having to needlessly supply empty parentheses.</li>
+	<li>Allowing properties to begin life as stored values and later graduate through re-factoring into Closure use,
+	without necessarily having to alter any of the existing code that accessed those properties.</li>
+	<li>Performing automatic validation to ensure that a property only ever holds a valid value.</li>
+	<li>Overriding an inherited method or property and augmenting its use
+	(without needing to know anything about the original behavior).</li>
+	<li>Monitoring requests or changes to a property's value and triggering appropriate action on certain conditions.
+	2-way binding is a great example of this, where a part can subscribe to be notified whenever 
+	the value of a watched variable or property changes.</li>
+	<li>Providing aliases or portals to other properties, performing any on-the-fly
+	conversions, extractions or alterations needed to the master value.
+	For example, a 'position' property might actually retrieve or change the x,y.z position found within a 
+	transformation matrix.</li>
+	</ul>
+	<p>Several properties in the core and World type libraries (e.g., the 'size' property for collections)
+	are implemented using computed properties.</p>
+	
+	<h4 id="clofactory">Closure and Yielder Iterators</h4>
+	<p>An object may define closure or yielder iterators as named methods,
+	as illustrated by the Each method provided for collections and Range.
+	With an iterator as an object method, we want it to be re-usable, which stateful iterators are not.
+	To address this, define a named iterator method as an factory that returns a
+	new iterator each time it is called.</p>
+	<p>Yielder methods already work this way:</p>
+<pre>
+mathlib = +Object
+	Fibonacci:= *[start=1, inc=0]
+		while true
+			yield true,start
+			start,inc = start+inc, start
+			
+# using mathlib.s Fibonacci iterator factory
+each n in mathlib.Fibonacci
+	...
+</pre>
+	<p>To make a closure factory, define a method that returns a newly created closure
+	whose closure state is built using parameters passed to the factory method:</p>
+<pre>
+mathlib
+	Odds:= [start=1]
+		+[start] []
+			local s,start = start, start+1
+			s, s*2-1
+
+each n in mathlib.Odds
+	...
+</pre>
+	
+	<h3>Object Prototypes</h3>
+	<p>Objects are valuable for more than singletons;
+	they are commonly used to create several objects that share common behavior and properties.
+	To do this, begin by creating a prototype object that describes the methods, constants,
+	default properties, and "static" properties that those objects share in common.
+	A prototype is created exactly the same way as a singleton:</p>
+<pre>
+# Define a prototype called 'Ball'
+Ball = +Object
+	# Specify the properties for a ball
+	position: +Xyz(0.0, 0.0, 0.0)
+	velocity: +Xyz(0.0, 0.0, 0.0)
+	
+	# Define method that calculates new position after dt seconds
+	Move:= [dt]
+		.position = .position + .velocity * dt
+</pre>
+	<p>We can now use this defined prototype to create two new balls.
+	Notice we use +Ball for this, instead of +Object:</p>
+<pre>
+fastball = +Ball
+	position: +Xyz(0.0, 0.0, 0.0)
+	velocity: +Xyz(100.0, 0.0, 0.0)
+
+balloon = +Ball
+	position: +Xyz(0.0, 50.0, 0.0)
+	velocity: +Xyz(0.0, 10.0, 0.0)
+</pre>
+	<p>balloon and fastball are initialized with their own property values,
+	which represents the distinct state for each ball.
+	Since they were created by Ball, balloon and fastball automatically inherit its Move method.
+	So:</p>
+<pre>
+fastball.Move(0.1) # position is now +Xyz(10.0, 0.0, 0.0)
+balloon.Move(0.1)  # position is now +Xyz(0.0, 51.0, 0.0)
+</pre>
+
+	<h4>Prototypical Inheritance</h4>
+	<p>The way that objects inherit from their prototype is very straightforward.
+	If you try to use an object's named property or method:</p>
+	<ul>
+	<li>It looks first to see if the property or method is defined within the object itself (e.g., fastball).</li>
+	<li>If the property or method is not found there, it then looks for it in that object's prototype (e.g., Ball).</li>
+	<li>If it fails to find it in the prototype, it looks within the prototype's prototype (which is Object).</li>
+	</ul>
+	<p>It follows the ancestry back up the creation chain (in reverse order) until it gets to Object,
+	which is the end of the line. This is how balloon was able to use .Move (found in Ball).
+	It also explains how we were able to create a new Ball. +Ball means Ball.New,
+	which works because Ball inherits the .New method from Object.</p>
+	<p>It is a very simple mechanism.
+	All prototypes are objects and any object may become a prototype for a new object it creates.
+	This means we could, if we want, use +balloon to create a new balloon called redballoon.</p>
+	<p>With prototypical inheritance, an object automatically inherits every property, computed property and method
+	from every prototype all the way up its inheritance chain.
+	An object may add its own properties and methods or override those it inherits.</p>
+	<p>Let's explore the design implications for inheritable properties and methods.</p>
+	
+	<h4>Property Initialization and Inheritance</h4>
+	<p>In general, properties should be given values on the object they apply to.
+	Most of the time, this is the lowest level object (rather than specify them on any prototype).
+	However, there are times when it makes sense to define properties on a prototype:</p>
+	<ul>
+	<li><b>Constants</b>. For example: Float.pi</li>
+	<li><b>Multi-object state</b>. These properties apply across many objects, rather than one object in particular.
+	For example: Resource.extensions</li>
+	<li><b>Object defaults</b>. Defining property defaults at the prototype level ensures that if that
+	property is not defined at the object level, it still has a valid (default) value.
+	As long as the property's value is atomic or replaced using assignment, there is no danger.
+	<p><i>Be very careful</i>, however, when a property's default value is a mutable collection
+	(e.g., the Xyz position of a Ball).
+	If a method were to alter something within the default property's collection,
+	rather than replacing the collection with a new one at the object level,
+	that change would ripple out to all other objects that inherit that default value.</li>
+	</ul>
+	<p>An object can easily override the default value it inherits from its prototype
+	by assigning it a new value at the object level (as the balloon example demonstrates).
+	Assignments always act at the object level, so doing so leaves the prototype's default value unchanged.
+	Although an object cannot explicitly "delete" an inherited property
+	assigning the object's property to 'null' accomplishes the same thing.
+	From a property use perspective, there is no difference between a property that does not exist 
+	and one that exists, but is assigned to null.
+	The difference is only noticeable during property reflection.</p> 
+	<p>It is important to establish how a newly created object's properties are initialized.
+	Several distinct approaches are possible:</p>
+	<ul>
+	<li>Within a 'this' block, where 'this' represents the just-created object.
+	The balloon example above demonstrates this simple, straightforward technique.</li>
+	<li>Within the object's constructor (typically the prototype's .New method).
+	Later, we will describe how to define a prototype's .New method to do this.
+	Using a constructor to initialize an object's properties is preferable if property initialization is repetitive or procedural,
+	or if there is a danger that the 'this' block initialization will not define all needed properties.</li>
+	<li>In both places. The constructor would initialize properties to a default state.
+	The 'this' block can then be used to alter or add to the object's properties.</li>
+	</ul>
+	
+	<h4>Method Definition and Inheritance</h4>
+	<p>In contrast to properties, methods are more typically populated at the prototype level.
+	To be reusable by any object, prototype methods should typically be stateless.
+	For this reason, a prototype that wants to offer (stateful) closures or yielders as methods
+	will do so using <a href="#clofactory">closure or iterator factories</a>.
+	As with properties, there may be situations where it makes sense for a prototype to
+	use a stateful method, particularly when it applies across multiple objects (rather than to one specifically).</p>
+	<p>On the flip side, a key benefit of prototypical inheritance 
+	is that it is very easy for any object to define its own specific behavior.
+	This can be very useful for games and other models that make use of one-of-a-kind entities (such as a boss monster).
+	Non-prototype objects may freely use stateful methods (closures and yielders) along with its stateful properties.</p>
+	<p>In this example, superball is given the Stop capability that no other ball has.</p>
+<pre>
+superball = +Ball
+	Stop:= []
+		velocity: +Xyz(0.,0.,0.)
+</pre>
+	<p>As with properties, an newly created object's methods can be defined within a 'this' block
+	or as part of an object's constructor (e.g., .New).</p>
+	
+	<h4>Method Overriding</h4>
+	<p>A prototype (or singleton) may specify a new method that replaces an existing same-named method
+	it inherits from a parent prototype. This is called overriding.
+	If the new method wants to make use of the inherited method as part of its logic,
+	it must either:</p>
+	<ul>
+	<li>Refer to the inherited method using its properly qualified name (e.g., parent.:method).</li>
+	<li>Capture the inherited method as part of a closure that defines the new method</li>
+	</ul>
+	<p>Let's demonstrate the latter approach by showing a very common scenario:
+	defining a prototype that has its own .New constructor 
+	(which must override and make use of the .New method it inherits):</p>
+<pre>
+Mover = +Object
+	# Override .New with a closure which binds 
+	# 'super' to the prior (inherited) .New method (Object.New)
+	New:= +[super=.:New] [pos=0.0, velocity=0.0]
+		# Use super to create and return a new object
+		super()  # equivalent to:  self.(Object.:New)()
+			# Finish initialization of new object using parameter info
+			pos: pos
+			velocity: velocity
+			accel: 0.0
+
+# Create a new Mover
+obj1 = +Mover(12., 10.)
+</pre>
+	<p>A similar technique may also be applied to computed properties.</p>
+	<p>This technique may even be used more than once on the same name within a prototype,
+	much like the use of decorators in other languages (e.g., Python or Javascript).
+	This approach enables a core capability to be wrapped by parasitical pre- or post-logic that 
+	might log, validate, handle subscription notifications, etc.</p>
+
+	<h2>Classes</h2>
+	<p>Classes offer a similar capability to prototypes: 
+	they are used to create values that share similar behavior and state structure.
+	Their key advantage over prototypes is that a class-created "instance" value
+	need not have the same hashed-key collection structure nor share the same namespace as its creator.
+	This is why most of Acorn's core types (e.g., List, Text, and Float) are implemented using Classes.</p>
+	<p>Every class defines two namespaces:</p>
+	<ul>
+	<li>The class namespace (e.g., <span class="pre">List</span>),
+	which specifies the constructor(s) (e.g., <span class="pre">List.New</span>) and all other methods and properties
+	that are not specific to a class-created instance value.</li>
+	<li>The traits mixin, which specifies all methods inherited by any instance value created by the class.
+	The traits mixin is accessed using the .traits property of the named class
+	(e.g., <span class="pre">List.traits</span>).</li>
+	</ul>
+	<p>This dual structure makes classes somewhat more complex to define and use than prototypes 
+	(which combine both roles into a single namespace).
+	Also note that class instances cannot be singletons.</p>
+	<p>Other than these differences, the rest of what has been said about objects/prototypes
+	applies to classes.</p>
+	
+	<h3>Class Creation</h3>
+<pre>
+Rectangle = +Class
+	New: +[super=.:New] [len, wid]
+		super()
+			length: len
+			width: wid
+ 
+	.traits
+		area: []
+			::length * ::width
+ 
+# Instantiate the class using the new operator
+rect = +Rectangle(2,6)
+rect.area   # 12
+</pre>
+	
+	<h3>Class Creation via Composition</h3>
+	<p>Like subclassing, composition takes advantage of a base class's methods.
+	However, rather than inheriting methods from the base class, it simply makes use of them.
+	In effect, it is a wrapper around a generic collection type,
+	presenting a new interface for values of its type and hiding the base class's methods from view.</p>
+	<p>This example creates a Complex number class that is wrapped around a two-value List:</p>
+<pre>
+Complex = +Class
+	New:= [r,i]
+		self.(List.:New)(r,i) if r.float? and i.float?
+	traits = +Mixin
+		r := self.(List.traits.:'[]')(0)
+		i := self.(List.traits.:'[]')(1)
+		'+' := [v]
+			+Complex(self.r+v.r, self.i+v.i)
+</pre>
+	<p>Using +Class and +Mixin ensures Complex builds from two clean namespaces for its methods.
+	The methods defined for Complex use List's methods to store and access
+	the real and imaginary components for a complex number:</p>
+<pre>
++Complex(0.5, 1.3) + +Complex(1.2, 0.2)  # +Complex(1.7, 1.5)
+</pre>
+	<p>The base class used for the value returned by .New must be created by a subclassable type,
+	such as List, Index or Text.</p>
+	
+	<h3>Class Creation via Sub-classing</h3>
+	<p>In Acorn, a new class is typically defined by subclassing an existing collection class,
+	such as List, Index, Text or Mixin.
+	The new class (and its traits) inherits properties and methods from the specified base class.</p>
+	<p>This simple example defines a new Set class that subclasses Index:</p>
+<pre>
+Set = Index.Subclass
+	# Set's class methods & properties go here
+	# Set inherits Index.New
+	.traits
+		# a set's inherited methods go here
+		Add:= [mbr]
+			self[mbr] = true
+		Find:= [mbr]
+			self[mbr]
+</pre>
+	<p>Notice the use of the .Subclass constructor method on Index.
+	It handles the creation of Set's new class and the traits collections
+	and sets up them up to inherit from Index and Index.traits respectively.</p>
+	<p>With Set defined, we can now use it:</p>
+<pre>
+suits = +Set
+	.Add('Hearts')
+	.Add('Clubs')
+suits.Find('Clubs')     # true
+suits.Find('Diamonds')  # null
+</pre>
+	<p>Not all classes support subclassing. In particular, it is not possible to subclass
+	the core library's atomic types, such as Null, Bool, Integer, Float, and Method.
+	It is also not possible to subclass Object.</p>
+
+	<h3>Class Creation using the C-API</h3>
+	<p>The <a href="../arch/avmcapi.html">Acorn C-API</a> makes it possible to 
+	define and make use of new classes and methods that are coded in C.
+	This is very useful for defining high-performance classes that manipulate specialized data structures
+	or provide access to system capabilities via external libraries (e.g., OpenGL or database access).</p>
+	
+	<h2>Mixins</h2>
+	<p>Prototypical and classical inheritance are single-inheritance mechanisms by default.
+	An object inherits through a single line of ancestry: its prototype (or class), its prototype's prototype, etc.
+	Most of the time this is sufficient. However, single inheritance can be needlessly inflexible
+	when we want two objects from radically different prototypes/classes to share common behavior.
+	To address the inflexibility of single-inheritance, some professionals favor 
+	<a href="https://en.wikipedia.org/wiki/Composition_over_inheritance">composition over inheritance</a>,
+	a design approach that many game developers implement using an 
+	<a href="https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system">Entity-Component System</a>.</p>
+	<p>Another way to overcome the inflexibility of single-inheritance is multiple-inheritance,
+	which Acorn supports via the use of mixins. 
+	A mixin, like an object, is simply a hashed-key collection of methods (and sometimes properties).
+	However, unlike an object, a mixin does not create new values, inherits nothing from Mixin (its creator),
+	and makes no use of its own methods. 
+	A mixin's sole purpose is to make additional methods inheritable by certain values.</p>
+	<p>This example defines a trivial Mixin named Square:</p>
+<pre>
+Square = +Mixin
+	Square:= []
+		self * self
+</pre>
+	<p>Using the .Mixin method makes a mixin's methods inheritable by an object, prototype, class, or mixin.
+	For example, let's add the Square mixin to Integer and Float and then use it:</p>
+<pre>
+Integer.traits
+	.Mixin Square
+3.Square  # 9
+
+Float.traits
+	.Mixin Square
+4.1.Square  #16.81
+</pre>
+	<p>As this example demonstrates, a mixin may access methods (such as '*') or properties
+	that are not defined by the mixin, but which can be reasonably expected to be implemented
+	somewhere else in the value's inheritance chain.</p>
+
+	<h3>Multiple Inheritance Search Order</h3>
+	<p>How does Acorn handle the multiple inheritance
+	<a href="https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem">"diamond problem"</a>,
+	wherein an object inherits from two mixins that use the same name for different methods?
+	It uses the one defined by the more recently added mixin.
+	In essence, the last one specified is the first one checked.</p>
+	<p>For example, imagine an object that makes use of two mixins:</p>
+<pre>
+beachball = +Ball
+	.Mixin DiamondSkin
+	.Mixin Bouncer
+</pre>
+	<p>When we call beachball.Throw, Acorn will look for .Throw first in the Bouncer mixin,
+	and use that one if found. If not found in Bouncer, it looks in DiamondSkin.
+	Failing that, it looks for Throw in Ball (the prototype).</p>
+	<p>Although multiple inheritance offers great flexibility, it carries both a performance and complexity cost
+	when overused. The more parents in the inheritance tree, the more places that have to be checked for 
+	any value not found (which returns 'null'). 
+	Complex multiple inheritance trees are possible.
+	Acorn will faithfully search them in a disciplined depth-first order,
+	but they can become too complex for other people to easily follow.</p>
+	
+	<h3>Mixins and State</h3>
+	<p>Since, mixins are, for the most part, injected into prototypes and classes,
+	they should contain just stateless methods (and computed properties) and not instance-specific, mutable state.
+	If a mixin's methods provide an orthogonal extension which makes use of properties (state) not defined
+	by the primary inheritance chain, how do those properties get initialized for any new instance
+	that uses the mixin?</p>
+	<p>	There are three ways to initialize the properties referenced by a mixin:</p>
+	<ul>
+	<li>Individually initialize every property within every newly-created instance's 'this' block.
+	Every new instance would initialize all properties
+	referenced by every mixin, prototype and class it inherits from.</li>
+	<li>Use the mixin's initializer method within the newly-created instance's 'this' block.
+	The mixin's initializer method would initialize the unique properties it makes use of.  
+	Typically, this initializer method is given the same name as the mixin.</li>
+	<li>Have an injected mixin adjust (override) .New to automatically initialize its selected properties as well.
+	This techniques takes advantage of the fact that whenever .Mixin is used to inject a mixin into a prototype or class, 
+	it automatically calls the mixin's .Init method (if it exists). 
+	Any parameters passed to .Mixin are routed to this .Init method.
+	The .Init method can, if desired, be used to override the .New method, wrapping around it code that ensures
+	any new instance also initializes the mixin's properties in a certain way.</li>
+	</ul>
+
+	<h2>Type-checking a Value</h2>
+	<p>Determining the type for any value is deceptively easy. Just use the .type property on it:</p>
+<pre>
+# The type of an object is its prototype
++Object.type  # === Object
+
+# The type of an instance is its class's traits
+1.type        # === Integer.traits
+
+# The type of an object with injected mixin is a List
+m = +Object
+	.Mixin Amixin
+m.type        # == +List(Amixin, Object)
+</pre>
+	<p>As these examples demonstrate, an unfortunate side-effect of Acorn's inheritance flexibility is that what you get 
+	back as the type for a value varies depending on whether that type uses prototypical, classical 
+	or multiple inheritance. 
+	And, when mixins are injected, they are structurally captured using ordered Lists.</p>
+	<p>Fortunately, most of the time we are not really interested in what the value's type is.
+	We just want to know whether the value implements a specific method or 
+	makes use of a certain type's methods.
+	Acorn's <a href="https://en.wikipedia.org/wiki/Duck_typing">duck typing</a>
+	makes this possible.</p>
+	<p>The .uses? method (implemented by <a href="../types/core/all.html">All</a>)
+	may be used to check if a value implements a specific property name.
+	This provides valuable information about we can do with a value. For example:</p>
+<pre>
+val.uses?('&lt;=&gt;')     # true if the value is comparable
+val.uses?('[]')      # true if the value is indexable
+val.uses?('Each')    # true if the value's members can be iterated
+</pre>
+	<p>Determining whether a value inherits from a certain type is accomplished using pattern matching:</p>
+<pre>
++Object ~~ Object   # true
+1 ~~ Integer        # true
+m ~~ Amixin         # true
+m ~~ Object         # true
+</pre>
+	<p>Additionally, some classes provide specific methods for this purpose:</p>
+<pre>
+1.integer?          # true
+</pre>
+
+	<h2>Metaclasses and Reflection</h2>
+	<p>Thus far, this chapter has introduced the most commonly used Type features in Acorn:
+	how to define prototypes, classes and mixins and then use them to
+	create new values that properly inherit the appropriate methods and properties.
+	Let us turn to other type capabilities offered by Acorn: 
+	altering a type's definition dynamically at any time and
+	interrogating the properties or methods of by a type (reflection).</p>
+	<p>All these capabilities are possible because objects, classes and mixins are mutable first-class values. 
+	Being values, they inherit the method capabilities provided by their metaclasses: 
+	<a href="../types/core/object.html">Object</a>, 
+	<a href="../types/core/class.html">Class</a>
+	and <a href="../types/core/mixin.html">Mixin</a>.</p>
+
+	<h3>Mutable Classes</h3>
+	<p>Since objects, classes and mixins are just mutable values,
+	their properties and methods may be dynamically altered at any time.
+	Even the built-in classes provided by the core type library may be changed.</p>
+	<p>For example, the following code adds the Square method to Integer,
+	thereby making it available to all integers:</p>
+<pre>
+Integer.traits
+	Square:= []
+		self * self
+		
+3.Square   # 9
+</pre>
+	<p>Notice that we added the new method to Integer.traits, rather than Integer,
+	in order to make the method work properly on instances created by Integer.</p>
+	
+	<h3>Type Reflection</h3>
+	
+	<h3>How Inheritance Works</h3>
+	<p>Inheritance is controlled by three properties:</p>
+	<ul>
+	<li><span class="pre">.type</span> (all values).
+	This can be a type or a list of types.
+	It is the entryway to all properties the value inherits.</li>
+	<li><span class="pre">.inheritype</span> (only types).
+	This can be a type or a list of types.
+	Never used by the type itself, this a gateway to additional properties
+	inherited by a value who has inherited this type's properties.
+	In other orders, inheritance for a value begins with .type, 
+	but uses .inheritype for all further hops up the parent tree.</li>
+	<li><span class="pre">.prototype</span> (only types).
+	True if the type uses its own properties.</li>
+	</ul>
+	<p>Acorn is able to efficiently support many inheritance techniques by 
+	having the different varieties of types use these properties differently:</p>
+	<ul>
+	<li>Prototypes and classes keep .type and .inheritype to the same value and set .prototype to true</li>
+	<li>Mixins have different values for .type (the methods it uses for itself) 
+	and .inheritype (the properties it delegates to other values). .prototype is false.</li>
+	<li>Type has .type and .inheritype set to null and .prototype set to true.</li>
+	</ul>
+	<p>The inheritance search starts with self, if .inheritype is true.
+	Failing that, it proceeds depth-first through the parent tree starting with .type.
+	When it encounters a list of types, it looks into each in order. When it encounters null, it backs up.
+	If the inheritance search fails to find a match for the desired property,
+	the "All" type is checked last. If it fails too, 'null' is returned.</p>
+
+	<h3>Composition vs. Inheritance</h3>
+	<p>Although this chapter focused entirely on dynamic, multi-level, multi-parent inheritance,
+	Acorn supports just as well a design where inheritance has been flattened to one level,
+	accomplished by statically copying in the inheritable properties down into every 
+	type that uses them. Such as strategy might improve performance.
+	However, it would be problematic if the world is in the habit of dynamically modifying its 
+	types after it is loaded up and running.</p>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refresource.html"><img alt="_" src="next.png" /></a>
+		</p>
+
+	</div>
+	</body>
+</html>

@@ -1,0 +1,246 @@
+<html>
+  <head>
+	  <title>Control Blocks - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Control Blocks and Clauses</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Control blocks</b> are an indented sequence of statements that are wrapped
+	together in a shared control context and 
+	<a href="refmethod.html#local">lexical scope</a> for local variable declarations.
+	Acorn offers several types of control blocks:</p>
+	<ul>
+	<li><b><a href="refmethod.html#method">method</a>, 
+	<a href="refmethod.html#closure">closure</a>, and 
+	<a href="refmethod.html#yielder">yielder</a></b>, 
+	which provide various ways to operate on parameters passed by its caller and eventually
+	return a value back to the caller
+	<i>(described in an earlier chapter)</i>.</li>
+	<li><b><a href="#do">do</a></b>, which wraps a sequence of statements within a context of 
+	values that are begun at the start and stopped at the end.</li>
+	<li><b><a href="#if">if ... elif .. else</a></b>, which uses conditional expressions to determine which 
+	sequence of statements to perform.</li>
+	<li><b><a href="#match">match</a></b>, which matches a value against multiple patterns, 
+	each corresponding to a sequence of statements to perform if that match is successful.</li>
+	<li><b><a href="#while">while</a></b>, which repetitively performs a sequence of statements 
+	so long as a specific conditional expression remains true.</li>
+	<li><b><a href="refcollect.html#this">this</a></b>, which focuses the attention of a sequence of statements 
+	on a specific value referred to explicitly or implicitly by the pseudo-variable 'this' 
+	<i>(described in the next chapter)</i>.</li>
+	<li><b><a href="refcollect.html#each">each</a></b>, which repetitively performs a sequence of statements
+	for each value retrieved by an iterator until it is done 
+	<i>(described in the next chapter)</i>.</li>
+	</ul>
+	<p><b>Control clauses</b> are a concise version of three of these control blocks 
+	(<a href="#ifclause">if</a>, <a href="#while">while</a>, 
+	<a href="refcollect.html#eachclause">each</a>).
+	Control clauses make it possible for a single line to contain both a statement (such as an expression statement,
+	break, continue, return or yield)
+	and a control clause that operates on just that statement as if it were a one statement block.
+	Multiple clauses may be specified on a statement; they are handled in reverse order
+	(see <a href="refcollect.html#eachclause">each clause</a> for examples).
+	Any expression statement that uses a control clause should avoid declaring local variables;
+	its variables are lexically scoped within the control clauses that follow.</p>
+	
+	<h2 id="do">'do'</h2>
+	<p>A 'do' block without specified values may be used to
+	separate out an indented sequence of statements that have a lexical scope for local variables.</p>
+<pre>
+do
+	local max = a&lt;b ? b : a
+	Vm.Print(max)
+</pre>
+	<p>A 'do' block that specifies one or more comma-separated expressions acts as a context manager
+	(similar to Python's 'with' statement).
+	Acorn will invoke the .Begin method on all those values before performing the first statement in the block.
+	It will also invoke the .End method on all those values after performing the last statement in the block.</p>
+<pre>
+do timer
+	# timer.Begin automatically performed here
+	biglist.Sort
+	# timer.End automatically performed here
+</pre>
+	<p>'do' offers a safe, convenient way to handle resources that have a specific usage life-time, 
+	such as files, i/o, timers, transactions (where .End performs a commit), processes, locks, or yielders. 
+	It is perfectly fine for a resource's type to 
+	implement an 'End' method but not a 'Begin' method.</p>
+
+		<h2 id="if">'if'</h2>
+		<p>Acorn provides three techniques for using conditional expressions
+		to determine which value to use or which code block to perform:
+		the '?' operator, the 'if' clause, and the 'if' code block.</p>
+		
+		<h4>? operator</h4>
+		<p>The ? operator is a concise way to pick one of two values within an expression.
+		If the expression before the ? operator is true, the value after the '?' is picked.
+		Otherwise the value after the 'else' is chosen:</p>
+<pre>
+x = val&lt;5.0 ? 5.0 else val   # sets x to the higher between 5.0 and val
+</pre>
+		<p>Note: To avoid the possibility of a question-mark being treated as part of a method or property name, 
+		always be sure to put a space before the ? operator.</p>
+
+		<h4 id="ifclause">if clause</h4>
+		<p>If you have a single statement that should execute (or not) based on a condition, 
+		append the statement with 'if' followed by the condition:
+<pre>
+val = 5.0 if val&lt;5.0   # if val is less than 5, set it to 5
+</pre>
+		
+		<h4>if block</h4>
+		<p>For more complex scenarios, use the 'if' block. 
+		The statements to perform on a true condition are tab-indented as a block.</p>
+<pre>
+if cmd=='snow'
+	sky.weather = cmd
+	$$.ambient Color.Gray
+</pre>
+		<p>Use the 'else' block whenever you have alternative set of statements to perform 
+		should the condition evaluate as false.</p>
+<pre>
+if actor.mood == 'happy'
+	actor.action = 'dance'
+else
+	actor.eyes = 'cry'
+</pre>
+		<p>One can insert one or more 'elif' blocks to sequentially check other conditions
+		and perform the associated statement block if true.
+		'else', if specified, should always be last.</p>
+<pre>
+moving = true
+if x&lt;=0.0
+	speed = 0.0
+	moving = false
+elif y&lt;3.0
+	speed = 1.0
+else
+	speed = 5.0
+</pre>
+
+		<h2 id="match">match</h2>
+		<p>The match block is similar to, but more powerful than, the 'switch' block found in other languages.
+		The 'match' block is used to sequentially match a single value against multiple patterns.
+		It will perform the first code block associated with a successful match,
+		or the 'else' block, if there are no matches.</p>
+<pre>
+match term_speed
+with 0.0 .. 1.5  # equivalent to: if +Range(0.,1.5).'~~'(term_speed)
+	ship.state = 'landing'
+with 1.5 .. 4.0  # equivalent to: if +Range(1.5,4.0).'~~'(term_speed)
+	ship.state = 'crashing'
+else
+	ship.state = 'flattened'
+</pre>
+		<p>By default, the 'match' block uses the '~~' method 
+		to match each successive pattern against the value of the 'match' statement's expression,
+		as the comments demonstrate.
+		A match happens if the return value is anything other than false or null.
+		The first 'with' matches if the value term_speed lies between 0 and 1.5.
+		If it matches, the ship's state is set to 'landing'.</p>
+		<p>Several of Acorn's core types implement the '~~' method:</p>
+		<ul>
+		<li><b>Range</b> matches whether an Integer or Float lies within its defined range.</li>
+		<li><b>Type</b> matches whether a value makes use of that type's defined traits.</li>
+		<li><b>All</b> ensures that a '~~' match is treated like '==' for any type that 
+		does not implement the ~~ method.
+		This allows the 'match' block to be used the way one would use a 'switch' block
+		in other languages.</li>
+		</ul>
+		<p>Additional pattern matching types can be easily defined that implement the '~~'
+		method, thereby extending the pattern matching capability of Acorn.</p>
+		
+		<h4>The 'using' clause</h4>
+		<p>Append a 'using' clause to the 'match' statement to specify a 
+		specific method to use for matching (as opposed to using the default '~~'):</p>
+<pre>
+match number using '=='
+with 0
+	.turn
+with 1
+	.jump
+</pre>
+		<p>The using clause can specify any method symbol (including the default '==' and '==='
+		provided by All). Any executable method, closure or yielder may also be specified.</p>
+
+		<h4>Multiple patterns on a 'when'</h4>
+		<p>A 'with' statement can list multiple match patterns, separated by commas.
+		A match on any of those match patterns activates that code block.</p>
+<pre>
+match number using '=='
+with 0,1
+	.turn
+with 2,3,4
+	.jump
+</pre>
+
+		<h4>Extracting match results</h4>
+		<p>Some patterns do more than matching.
+		They also extract or transform matched elements within a successfully matched source value, 
+		returning one or more new digested value
+		(so long as the first returned value is not false or null, which indicates a match failure).
+		Specify the variables names that hold these returned values with an 'into' clause
+		at the end of the 'match' statement:</p>
+<pre>
+# Cmd is a custom-built pattern for decoding commands
+match command into thing
+with +Regex"fight [*]"
+	combat: true
+	opponent: thing
+with +Regex"use [*]"
+	.use(thing)
+</pre>
+		<p>Regex returns the portion of the Text that lies within the square brackets.
+		So, if command was "fight Lux", the first match would succeed and thing would be set to "Lux".</p>
+		<p>Alternatively, the return variable name(s) may be specified on any specific 'with' statement:</p>
+<pre>
+match command
+with +Regex"fight [*]" into npc
+	combat: true
+	opponent: npc
+with +Regex"use [*]" into item
+	.use(item)
+</pre>
+
+</pre>
+		
+		<h2 id="while">while</h2>
+		<p><span class="pre">while</span> executes the same statement(s) over and over as long as its condition remains true.
+		The condition is checked right away and every time after the statement(s) have been performed.</p>
+		<p>This example uses a while block:</p>
+<pre>
+x = 0
+while x&lt;=5
+	$.log "WARNING, WARNING! Will Robinson"
+	x+=1
+</pre>
+		<p><span class="pre">while</span> may be used as a control clause:</p>
+<pre>
+$$.show(list.extract) while !list.empty?
+</pre>
+		<p id="break">The <span class="pre">break</span> statement, placed anywhere within a while block, 
+		provides a way to instantly and explicitly stop performance of the 'while' block statements.
+		break is typically used with an 'if' control clause:</p>
+<pre>
+while true    # without the break, this loop would run forever
+	actor.walkstep  # will happen at least once
+	break if keypress=='space' # stops whenever the space bar is pressed
+</pre>
+		<p>By contrast, the <span class="pre">continue</span> statement 
+		ignores all subsequent statements in the 'while' block, returning
+		control back to the top of the while block where the conditional expression is re-evaluated.</p>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refcollect.html"><img alt="_" src="next.png" /></a>
+		</p>
+
+	</div>
+	</body>
+</html>

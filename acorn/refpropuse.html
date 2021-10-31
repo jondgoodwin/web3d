@@ -1,0 +1,347 @@
+<html>
+  <head>
+	  <title>Property or Method Use - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Property or Method Use</div>
+		</div>
+
+    <div class="text">
+
+		<p>Once we have a value, a named property can be applied to it.
+		The result depends on the requested property:</p>
+		<ul>
+		<li>Some provide access to a data attribute of the value. 
+		For example, the 'size' property is used to get or set the number of members of a collection value.</li>
+		<li>Others perform some work using the method assigned to the property.
+		For example, the '+' property is used to add together two numbers.</li>
+		<li>Some properties, called <a href="reftype.html#computedprop">computed properties</a>, do both.</li>
+		</ul>
+		<p>The properties available to a value are determined by the value's type.
+		Thus, the properties that can be applied to an Integer value will be different 
+		than those which apply to a List collection.</p>
+		<p>This chapter describes several ways to make use of a value's properties or methods.</p>
+		
+		<h2>The '.' Operator</h2>
+		<p>The '.' operator is used to access a value's properties or methods
+		which it inherits from its <a href="reftype.html">type</a>.</p>
+		<h3>Property Access</h3>
+		<p>Use the dot operator '.' to explicitly access a value's property.
+		The base value goes to the left and the name of the property goes to the right.
+		The name can be a name token, a symbol token, or an expression in parentheses that evaluates to a symbol.
+		Acorn uses the property it finds within the value's type.</p>
+		<p>For example, collections (such as a List) often offer the 'size' property
+		which corresponds to the number of values held by the collection. Thus:</p>
+<pre>
+# alphabet is a List containing the letters of the alphabet
+alphabet.size    # returns 26
+</pre>
+		<p>To change any property's value, place it to left of an assignment operator:</p>
+<pre>
+alphabet.size = 10   # The alphabet list is now smaller, only having the letters "a"-"j"
+</pre>
+		<p>When no base value is placed before the dot, 
+		Acorn uses <span class="pre">this</span> as the base value.
+		Refer to <a href="refcollect.html">this blocks</a> for a more
+		detailed treatment on how several operators like '.' implicitly make use of the 'this' value.</p>
+<pre>
+.size    # equivalent to this.size
+</pre>
+		<p>'null' is returned when using a property unknown to the value's type:</p>
+<pre>
+alphabet.mumble  # returns null
+</pre>
+
+		<h4>Calculated property names</h4>
+		<p>Property names are nearly always symbols. 
+		Most of the time, we know which property we want to use by name, so we just specify that name after the dot.
+		Acorn treats this variable-like identifier after the dot as a symbol, rather than a variable.
+		<p>If the property name requires characters not allowed in a variable name,
+		enclose its name within single quotes:</p>
+<pre>
+alphabet.'size'   # equivalent to: alphabet.size
+</pre>
+		<p>For accessing a property whose name is dynamically specified,
+		use an expression within parentheses that calculates the property's symbolic name:</p>
+<pre>
+shape.(attr)      # if attr is 'color', equivalent to: shape.color
+</pre>
+		
+		<h3>Method Calls</h3>
+		<p>Calling a method also uses the '.' notation, but may add to it 
+		comma-separated values in parentheses to pass on to the method as its parameters.
+		The base value (to the left of the dot) is passed to the method as 
+		the implicit parameter <span class="pre">self</span>:</p>
+<pre>
+# Insert characters into a text
+"pot".Insert(2, "u") # returns "pout"
+</pre>
+		<p>Here is another example:</p>
+<pre>
+# For Floats, the '+' method adds the two numbers
+4.0.'+'(2.1)      # Returns 6.1
+# For text values, the '+' method concatenates them
+"abc".'+'("def")  # Returns "abcdef"
+</pre>
+		<p>Three notes about this example:
+		<ul>
+		<li>Acorn <b>does</b> support the '+' operator as a simpler way to do addition
+		(see <a href="#arithops">here</a>).</li>
+		<li>Since the property name of '+' uses a punctuation character not allowed in a 
+		<a href="reftoken.html#name">name token</a>, its name is enclosed within the single quotes of a 
+		<a href="reftoken.html#quote">symbol token</a> 
+		(all property names are symbols).</li>
+		<li>The example uses '+' twice:
+		once to add two Float values and the other time to concatenate two Text values.
+		In each case, Acorn uses the appropriate method as defined by the base value's type.</li>
+		</ul>
+		
+		<h4>Return values from method calls</h4>
+		<p>Most methods will return at least one value.
+		The return value(s) can be ignored, if desired.
+		If the requested method does not exist, 'null' is returned.</p>
+		<p>A method may return multiple values. 
+		One way to capture these values is with a parallel assignment:</p>
+<pre>
+a,b = list.Unpack  # a receives the first return value, b the second
+</pre>
+		
+		<h4 id="varparms">Passing a Variable Number of Parameters</h4>
+		<p>A value returned from one method may be passed on to another method.
+		If a method call is used as the last parameter and it returns multiple values,
+		all those values are included as parameters:</p>
+<pre>
+# Log a message using position's unpacked x, y, and z values.
+$.Log("position at: %,%,%", position.Unpack)
+</pre>
+		<p>Similarly, using the <a href="refmethod.html#multparms">splat operator ('...')</a>
+		as the last specified parameter will include all its values as parameters.</p>
+<pre>
+# Passing on the remaining parameters received
+$.Log("msg %", ...)
+</pre>
+
+		<h4>Method Assignment</h4>
+		<p>Like properties, method calls may appear to the left of an assignment:</p>
+<pre>
+thing.Add('tweeter') = 'simple'
+</pre>
+		<p>This only works if the Add method is implemented using a 
+		<a href="refmethod.html#getset">get/set Closure</a> that has a defined 'set' method.
+		The value to be assigned is passed to the method as the first parameter,
+		followed by the specified parameters.
+		Thus, the example above calls the Add closure's 'set' method, 
+		passing it the two parameters 'simple' and 'tweeter'.</p>
+		
+		<h4>Calculated Method Names</h4>
+		<p>Just like with properties, the symbolic name of a method may be calculated 
+		using an expression enclosed within parentheses:</p>
+<pre>
+thing.(verbsym)(a,b)   # If verbsym is 'Add', equivalent to: thing.Add(a,b)
+</pre>
+		<p>Alternatively, the expression may return an executable value (such as a method or closure)
+		rather than a symbol. In this case, the method will be called directly
+		(bypassing the step where the method to perform is retrieved using its symbolic name).
+		This is helpful when calling anonymous methods.</p>
+<pre>
+self.(approach)(a,b)  # approach is a variable holding an anonymous method
+</pre>
+
+		<h4>Method Chaining</h4>
+		<p>Method calls can be appended end-to-end.
+		They are performed from left to right, with the return value of the first being used
+		as the base value of the second, and so on.</p>
+<pre>
+# Handle when frosty is hit by the summer sun
+frosty.Jump(10).Yell("Ow!").Grow(0.9)
+</pre>
+		<p>Chaining depends on a convention where methods return 'self' when no other return value is expected.
+		Thus, the value of frosty is effectively passed on to all three methods, making him jump, yell and shrink.</p>
+		<p>A similar technique, method cascading, is also supported using
+		<a href="refcollect.html">this blocks</a>. 
+		Method cascading does not require that the cascaded methods return 'self'.</p>
+
+		<h3>Computed Properties</h3>
+		<p>So far, this chapter has presented properties and methods as distinctly different sorts of things.
+		It is not quite that clear-cut. First of all, properties and methods share the same symbolic namespace
+		as established by the base value's type. By convention, symbols that start with a lower case letter 
+		are typically properties. Capital-lettered symbols are typically methods.</p>
+		<p>How does Acorn know whether the dot operator is to access a property value or call a method?
+		It doesn't look at the name, which is not enforced.
+		If the inherited value assigned to that name refers to something executable it calls it.
+		Otherwise, it treats the symbol's assigned value as a property to retrieve or change.</p>
+		<p><a href="refcollect.html">Computed properties</a> are a hybrid between properties and methods.
+		They look just like properties, as no parameters are specified. 
+		However, the computed property's result is performed by calling the property's defined method or closure.</p>
+		<p>For example, the '.size' property for collections is typically implemented 
+		as a computed property using a get/set closure.</p>
+		
+		<h2>The '.:' and '::' operators</h2>
+		<p>The '.:' operator works exactly like '.' with one exception:
+		Any executable value referred to by the inherited property or method name will not be called. 
+		Instead, that executable value (e.g., a Method) is returned as a first-class value.
+		Using '.:' is the equivalent of treating methods (and computed properties) just like properties.</p>
+<pre>
+method = list.:size   # retrieves the method or closure that list uses to get/set its size
+</pre>
+		<p>The '::' operator is similar to '.:', except it works with a value's owned (rather than inherited) values.
+		It is used to retrieve or set a specific value within a collection using the specified index.
+		As with '.', the identifier after '::' is treated as a symbol rather than a variable.
+		Like '.', '::' operations can be chained.</p>
+<pre>
+capitals::a = 'A'
+capitals::a  # 'A'
+# Access Mr. Jones's barn's weather vane
+farm::barn::vane
+</pre>
+
+		<h2>Method Call Shortcuts</h2>
+		<p>The language features described above are sufficient to perform any kind of property access or method call.
+		However, to help make code more succinct and readable, Acorn offers a number of useful shortcuts
+		for certain kinds of method calls, such as:</p>
+		<ul>
+		<li>Direct method calls</li>
+		<li>[] Indexing</li>
+		<li>Arithmetic, Collection and Comparison operators</li>
+		<li>'+' and .. constructor operators</li>
+		</ul>
+		
+		<h3>Direct method calls</h3>
+		<p>It is possible to call a method directly without using the dot notation.
+		This is useful for calling locally defined anonymous methods or methods retrieved using the '.:' operator.
+		To perform this call, follow the variable (or expression) that holds the method 
+		with parentheses that enclose all parameters.
+		This call automatically assumes <span class="pre">self</span> to be the base value
+		(unless the called method is a closure that has bound self to another value):</p>
+<pre>
+# Assume the variable 'add' holds a method which adds together its two parameters
+add(4,5)   # returns the value of 9. Equivalent to self.(add)(4,5)
+</pre>
+
+		<h3>[] Indexing</h3>
+		<p>Indexing provides direct get or set access to specified elements within a collection.
+		To index into a collection, follow the collection's value with the desired index enclosed in square brackets.
+		Under the covers, Acorn uses the collection's '[]' method to perform the indexing.</p>
+<pre>
+# Assume the variable 'letters' holds a List containing the values: 'a', 'b', 'c'
+letters[0]        # returns the value 'a'. Equivalent to: letters.'[]'(0)
+letters[1] = 'x'  # changes the second value in letters from 'b' to 'x'
+
+# Assume the variable 'dict' holds an empty Index
+dict['word'] = "A collection of letters."
+dict['word']      # returns "A collection of letters."
+dict['gnihton']   # returns null, as no value exists at that index
+</pre>
+		<p>Note that dict['word'] will typically give the same result as dict.word.
+		However, it does not have to: '[]' uses a method which can be overridden.
+		By contrast, '::' is an internal operator whose logic cannot be altered.</p>
+
+		<h3>Arithmetic and Other Operators</h3>
+		<p>Several operators may be used as syntactic short-cuts for method calls, 
+		where the method's symbolic name is typically the same as the operator.</p>
+		
+		<h4 id="arithops">Arithmetic Operators</h4>
+		<p>Acorn supports the standard set of arithmetic operators, each of which maps to
+		a specific method name. They can be used with any type that defines methods for them,
+		such as Integer, Float, and various collection types:</p>
+		<dl>
+		<dt>'+'</dt>
+		<dd>Addition or concatenation. 
+		When '+' is used as a prefix operator, it creates new instance values (see <a href="#new">below</a>).</dd>
+		<dt>'-'</dt>
+		<dd>Subtraction or elimination. 
+		When '-' is used as a prefix operator (negative), its method name is '-@'.</dd>
+		<dt>'*'</dt>
+		<dd>Multiply or replication.</dd>
+		<dt>'/'</dt>
+		<dd>Divide or split.</dd>
+		<dt>'%'</dt>
+		<dd>Modulo or format.</dd>
+		<dt>'**'</dt>
+		<dd>Exponent.</dd>
+		</dl>
+		<p>Acorn applies the normal algebraic precedence order for these operators.
+		Parentheses can be used to override the order of evaluation.</p>
+<pre>
+a+b*c    # equivalent to a.'+'(b.'*'(c))
+(a+b)*c  # equivalent to (a.'+'(b)).'*'(c)
+</pre>
+
+		<h4>Arithmetic Assignment</h4>
+		<p>For convenience, Acorn does support the arithmetic assignment operators: '+=', '-=', '*=', '/='.
+<pre>
+a.b(c) += 1   # equivalent to a.b(c) = a.b(c) + 1, with the values a,b,c only evaluated once
+</pre>
+		<p>Although these assignment operators do not perform the assignment using a method,
+		the arithmetic operation is performed using a method.</p>
+		
+		<h4>Collection Operators</h4>
+		<p id="collops">In addition, Acorn offers these collection-only operators:</p>
+		<dl>
+		<dt>&lt;&lt;</dt>
+		<dd>Append operator. This adds the value on the right to the ordered collection on the left
+		(similar to '+', but it changes the existing collection rather than creating a new one).</dd>
+		<dt>&gt;&gt;</dt>
+		<dd>Prepend operator. Similar to append, but it inserts the second value into the beginning
+		of the ordered collection.</dd>
+		
+		<h4>Comparison Operators</h4>
+		<p>Several comparison operators are implemented using the '<=>' method. 
+		Additionally, the '~~' operator is implemented using a method of the same name.
+		See the <a href="refcondexp.html">Conditional Expressions</a> chapter for details on these operators.</p>
+		
+		<h3 id="new">'+' New Operator</h3>
+		<p>The <span class="pre">+</span> prefix operator, followed by a type value,
+		creates a new value (or <i>instance</i>) of that type. For example:</p>
+<pre>
++List    # Creates a new empty List. Equivalent to List.New
+</pre>
+		<p>Parameters, enclosed in parentheses, can be added to guide how the new value is initialized:</p>
+<pre>
++List(1,2,3)  # Creates a new List that has three values
+</pre>
+		<p>Alternatively, a literal symbol or string can be specified without parentheses,
+		and will be treated as a single parameter:</p>
+<pre>
++Regex"\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b"
+</pre>
+		<p>Some notes:</p>
+		<ul>
+		<li>The '+' prefix is the equivalent of calling the '.New' constructor method on the value.
+		Should any dot property be placed right after a '+'-created value,
+		that property is applied after creating the instance using .New.</li>
+		<li>'+' can be applied to any value, but unless it is a Type, it will likely return 'null'
+		since non-type values generally do not implement the '.New' property.</li>
+		<li>Other class methods besides '.New' may be defined as constructors for new instances.
+		Calling them must be done explicitly, e.g.:
+		<span class="pre">Shape.NewSphere(4.0)</span></li>
+		<li>For atomic types (e.g., an Integer), a literal effectively creates a new value of that type.
+		However, one can use '+' to convert some value to an atomic value.
+		For example: <span class="pre">+Integer("124")</span></li>
+		</ul>
+		
+		<h4>Range Constructor</h4>
+		<p>The '..' operator is a useful shortcut for creating 
+		new <a href="../types/core/range.html">Range</a> values:
+<pre>
+# The space before .. prevents confusing 1 with the Float 1.
+1 .. 4        # equivalent to: +Range(1,4)
+1 .. 5 .. 2   # equivalent to: +Range(1,5,2)
+</pre>
+		<p>Range values are useful for iterating over a range of values
+		or for matching whether a value falls within an interval of values.</p>
+
+		</dl>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="refmethod.html"><img alt="_" src="next.png" /></a>
+		</p>
+		
+	</div>
+	</body>
+</html>

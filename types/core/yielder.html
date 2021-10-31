@@ -1,0 +1,49 @@
+<html>
+  <head>
+	  <title>Yielder - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Yielder (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p><b>Yielder</b> preserves an independent execution context for a running/suspended method.</p>
+		<p>There are no class methods for Yielder, as the only way to create a new yielder is
+		by calling a yielder method.</p>
+
+		<h3>Instance Traits</h3>
+		<dl>
+		<dt>Begin</dt>
+		<dd>Executes the execution context up to the next 'yield'.
+		This enables a yielder to be used a a context within a 'do' block.</dd>
+		<dt>done?</dt>
+		<dd>Returns true if the yielder is finished (once it performs a return).
+		Otherwise it returns false.</dd>
+		<dt>End</dt>
+		<dd>Executes the execution context up to the next 'yield' or return.
+		This enables a yielder to be used a a context within a 'do' block.</dd>
+		<dt>frames</dt>
+		<dd>The number of frames the context holds currently</dd>
+		<dt>method</dt>
+		<dd>[frame]<br/>
+		The method executing at the specified frame.</dd>
+		<dt>stack</dt>
+		<dd>[frame,index]<br/>
+		The value on the stack at the specified position on the specified frame.</dd>
+		<dt>stacksize</dt>
+		<dd>[frame]<br/>
+		The number of values on the stack for the specified frame.</dd>
+		<dt>Reset</dt>
+		<dd>Resets an context to its initial state.
+		This depends on the values of the initial parameters remaining unchanged.</dd>
+		</dl>
+		
+	</div>
+	</body>
+</html>

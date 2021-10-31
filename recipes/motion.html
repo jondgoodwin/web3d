@@ -1,0 +1,173 @@
+<html>
+  <head>
+	  <title>Motion - Recipes</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Recipes</div></a>
+			<div id="sub">Motion</div>
+		</div>
+
+    <div class="text">
+
+	<p>TBD. Notes follow...</p>
+	<p>One of the joy's of Acorn is how straightforward it can be to animate a scene's parts.
+	A few examples should help get this concept across.</p>
+	
+	<h2>Dizzy Earth</h2>
+	<p>Let's make the earth spin, by appending a few lines:</p>
+<pre>
+Scene[
+	name: 'Spinning Earth Scene'
+	ambient: Color::Grey
+
+	# Scene's objects
+	$::me
+		.position = Xyz[0, 47, 222]
+	Object[
+		name: 'earth'
+		mesh: Mesh::Sphere(60.)
+		skin: @earth.jpg
+		position: Xyz[0, 0, 0]
+		spinrate: 0.628318
+
+		# Spin earth a bit every frame
+		animate(dt):>
+			.yaw += dt * ::spinrate
+</pre>
+	<p>How does this animation work?</p>
+	<p>The browser re-draws the 3-D scene many times every second. Each drawing is called a frame. 
+	After it draws each frame, it will call the animate method for every scene part that has one,
+	passing along how many seconds have elapsed since the last frame.
+	For acceptable animation, this "dt" value should stay well below 0.04 seconds
+	(and some would argue it should be well below half that number).</p>
+	<p>In the example, the animate method increments the earth's "yaw" rotation by a small amount,
+	calculated by multiplying the elapsed time by the how fast we want the earth to spin
+	(in radians per second). This technique ensures that the earth performs a complete rotation 
+	every 10 seconds, regardless of how quickly frames are getting drawn.
+	The effect of a slowly increasing "yaw" is to rotate the earth a bit along the y (polar) axis.</p>
+
+	<h2>A Silly Solar System</h2>
+	<p>Wouldn't it be fun to broaden this example into a model of make-believe solar system?
+	I thought so too!</p>
+	
+	<h3>Heavenly Bodies</h3>
+	<p>A solar system needs multiple planets and other satellites, all with similar behavior.
+	So, we need a new Type that creates such heavenly bodies. Let's call it Body.
+	Here is its Type definition found in the resource body.acn:</p>
+<pre>
+###
+Creates a spherical heavenly body with these specified properties:
+- skin. The look of the body
+- radius. Size of the body
+- spinrate. How fast it spins around its axis: radians per second
+- position. Starting position
+- velocity. Starting velocity
+- gravity. G * mass
+###
+Body = Type[
+	Object
+
+	# Initialize created body
+	begin:>
+		::mesh = Mesh::Sphere(::radius)
+		::velocity = Xyz[0, 0, 0] if ::velocity.null?
+
+	# Define motion rules
+	animate(dt):>
+		# Spin it a bit
+		.yaw += dt * ::spinrate
+		
+		# Calculate new velocity & orbital position, based on owner's gravity
+		oldvel = ::velocity
+		::velocity += -::position.normalize * (dt * ::owner::gravity/::position.sqlength)
+		::position += (::velocity + oldvel)*(dt/2)
+</pre>
+	<p>The comments at the top are a good reminder of what properties we will 
+	need to specify when we use the Type to create new heavenly bodies.</p>
+	<p>We are using another method called "begin" which can be specified in any part.
+	Its purpose is to initialize the part once its content has been fully loaded by the 
+	loader and resource manager. We use it here to specify that all bodies use a spherical mesh,
+	whose size is determined by the body's radius. The begin method also ensures that
+	velocity has a default value, if left undefined.</p>
+	<p>The animate method still spins the body. It also updates the body's velocity
+	and position based on some crude physics formulas that simulate the effect of gravitational attraction
+	from its owner. These formulas will break down badly the higher the orbital speed.
+	This is a pretty fixable problem, but not worth the time for a simple example.
+	<p>If these formulas make your head spin, don't worry.
+	You don't really need to understand the formulas here to get the basic message:
+	with Acorn you can do any sort of calculation that modifies an object's position or other properties
+	on a real-time basis. If you ever need to do this sort of math (which is pretty rare),
+	just make friendly with someone that loves this sort of thing.</p>
+	
+	<h3>Orbiting Satellites</h3>
+	<p>Now that we have a general-purpose heavenly body type, 
+	let's use it to assemble a small, mythical solar system scene with a few orbiting bodies.</p>
+<pre>
+# We must ensure the Body type is loaded
+require
+	Body = @body.acn
+
+Scene[
+	name: 'Solar System Scene'
+	ambient: Color::Grey
+	gravity: 20000.
+
+	# Scene's objects
+	$::me
+		.position = Xyz[0, 47, 222]
+
+	Body[
+		name: 'Sun'
+		skin: @sun.jpg 
+		radius: 30.
+		spinrate: .05
+		position: Xyz[0, 0, 0]
+
+	# Earth's system
+	Body[
+		position: Xyz[70,70,0]
+		velocity: Xyz[0,0,-10]
+		gravity: 30000.
+		
+		# Create the earth		
+		Body[
+			name: 'Earth'
+			skin: @earth.jpg 
+			radius: 10.
+			spinrate: 2.
+			
+		# Create the moon
+		Body[
+			name: 'Moon'
+			skin: @moon.jpg 
+			radius: 5.
+			spinrate: 3.
+			position: Xyz[-15,0,0]
+			velocity: Xyz[0,-30,0]
+				
+	# Create Jupiter		
+	Body[
+		name: 'Jupiter'
+		skin: @jupiter.jpg 
+		radius: 20.
+		spinrate: 1.
+		position: Xyz[-110,-30, 0]
+		velocity: Xyz[0,1,8]
+</pre>
+	<p>It should make sense that we created the earth and Jupiter inside the Sun, so their
+	orbits are calculated based on the Sun's gravity. Similarly, the moon was created inside the earth,
+	as it orbits around the earth.<p>
+	<p>Feel free to play with this model by adding more planets and satellites. 
+	Try leaving out the velocity property, and notice how the body accelerates towards its owner.
+	Then notice what doesn't happen when they collide. 
+	
+	<h2>Patrolling Robots</h2>
+	<a href="http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Intermediate+Tutorial+1&structure=Tutorials">ogre</a>
+	
+	</div>
+	</body>
+</html>

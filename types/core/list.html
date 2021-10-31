@@ -1,0 +1,86 @@
+<html>
+  <head>
+	  <title>List - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">List (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>A <b>List</b> is an ordered collection of values.</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>With no parameter, it creates an empty list.
+		With a single Integer, it creates a list with that many 'null' values.
+		With parameters, it creates a list whose size is the number of values,
+		populated by the parameter values in order.</dd>
+		</dl>
+		
+		<h3>Instance Methods</h3>
+		<dl>
+		<dt>[]</dt>
+		<dd>Get (or set) the element specified by the integer parameter.
+		If the integer value is negative, it indexes relative to the end of the list.</dd>
+		<dt>&lt;&lt;</dt>
+		<dd>Append (push) the value(s) onto the end of the List</dd>
+		<dt>&gt;&gt;</dt>
+		<dd>Insert (prepend or shift) the value(s) at the beginning of the List</dd>
+		<dt>Clone</dt>
+		<dd>Create and return new list containing a shallow copy of elements from original list.
+		One can specify the starting position (default 0) and number (to end of list) 
+		of elements to copy from the original list.
+		A negative starting position is relative to the number of elements in the list.</dd>
+		<dt>Each</dt>
+		<dd>Returns an closure that iterates over the list, returning the index and the next sequential
+		element of the list each time it is called.</dd>
+		<dt>empty?</dt>
+		<dd>Return true if List has no elements</dd>
+		<dt>Fill</dt>
+		<dd>Fill elements of list to a specified value. The first value is the fill value.
+		The starting position for the fill is the second parameter.
+		Its default is 0. If negative, it is relative to the size of the list.
+		The last parameter specifies the number of elements to fill. Unspecified, it fills to the end of the list.</dd>
+		<dt>Find</dt>
+		<dd>Find first element that is === to specified element. Return index value, or null if not found.</dd>
+		<dt>Insert</dt>
+		<dd>Insert one or more values into the List starting at the index specified by the integer parameter.
+		If the integer value is negative, it indexes relative to the end of the list.</dd>
+		<dt>Merge</dt>
+		<dd>Append second list's contents to end of self.</dd>
+		<dt>Pop</dt>
+		<dd>Remove and return the last value of a list. null is returned if the list is empty.</dd>
+		<dt>Randomize</dt>
+		<dd>Shuffle the list so that each element is in a random new spot.</dd>
+		<dt>Reverse</dt>
+		<dd>Reverse the order of elements in the list.</dd>
+		<dt>Remove</dt>
+		<dd>Remove one or more values from the List starting at the index specified by an integer.
+		If the integer value is negative, it indexes relative to the end of the list.
+		A second parameter can specify the number of elements to remove (default is 1).</dd>
+		<dt>RemoveValue</dt>
+		<dd>Remove a specific value from the list wherever it appears. This uses === for matching.</dd>
+		<dt>Resize</dt>
+		<dd>Forces the array's allocated memory to the specified size, shrinking or growing it (with nulls) as needed.</dd>
+		<dt>Shift</dt>
+		<dd>Remove and return the first value of a list. null is returned if the list is empty.</dd>
+		<dt>size</dt>
+		<dd>Get (or set) the number of values held in the List.</dd>
+		<dt>Sort</dt>
+		<dd>Sorts the list's elements in ascending order, comparing each element using the passed method 
+		(or '<=>' by default).</dd>
+		<dt>Sub<dt>
+		<dd>(pos, len, arr2, pos2, len2)
+		Copy specified elements from second list into self, replacing element's at specified positions</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

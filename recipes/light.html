@@ -1,0 +1,62 @@
+<html>
+  <head>
+	  <title>Lighting - Recipes</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Recipes</div></a>
+			<div id="sub">Lighting</div>
+		</div>
+
+    <div class="text">
+	<p>TBD.  Some notes follow ...</p>
+	<p>pre-built shaders, rgb, multiple spheres lit various ways. ambient, directional light source, 
+	shiny-ness. Point light source, Multiple light sources. uniform variables.</p>
+
+	<h2>Skin</h2>
+	<p>A <a href="types/skin.html">Skin</a> is how we color the various triangles for a mesh. 
+	A skin can be as simple as a solid color, or a complex, layered mix of 
+	solid colors, <a href="types/image.html">bitmap images</a> 
+	and <a href="types/shader.html">shaders</a>. The mesh incorporates mapping coordinates 
+	that specify how to cut and fold the skin onto the mesh, 
+	much like using a pattern to cut and sew cloth into a dress.</p>
+	<p>In a later chapter, we will dive more deeply into this topic.
+	With the earth, we wrapped a bitmap image of an earth map cylindrically around the sphere mesh.</p>
+	
+	<h2>Light</h2>
+	<p>Now, let's talk about light and color.</p>
+	<h3>Color</h3>
+	<p>A specific color is specified using the <a href="types/color.html">Color</a> type,
+	specifying its red, green, blue and alpha values. Each of these is a Float number from 0 to 1.</p>
+	<p>The alpha value indicates the color's transparency. An alpha value of 1 means the color is
+	fully transparent, and you can see right through it. An alpha value of 0.5 would be translucent.
+	One could see the object blended together with whatever is behind it.</p>
+	<p>The Color type defines a few basic solid colors as constants, as demonstrated by 
+	Color::Gray (equivalent to Color[0.5, 0.5, 0.5, 0.]).
+
+	<h3>Light Sources</h3>
+	<p>As already mentioned, if there is no source of light in a scene, everything looks black.
+	In the sample scene, we lighted the scene with a dim white ambient light.</p>
+	<p>The <a href="types/light.html">Light</a> type can be used to place various light sources within
+	a scene. The light source itself is invisible (unless you attach an object to it), but
+	it illuminates all objects in the direction the light shines, using the light's assigned color
+	and brightness.</p>
+	<p>There are several types of lights:</p>
+	<dl>
+	<dt>point</dt>
+	<dd>shines outwards in all directions from a particular position,
+	similar to a lightbulb or candle.</dd>
+	<dt>directional</dt>
+	<dd>shines in one particular direction, much like sunlight.</dd>
+	<dt>spotlight</dt>
+	<dd>shines a shaded cone in one direction from a point, much like three-point studio spotlights.
+	The intensity of the illumination fades by distance.</dd>
+	</dl>
+	<p>Other than ambient light, light sources can be made to cast an object's shadow on other objects.</p>
+	
+	</div>
+	</body>
+</html>

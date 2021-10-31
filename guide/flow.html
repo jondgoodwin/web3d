@@ -1,0 +1,271 @@
+<html>
+  <head>
+	  <title>Acorn Control Flow</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Decisions! Decisions! Decisions!</div>
+		</div>
+
+    <div class="text">
+		<p>Methods and functions package reusable instructions. 
+		So far, our examples have only used assignment and expression-based instructions.
+		Limited to this, our worlds would basically behave the same way over and over again.
+		What we want is to be able to change part behavior as the world's conditions change.</p>
+		<p>To accomplish this, our expression capabilities must be expanded to be able to 
+		evaluate the state of the world. Then we need control flow instructions
+		that change how a method or function performs its instructions based on an evaluation.</p>
+		<p>Let's dive in!</p>
+		
+		<h2>Evaluating Values</h2>
+		<p>How do we evaluate values against specific criteria?
+		Broadly speaking, Acorn offers several tools:</p>
+		<ul>
+		<li><b>Equivalence operators</b>: are two values the same?</li>
+		<li><b>Comparison operators</b>: is one value greater than another?</li>
+		<li><b>Pattern matching operators</b>: does one value match a specific pattern?</li>
+		<li><b>Evaluation methods</b>: does a value comply with a type-specific criteria?</li>
+		<li><b>Boolean operators</b>: can we apply multiple criteria against multiple values?</li>
+		</ul>
+		<p>Note: Evaluation operators have lower precedence than arithmetic operators, but higher than assignment.</p>
+
+		<h3>Equivalence Operators</h3>
+		<p>Equivalence operators are useful when you want to check whether a particular value has the same content
+		and type as another value. Some examples:</p>
+<pre>
+x == 3.0        # Returns true if the local variable x's value is 3.0
+x+1 != y        # Returns true if x is not exactly 1 greater than y
+2 == 2.0        # Returns false, because the Integer vs. Float types do not match
+true != false   # Returns true
+</pre>
+		<p>Equivalence checking is not always straightforward, depending on the value's type.
+		Since floating point calculations are imprecise and can introduce "rounding errors", 
+		two Float values will be declared "equal" if they are sufficiently close.
+		Large, complex value types, such as lists, can take time comparing, as it requires
+		comparing every element in the list for equivalence.</p>
+		<p>In some cases, you may prefer the '===' operator to quickly know if two values are exactly the same.
+		Two floats would have to match exactly, with no margin for calculation error. 
+		Two List or Text values would have to point to the same List or Text value, 
+		as a copy made of a list would not be exactly equal using the '===' operator.</p>
+
+		<h3>Comparison Operators</h3>
+		<p>Comparison operators are useful when you want to see if a value is greater
+		or less than some other value. You can only check greater and less for value types that
+		are <a href="types/comparable.html">Comparable</a>, which Integer and Float numbers are.</p>
+<pre>
+x >= 2          # Returns true if x is greater than or equal to 2 (>, <, <= are variants)
+2 <= 2.0        # Returns false any time the types do not agree
+</pre>
+		<p>Float values are compared using the same closeness criteria described above.
+		For one Float value to be less than another, it must be less by at least the comparable closeness.</p>
+		<p>The '<=>' operator is another way to compare two values, returning
+		an Integer rather than true or false: -1 if less, 0 if equal, and 1 if greater. 
+		"Comparable" types use this rocket-ship operator/method to facilitate 
+		comparing and sorting.</p>
+<pre>
+-2 <=> 4      # Returns -1
+</pre>
+		<p>A fun example:</p>
+<pre>
+frosty +[
+	'<=>' other:>
+		1  # frosty is always the greatest!
+
+frosty>Float::Infinity  # true
+</pre>
+
+		<h3>Pattern Matching Operators</h3>
+		<p>Sometimes we want to see if a specific value matches a particular pattern.
+		Later on we will introduce several types of patterns, such as Range, regular expressions, 
+		and even custom-built pattern types. In all cases, the way to do the match is the same:</p>
+<pre>
+5 =~ 1..7   # Returns true, since 5 is within the range between 1 and 7
+1 !~ 5..6   # Returns true, since it fails the pattern match
+</pre>
+		<p>Patterns will always return false if the match fails. Some will return true, 
+		but others, such as regular expressions, may return details about what it found during the match.
+		This will be discussed later, when patterns are introduced.</p>
+		<p>The pattern match operator is the only one that uses the right hand value (the pattern)
+		to send the '=~' method to, with the left hard value as a parameter. 
+		This exception makes the code easier to read, but puts the work on the pattern, where it belongs.</p>
+		<p>If the pattern value's type does not support the =~ method, the == method is used.</p>
+
+		<h3>Evaluation Methods</h3>
+		<p>Since operators do not handle all the ways we may want to evaluate values,
+		we use type-specific evaluation methods to all other criteria. For example:</p>
+<pre>
+x.null?       # Returns true if x's value is null, false otherwise
+list.empty?   # Returns true if list has no members, false otherwise
+</pre>
+		<p>By convention, methods that return a true/false value have a '?' mark at the end,
+		which improves code readability.</p>
+	
+		<h3>true or false?</h3>
+		<p>How does Acorn evaluate whether a value is true or false?
+		A value is considered false if it is either <span class="pre">false</span> or <span class="pre">null</span>. 
+		All other values of any type, including
+		<span class="pre">true</span>, <span class="pre">0</span> and <span class="pre">""</span> will
+		be considered true.</p>
+
+		<h3>Boolean Operators</h3>
+		<p>What if you need to make a complex decision involving multiple values and criteria?
+		This is where boolean expressions are useful. These use the logical operators
+		and (&&), or (||) and not (!)
+		to corral several evaluations together to arrive at a summary true/false decision:</p>
+<pre>
+0==3 || !2<3 && 3==3   # Returns true (&& is evaluated before ||)
+</pre>
+		<p>The logical operators work mostly how you would expect:</p>
+		<ul>
+		<li>As mentioned earlier, they can take in values that are not true or false.
+		null and false will be considered false. All other values are considered true.</li>
+		<li>The logical operators have a lower precedence than evaluation operators, but higher than assignment.
+		! has the highest precedence, then &&, then ||. </li>
+		<li>The boolean operators && and || will stop evaluating as soon as the answer is known for sure.
+		This can be useful in situations where we want to allow several attempts to obtain a value.</li>
+		<li>Although ! only return a value of either true or false, || and && return the
+		final value checked (which could be a non-Bool value).</li>
+		</ul>
+<pre>
+val1 = null
+val2 = 4.5
+val = val1 || val2    # Returns 4.5
+</pre>
+
+		<p><b>Note:</b> 
+		In case it is not obvious by now, the logical control operators are not the same
+		as the boolean arithmetic operators in other languages that do bit
+		manipulations on Integer values. There should not be much need for them in Acorn,
+		but they are provided as Integer methods (.not, .and, .or, .xor, .shl, .shr) if they are needed.</p>
+
+		<h2>Control Flow Commands</h2>
+		<p>Having evaluated values against criteria, 
+		these Acorn tools can be used to control what happens next:</p>
+		<ul>
+		<li>? operator: to select one of two values</li>
+		<li>if/switch/match commands: to determine which instructions to performed</li>
+		<li>while command: to repetitively perform instructions as many times as needed</li>
+		<li>for command: to perform instructions on each member of collection</li>
+		</ul>
+		<p>As with expressions, these all return a value (or null if nothing was done).</p>
+		
+		<h3>? operator: What Value Is Behind Door #2?</h3>
+		<p>The ? operator is a concise way to pick one of two values within an expression.
+		If the expression before the ? operator is true, the first value after is picked.
+		Otherwise the value after the comma is chosen:</p>
+<pre>
+x = val<5.0 ? 5.0, val   # sets x to the higher between 5.0 and val
+</pre>
+		<p>Note: To avoid possible ambiguity, be sure there is a space before the ? operator.</p>
+
+		<h3>if/switch/match commands: A Fork In The Road</h3>
+		<p>There are several structures for specifying which instructions to perform.</p>
+		
+		<p><b>if/unless suffix</b>
+		If you have a single instruction that should execute (or not) based on a condition, 
+		append the instruction with 'if' or 'unless' followed by the condition:
+<pre>
+val = 5.0 if val<5.0   # if val is less than 5, set it to 5
+velocity *= 1.1 unless stop_flag  # unless is the opposite of if
+</pre>
+		
+		<p><b>if command</b> If you have several instructions perform or not, use the if command.
+		The instructions to be performed should be tab-indented as a instruction block.</p>
+<pre>
+if cmd=='snow'
+	sky::weather = cmd
+	$.ambient Color::Gray
+</pre>
+		<p>If you want one set of instructions to run if the condition is true and another otherwise,
+		add an else command and corresponding instruction block.</p>
+<pre>
+if actor::mood == 'happy'
+	actor::action = 'dance'
+else
+	actor::eyes = 'cry'
+</pre>
+		<p>Use the elif command in between the if and else, should you need to check additional condition
+		and perform the corresponding instructions. An 'if' structure can have arbitrarily many 'elif' sections
+		as needed.</p>
+<pre>
+moving = true
+if x<0.0
+	speed = 0.0
+	moving = false
+elif y<3.0
+	speed = 1.0
+else
+	speed = 5.0
+</pre>
+		<p><b>switch and match commands</b>
+		These commands are a more concise alternative to if elif commands where we want to evaluate
+		the same single value against multiple possibilities. The switch and match commands are identical,
+		except that switch uses the '==' equivalence operator to compare and match uses the '=~' match operator.
+		</p>
+<pre>
+match term_speed
+0.0..1.5:
+	ship.state = 'landing'
+1.5..4.0:
+	ship_state = 'crashing'
+else
+	ship_state = 'flattened'
+</pre>
+
+		<h3>while command: Play it Again, Sam!</h3>
+		<p>The while command is used when we want to execute the same tab-indented block of instructions
+		over and over again. A condition is provided, so that we can stop the repetition 
+		whenever the condition fails. The condition is checked right away and every time after the
+		block of instructions has been performed.</p>
+<pre>
+x = 0
+while x<=5
+	$env.log "WARNING, WARNING! Will Robinson"
+	x+=1
+</pre>
+		<p>The <b>break</b> statement can be placed anywhere within the while instruction block 
+		to offer another way to stop performing the instructions.</p>
+<pre>
+while true    # without the break, this loop would run forever
+	actor.walkstep  # will happen at least once
+	break 'rest' if keypress=='space' # returns the 'rest' value whenever the space bar is pressed
+</pre>
+
+		<h3 id="iterator">Collection Iterators</h3>
+		<p>Sometimes we have a collection where we want to iterate through each and every element
+		in the collection, performing some operation on that element.
+		The for structure is one way to accomplish this. 
+		(Another technique is the .each method, as described in the List chapter).</p>
+		<p>The for statement lists a local variable to hold the element after 'for' and the 
+		value of the collection after 'in'. The tab-indented instructions follow. 
+		The break statement may also be used here, if required.</p>
+<pre>
+for x in msg_queue
+	switch x
+		'exit':
+			break
+		'key':
+			.dokey
+		
+</pre>
+		<p>As an alternative to the for command, there are several collection methods able 
+		to iterate through the members of a collection, and perform a passed function on each one.
+		For example:</p>
+<pre>
+list.each txt->   # For every item in the list, this function is called
+	$env.log x    # ... logging the item in the log file
+</pre>
+
+		<h2>Conclusion</h2>
+		<p>TBD.</p>
+
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="parts.html"><img alt="_" src="next.png" /></a>
+		</p>
+		</div>
+	</body>
+</html>

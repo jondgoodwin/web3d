@@ -1,0 +1,105 @@
+<html>
+  <head>
+	  <title>Float - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Float (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>The <b>Float</b> type deals with signed, floating-point numbers,
+		expressed using scientific notation.</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>Converts an int, symbol or Text value into a float, if possible.
+		Otherwise, it returns null.</dd>
+		</dl>
+		
+		<h3>Instance Methods</h3>
+		<p>Most binary methods will coerce a passed Integer value to float before performing the method.
+		An attempt to divide non-zero by zero yields +INF or -INF.
+		An attempt to divide zero by zero or take the square-root of -1 yields NaN.</p>
+		<dl>
+		<dt>-@</dt>
+		<dd>Negate the float (flip its sign)</dd>
+		<dt>+</dt>
+		<dd>Add two floats</dd>
+		<dt>-</dt>
+		<dd>Subtract two floats</dd>
+		<dt>*</dt>
+		<dd>Multiply two floats</dd>
+		<dt>/</dt>
+		<dd>Divide two floats</dd>
+		<dt>%</dt>
+		<dd>Return the remainder after dividing two floats (7%2 returns 1)</dd>
+		<dt>**</dt>
+		<dd>self to the power of the second float (2**3 returns 8)</dd>
+		<dt>&lt;=&gt;</dt>
+		<dd>Compare two floats. Return -1 if self is less, 1 if greater, and 0 if equal.
+		Return null if not comparable.</dd>
+			pushValue(th, aFloat((Afloat) M_PI));
+			popProperty(th, 1, "pi");
+			pushCMethod(th, float_rad);
+			popProperty(th, 1, "Rad");
+
+		<dt>Abs</dt>
+		<dd>Absolute value (-1.).Abs returns 1.</dd>
+		<dt>Acos</dt>
+		<dd>arc-cosine(self).</dd>
+		<dt>Asin</dt>
+		<dd>arc-sine(self).</dd>
+		<dt>Atan</dt>
+		<dd>arc-tangent(self). As an alternate form, y.Atan(x) returns the arc-tangent from all four quadrants</dd>
+		<dt>Ceil</dt>
+		<dd>Round the float up to the next integer value.</dd>
+		<dt>Cos</dt>
+		<dd>cosine(self).</dd>
+		<dt>e</dt>
+		<dd>The constant e (2.71828...).</dd>
+		<dt>Exp</dt>
+		<dd>e<super>self</super>.</dd>
+		<dt>float?</dt>
+		<dd>Return true if self is a float, otherwise 'null'.</dd>
+		<dt>Floor</dt>
+		<dd>Round the float down to the next integer value.</dd>
+		<dt>Integer</dt>
+		<dd>Convert to an Integer and return.</dd>
+		<dt>Ln</dt>
+		<dd>natural logarithm of self (base e).</dd>
+		<dt>Log</dt>
+		<dd>Logarithm of self (base 10).</dd>
+		<dt>Max</dt>
+		<dd>Return the larger float. (5.).Max(2.) returns 5.</dd>
+		<dt>Min</dt>
+		<dd>Return the smaller float. (2.).Min(-4.) returns -4.</dd>
+		<dt>Modulus</dt>
+		<dd>Return a float constrained between 0 and the modulus.</dd>
+		<dt>Nan?</dt>
+		<dd>Return true if the float is Nan.</dd>
+		<dt>Next</dt>
+		<dd>Return the next float, essentially adding 1 to it.</dd>
+		<dt>pi</dt>
+		<dd>The constant pi (3.141592...).</dd>
+		<dt>Rad</dt>
+		<dd>convert degrees to radians.</dd>
+		<dt>Sign</dt>
+		<dd>Return 1 if positive, -1 if negative.</dd>
+		<dt>Sin</dt>
+		<dd>sine(self).</dd>
+		<dt>Tan</dt>
+		<dd>tangent(self).</dd>
+		<dt>Text</dt>
+		<dd>Convert to new Text value and return.</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

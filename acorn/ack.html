@@ -1,0 +1,82 @@
+<html>
+  <head>
+	  <title>Acorn Acknowledgements</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Acknowledgements</div>
+		</div>
+
+    <div class="text">
+		
+		<p>As always, Acorn stands humbly on the shoulders of giants.
+		Herewith, a sincere thank you to the genius and generosity of its open-source predecessors. 
+		
+		<h2>Lua</h2>
+		<p><a href="http://www.lua.org/">Lua</a>'s 
+		lightweight, but powerful architecture became an invaluable, quick-start foundation 
+		for the Acorn virtual machine. Although the implementation varies in many places, 
+		Lua's algorithms for memory and garbage collection, basic data structures, thread and stack management, 
+		and byte code compilation and interpretation are prominently utilized.</p>
+		<p>Acorn deviates from Lua in the way the upper architecture is more object-oriented than functional. 
+		Lua certainly opens the door to O-O with meta tables, and the dot operator. 
+		However, Acorn's object-oriented features are baked in deeper and more pervasively: 
+		with Methods, Types, and a core library that is Type-based rather than functional. 
+		A different set of byte-code op codes were needed to abstract efficiently 
+		away from data type and operator specific assumptions.</p>
+		<p>Some of the key differences from the Lua architecture include:</p>
+		<ul>
+		<li>Lua strings are internally implemented as short strings indexed in a symbol table 
+		and long strings that are not, both immutable. These turned into Acorn's separate symbols and strings, 
+		the latter now mutable.</li>
+		<li>Similarly, Lua's numbers are separated into Acorn's Integer and Float types.</li>
+		<li>Lua tables internally implement both ordered and hashed lists. 
+		Acorn separates these into the Array and Table types. 
+		They are then recombined explicitly to make Parts (with additional functionality). 
+		Lua's metatables are gone, replaced by Methods and Types. Acorn does not offer weak tables.</li>
+		<li>Acorn functions are never closures, as object-oriented data and type integration offers comparable capability.</li>
+		<li>Acorn does not have a registry. The global environment is established by the thread.</li>
+		<li>Acorn uses the Ruby inspired aligned value technique, rather than Lua's extra byte approach, 
+		to simplify working with Values.</li>
+		</ul>
+
+		<p>In a gift that keeps on giving, future implementations of Acorn may benefit from
+		<a href="http://luajit.org/">LuaJIT</a>'s 
+		architectural improvements for faster performance (due to just in time trace compilation of byte codes), 
+		easier C Library integration, and more efficient garbage collection (in version 3).</p>
+
+		<h2>Ruby</h2>
+		<p>In addition to being inspired by how <a href="https://www.ruby-lang.org/en/">Ruby</a> encodes Values, 
+		much of Acorn's object-oriented capabilities and core Types is heavily influenced by Ruby, 
+		including dynamic creation of types, mixins, and operators as implied methods.
+		Acorn also offers various brevity features from Ruby, such as conditional postfix notation, interpolations,
+		and the way all Acorn functions and methods return at least one value, often specified implicitly.</p>
+
+		<p>Acorn deliberately deviates from Ruby syntax regarding symbol literals ('' vs. :), 
+		anonymous functions (-> vs ||{}), table key-value pairs (: vs. ->), member selection (() vs. []), 
+		variable prefix conventions, and creating new instances, methods, and types. 
+		Ruby offers many features Acorn does not, such as closures, type coercion, and weak keys.</p>
+		
+		<h2>XML, JavaScript et al.</h2>
+		<p>The Acorn builder syntax and Parts were designed to offer efficient specification 
+		of static content comparable to what one can do with 
+		<a href="http://www.w3.org/XML/">XML</a> or 
+		<a href="json.org">JSON</a>
+		(with syntactic deviation and tighter integration with Acorn's Type methods).</p>
+
+		<p>Acorn fulfills a similar Internet-savvy scripting role as 
+		<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">JavaScript</a>, 
+		but uses a syntax more similar to the Ruby-like <a href="http://coffeescript.org/">Coffeescript</a> than JavaScript.
+		Like Coffeescript (and <a href="www.python.org">Python</a> before it), 
+		Acorn uses line indentation to implicitly demark curly-braced code blocks.</p>
+		<p>Acorn incorporates key features inspired from 
+		<a href="jquery.com">jQuery</a>, <a href="http://www.w3.org/TR/xpath/">Xpath</a>, 
+		as well as the two-way binding offered by various frameworks.</p>
+
+	</div>
+	</body>
+</html>

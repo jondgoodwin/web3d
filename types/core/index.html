@@ -1,0 +1,72 @@
+<html>
+  <head>
+	  <title>Acorn Core Types</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Core Types</div>
+		</div>
+
+    <div class="text">
+		
+		<p>The atomic data types are:</p>
+		<ul>
+		<li><b><a href="null.html">Null.</a></b> 
+		This signifies the absence of a value, for example when a search has failed to find something.</li>
+		<li><b><a href="bool.html">Bool.</a></b> 
+		This has two possible values: true and false.</li>
+		<li><b><a href="integer.html">Integer.</a></b> 
+		This represents a signed, countable integer.</li>
+		<li><b><a href="float.html">Float.</a></b> 
+		This represents a floating point number.</li>
+		<li><b><a href="symbol.html">Symbol.</a></b> 
+		Similar to Text value, but immutable, used for fast compare and look-up.</li>
+		</ul>
+		<p>The compound data types containing a fixed number of values are:</p>
+		<ul>
+		<li><b><a href="range.html">Range.</a></b> 
+		A range of values.</li>
+		</ul>
+		<p>The collection data types, which hold a variable number of values, are:</p>
+		<ul>
+		<li><b><a href="text.html">Text.</a></b> 
+		A sequence of Unicode characters.</li>
+		<li><b><a href="bytes.html">Bytes.</a></b> 
+		A sequence of 8-bit bytes.</li>
+		<li><b><a href="list.html">List.</a></b> 
+		An ordered collection of values.</li>
+		<li><b><a href="indextype.html">Index.</a></b> 
+		A collection of Property values, each of which is indexed by its key.</li>
+		<li><b><a href="type.html">Object.</a></b> 
+		A collection of prototypically-inheritable properties that define behavior and attributes.</li>
+		<li><b><a href="type.html">Mixin.</a></b> 
+		A collection of inheritable methods and properties that can augment or support objects or instances.</li>
+		</ul>
+		<p>The executable types are:</p>
+		<ul>
+		<li><b><a href="method.html">Method.</a></b> 
+		Code logic that accepts parameters, performs some action and returns back values.</li>
+		<li><b><a href="closure.html">Closure.</a></b> 
+		Stateful Action (or get/set pair), which preserves values across every time its Action(s) are performed.</li>
+		<li><b><a href="context.html">Context.</a></b> 
+		An execution context, such as the main thread or a yielder.</li>
+		</ul>
+		<p>Other types are:</p>
+		<ul>
+		<li><b><a href="resource.html">Resource.</a></b> 
+		Handler for a resource whose location is specified with a Uniform Resource Locator (URL).</li>
+		<li><b><a href="file.html">File.</a></b>
+		Simple type for getting a resource that uses the 'file://' scheme.</li>
+		<li><b><a href="all.html">All.</a></b> 
+		Shared properties for all value types.</li>
+		<li><b><a href="vm.html">Vm.</a></b>
+		Virtual Machine.</li>
+		</ul>
+		
+	</div>
+	</body>
+</html>

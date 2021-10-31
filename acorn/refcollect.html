@@ -1,0 +1,373 @@
+<html>
+  <head>
+	  <title>Collections: this and each blocks - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Collections: this and each blocks</div>
+		</div>
+
+    <div class="text">
+
+	<p>A collection is a data structure that stores multiple values.
+	Acorn's core library offers these collection types:</p>
+	<ul>
+	<li><b><a href="../types/core/text.html">Text.</a></b> 
+	A sequence of Unicode characters.</li>
+	<li><b><a href="../types/core/list.html">List.</a></b> 
+	An ordered collection of values.</li>
+	<li><b><a href="../types/core/indextype.html">Index.</a></b> 
+	An unordered collection of key/value pairs.</li>
+	<li><b><a href="../types/core/type.html">Type.</a></b>
+	An unordered collection of inheritable key/value pairs.</li>
+	</ul>
+	<p>Additional collection types can also be defined, as needed.</p>
+
+	<p>The Acorn language offers unique facilities to simplify
+	snapping collections together into rich static or procedural content:</p>
+	<ul>
+	<li><b>'this' blocks and operators</b> are used to add or alter specific values within a specific collection
+	(including custom <a href="reftype.html">types</a>).
+	'this' blocks can be nested, allowing assembly of complex, multi-layered collections.</li>
+	<li><b>'each' blocks</b> iterate through the individual values of a collection.
+	Rich collection "comprehensions" are easily specified by using 'each' blocks within 'this' blocks.</li>
+	</ul>
+	
+	<h2>'this' and its block</h2>
+	<p>A 'this' block is simply an expression followed by a code block.
+	It is used to focus the attention of a block of code on one specific value
+	(referred to by <span class="pre">this</span>). 
+	Within the block, multiple actions may be performed using that value.</p>
+<pre>
+# Calculate the value of 'this' (0.174533)
+Float.Pi/180
+	# 'this' block that makes use of calculated 'this' value
+	# to convert from degrees to radians
+	quarter = 90 * this
+	acute = 10 * this
+</pre>
+	<p>'this' blocks can be nested within each other.
+	For any statement, the value of <span class="pre">this</span> is established by
+	the inner-most 'this' or method block it lies within. Every method block sets 
+	the value of <span class="pre">this</span> to be equivalent to <span class="pre">self</span>.
+	Control blocks have no impact on the value of <span class="pre">this</span>.</p>
+	<P>Although a 'this' block can focus on any value,
+	it is most often a newly created or existing collection.</p>
+	
+	<h3>'this' operators</h3>
+	<p>A number of Acorn's operators are designed to work with 
+	<span class="pre">this</span> by default.
+	For example, all of the following operators assume that 'this' is implied on the left
+	when the operator is used as a prefix (rather than its typical infix role):</p>
+	<dl>
+	<dt>.</dt>
+	<dd><b>Method call or property access</b>. 
+	(<span class="pre">.size</span> is equivalent to <span class="pre">this.size</span>)</dd>
+	<dt>.:</dt>
+	<dd><b>Property access</b>.
+	(<span class="pre">.:size</span> is equivalent to <span class="pre">this.:size</span>)</dd>
+	<dt>::</dt>
+	<dd><b>Indexed access using a literal symbol</b>.
+	(<span class="pre">::size</span> is equivalent to <span class="pre">this::size</span>)</dd>
+	<dt>&lt;&lt;</dt>
+	<dd><b>Append</b>, placing the value at the end of an ordered collection.
+	(<span class="pre">&lt;&lt;4.7</span> is equivalent to <span class="pre">this&lt;&lt;4.7</span>)</dd>
+	<dt>&gt;&gt;</dt>
+	<dd><b>Prepend</b>, inserting the value at the start of an ordered collection.
+	(<span class="pre">&gt;&gt;event</span> is equivalent to <span class="pre">this&gt;&gt;event</span>)</dd>
+	</dl>
+	<p>Additionally, the ':' and ':=' infix operators implicitly work with 'this':
+<pre>
+color: 'brown'    # equivalent to: this.color = 'brown'
+action:= [x]      # equivalent to: this::action = [x] {x*x}
+	x*x
+</pre>
+	
+	<h4>List example</h4>
+	<p>Ordered lists are easily populated:</p>
+<pre>
+# Create an ordered list
+letters = +List 
+	&lt;&lt; 'b'
+	&lt;&lt; 'c','d','e' # all comma-separated or return values are appended
+	&gt;&gt; 'a'
+# letters has the values: 'a', 'b', 'c', 'd', 'e'
+</pre>
+	<p>The 'using' variation of the 'this' block may be used to automatically
+	append the value of every indented statement (using &lt;&lt;) to 'this':</p>
+<pre>
++List using '&lt;&lt;'
+	'a'
+	'b'
+	'c', 'd', 'e'
+</pre>
+	<p>Additionally, the 'using' clause may specify a method 
+	to use on 'this' for every indented line's value:</p>
+<pre>
+list = +List using [x] {&lt;&lt; x*x}
+	1;2;3
+list   # +List(1,4,9)
+</pre>
+
+	<h4>Text example</h4>
+	<p>Textual content may be built similarly to Lists:</p>
+<pre>
+Vm using 'Print'
+	"The answer is ";answer;".\n"
+</pre>
+
+	<h4>Index example</h4>
+	<p>The ':=' operator makes it easy to populate an Index with keyed values:</p>
+<pre>
+toDutch = +Index
+	girl:= 'meisje'
+	horse:= 'paard'
+	dog:= 'hond'
+</pre>
+	<p>We cannot use the ':' operator to populate an Index, since the ':' operator sets properties
+	and an Index's keys are not properties.
+	As with ':', when ':=' immediately follows a name token, it is treated as a symbol.
+	To ensure a name is treated as a variable, simply enclose it in parentheses.</p>
+	
+	<h4>Type example</h4>
+	<p>Types are built similarly to Index collections.
+	See the <a href="reftype.html">Type Definition</a> chapter for examples.</p>
+
+	<h2>Iteration and 'each'</h2>
+	
+	<h3 id="iterator">Iterators</h3>
+	<p>An iterator is a stateful method (closure or yielder) 
+	which can be used to retrieve values one at a time from a sequence of values.
+	Since we want an iterator to be able to tell us when it is done, 
+	an iterator returns two values (as a general convention):
+	the first is null when done and the second is the desired value.</p>
+	<p>For example:</p>
+<pre>
+counter = <count=0>[]
+	return null, null if count>=2
+	count = count + 1
+	true, count
+
+counter() # true, 1
+counter() # true, 2
+counter() # null, null
+</pre>
+	<p>Iterators are used "lazily". 
+	They only retrieve one value at a time when requested and do not know what the next value
+	will be until asked to get it.</p>
+	<p>Typically, an iterator is single-use: it is created just before it is needed, 
+	used to retrieve values in a single pass, and then discarded afterward as its state makes it now useless to us,
+	given that it will only ever afterward return null, null.</p>
+	
+	<h3>'Each' method</h3>
+	<p>Several of Acorn's core types (such as Range, Text, List, Index and Type) provide a method called 'Each'. 
+	When applied to an instance of these types, the 'Each' method creates and returns an iterator (typically as a closure).
+	This iterator can then be used to retrieve one value at a time from the sequence of values defined by that instance.</p>
+	<p>For example:</p>
+<pre>
+counter = +Range(1,2).Each
+counter() # true, 1
+
+# Text iterator will return each character
+chars = "abc".Each 
+chars() # 1, "a"
+
+mbrs = +List('abc', 4)
+mbrs() # 1, 'abc'
+
+mbrs = +Index {key: 'value'}
+mbrs() # 'key', 'value'
+</pre>
+	<p>Please notice the first value returned by these iterators:
+	it is the (never null) index of that value within the instance's sequence.
+	Additionally, please notice that if an instance's sequence of values are ordered, the iterator retrieves them in order.
+	If not (as is true for an Index), the iterator may well return the values in a different order each time.</p>
+	
+	<h3 id="each">'each' blocks</h3>
+	<p>An 'each' block is like a <a href="refcontrol.html#while">'while' block</a>.
+	They both repetitively perform a block of code.
+	However, an 'each' block is given an iterator rather than a condition.
+	It executes that block of code for each value it retrieves from that iterator.
+	It stops when the iterator is done.</p>
+	<p>For example:</p>
+<pre>
+# Builds a list containing 1, 4, 9, 16
++List
+	each x in +Range(1,4).Each
+		&lt;&lt; x*x
+</pre>
+	<p>Every 'each' block specifies three things:</p>
+	<ul>
+	<li>The iterator which obtains each value (specified after 'in')</li>
+	<li>The name(s) of the local variable(s) that hold the current value(s) retrieved by the iterator
+	(in this case <span class="pre">x</span>). 
+	Lexically, these variable names are treated as if declared locally within the block.
+	Thus their value changes each iteration and they are not accessible lexically outside this block.
+	</li>
+	<li>What actions to perform on each iterated value
+	(in this case, square it: <span class="pre">x*x</span> and append that value to 'this').</li>
+	</ul>
+	<p>'break' and 'continue' statements work inside 'each' blocks the same way they do in 'while' blocks.</p>
+	<p>As you can see, 'each' blocks, working in conjunction with corresponding 'this' blocks,
+	provide a simple but powerful mechanism for building procedurally-generated collections
+	(essentially accomplishing the work of a comprehension).
+	'each' blocks can also be very effective tools for analyzing, summarizing or transforming complex content.</p>
+
+	<p><b>The index value</b>
+	You may have noticed that even though iterators return two values,
+	the sample code only demonstrated access to the second value.
+	The 'each' actually does look at the first value under the covers,
+	as it stops performing the block of code as soon as the iterator returns a first value of 'null'.</p>
+	<p>If you want your 'each' block's code to see the first value returned by the iterator
+	(since it is often the collection's index for the iterator's retrieved value),
+	just ask for it using two variable names separated by a colon:</p>
+<pre>
+# this code is equivalent to: found = dragon('color')
+found = null
+each key:value in dragon
+	found = value if key='color'
+</pre>
+	<p>Some iterators may return more than two values.
+	Specify additional variable names separated by commas to access the remaining returned values.</p>
+
+	<p id="implicititer"><b>Implicit iterator creation</b>
+	<p>The 'each' block attempts to make an iterator out of any value you give it:</p>
+	<ul>
+	<li><b>Closure or Yielder context.</b> 
+	A closure or yielder context is assumed to already be the desired iterator, so 'each' uses this value directly.</li>
+	<li><b>Method or Yielder method.</b>
+	The method is called. The value it returns is presumed to be a usable iterator.</li>
+	<li><b>Collection or Range.</b>
+	The .Each method is called on that value to obtain the needed iterator.</li>
+	</ul>
+	<p>Thus, we can omit specifying .Each for ranges and collections:</p>
+<pre>
++List
+	each x in 1 .. 4     # since 1 .. 4 means the same as +Range(1,4)
+		&lt;&lt; x*x
+</pre>
+	<p>Similarly, 'each' easily handles the creation, initialization and use of a yielder context:</p>
+<pre>
+fibonacci = *[start=1, inc=0]
+	local i = 1
+	while true
+		yield i, start
+		start, inc, i = start+inc, start, i+1
+
+# Prints: 1: 2, 2: 6, 3: 8, 4: 14, 5: 22, 6: 36, 7: 58, 8: 94, 9: 152
+each i:n in fibonacci(2, 4)
+	Vm using 'Print'
+		i.Text; ": "; n.Text;
+	break if n>100
+	Vm.Print(", ")
+Vm.Print("\n")
+</pre>
+	<p>This intelligence makes the code more concise for the common scenario of iterating through a collection.
+	However, it also improves flexibility, as it allows one to use other methods than 'Each' for
+	iterating through a collection. For example, a collection might offer the 'ReverseEach' method that
+	returns a closure which iterates through that ordered collection in reverse order.
+	Specifying <span class="pre">each x in list.ReverseEach</span> would make use of that iterator.</p>
+
+	<p id="eachsplat"><b>Splat (...)</b>
+	The 'each' block also allows you to specify '...' instead of an iterator.
+	This will generate an iterator that provides sequential access to the ordered 
+	<a href="refmethod.html#multparms">variable parameter values</a> referred to by '...'. 
+	For example, the following code aggregates the variable parameters into a List
+	(should one want random access to its values)</p>
+<pre>
++List
+	&lt;&lt; val each val in ...
+</pre>
+
+	<h3 id="eachclause">'each' clause</h3>
+	<p>Much like 'while', an 'each' block may be specified using a clause that follows a statement:</p>
+<pre>
+# Produces the list: 1, 9, 16
++List
+	&lt;&lt; x*x if x!=2 each x in 1 .. 4
+</pre>
+	<p>Notice we included an 'if' clause as well, to filter out specific values returned by the iterator. 
+	A statement may be given multiple clauses. They are evaluated in reverse order.
+	Thus, the above code which uses two clauses is equivalent to:</p>
+<pre>
++List
+	each x in 1 .. 4
+		if x!=2
+			&lt;&lt; x*x
+</pre>
+	<p>The following example demonstrates use of nested 'each' blocks, both expressed as clauses:</p>
+<pre>
+pairs = +List
+	&lt;&lt; +List(x, y) for y in 3 .. 6 for x in 1 .. 6
+</pre>
+	<p>Finally, the following more-complex example defines an inefficient method that builds and returns a 
+	calculated list of prime numbers.
+	Notice that it also makes use of nested 'each' blocks, where the values iterated over in the inner block
+	depend on the values iterated by the outer block.</p>
+<pre>
+calcPrimes = [upto]
+    mults = +List
+    +List
+        each i in 2 .. upto
+            if !mults.Find(i)
+                &lt;&lt; i
+                if i&lt;=upto.Sqrt
+                    mults&lt;&lt;j each j in +Range(2*i, upto, i)
+</pre>
+
+	<h3>Iteration mediation: zips, joins and pipes</h3>
+	<p>There are times one needs an iterator that obtains its values from multiple iterator sources.
+	This can be accomplished by creating a closure or yielder that coordinates the handling of 
+	values retrieved from multiple iterator sources.</p>
+	<p><b>Zip</b>
+	For example, the language Haskell provides a zip comprehension capability.
+	Here is code for an Acorn equivalent, implemented using a closure iterator:</p>
+<pre>
+# Haskell code: b = [(x,y) | (x,y) &lt;- zip [1..5] [3..5]]
+zipper = &lt;iter1 = (1 .. 5).Each, iter2 = (3 .. 5).Each&gt;[]
+    done1, val1 = iter1()
+    done2, val2 = iter2()
+    done1||done2, +List(val1,val2)
++List
+    &lt;&lt;i each i in zipper
+</pre>
+	<p>This approach can be generalized to a reusable method that returns a zip iterator.</p>
+	
+	<p><b>Combinatorial Join</b>
+	Haskell also offers a comprehension that performs a combinatorial join.
+	This Acorn example accomplishes something similar using a yielder as the joining iterator:</p>
+<pre>
+# Haskell: a = [(x,y) | x &lt;- [1..5], y &lt;- [3..5]]
+joiner = +[] [iter1, iter2]
+    i2list = +List {&lt;&lt;i each i in iter2}
+    yield   # the first invocation is just for set up
+    each i in iter1
+        iter2 = i2list.Each # re-start the iterator
+        each j in iter2
+            yield true, +List(i,j)
+    null, null # signal that joiner iterator is done
+
+joiner((1 .. 5).Each, (3 .. 5).Each) # do the set up
++List 
+	&lt;&lt;i each i in joiner
+</pre>
+	<p>This algorithm too can be generalized into a Joiner method that returns an iterator.
+	The generalized method could even accept a first-class method 
+	that specifies how to join together the values from various iterators.</p>
+	<p>Acorn is quite flexible here, allowing creation of a wide variety of complex joining schemes.
+	It could even support providing an SQL-like query that selects records from various sources (SELECT), 
+	joins them based on specified conditions (WHERE), and even orders the results.</p>
+	<p>Finally, Acorn supports the creation of <b>piping</b> iterators (using closures or yielders)
+	which filter or transform values sourced from another iterator.</p>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="reftype.html"><img alt="_" src="next.png" /></a>
+		</p>
+
+	</div>
+	</body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+  <head>
+	  <title>Group Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Group Type</div>
+		</div>
+
+    <div class="text">
+	
+	<p>A Group is collection of parts that snap together to make a single unit, such as:
+	<ul>
+	<li>A single object (such as a car) built using multiple shapes (wheels, chassis, etc).</li>
+	<li>A geographical region (e.g., a city block) whose various objects are only rendered 
+	if they are close enough or in line-of-sight to the camera</li>
+	<li>A world's scene, level or zone, a large group which may contain other groups 
+	(such as the terrain, sky, and various regions) as its parts.</li>
+	<li>Several objects whose behavior is closely linked (e.g., a flock of birds)</li>
+	</ul>
+	<p>A group's 'parts' are rendered together and share the group's environment properties:
+	<ul>
+	<li><b>Coordinate</b> positioning, mapping this group's vertex coordinates to those of its parent.
+	'view' describes the technique to use and establishes the properties required to calculate the transformation,
+	such as 'location' position, 'lookat' or 'rotation' orientation, and 'scale' factor.
+	The group's parts are positioned relative to the group's coordinate system.</li>
+	<li><b>Rendering</b> instructions. </li> .render? is used to determine if the group is rendered 
+	and, if so, what shader uniforms apply to all parts (e.g., lighting or a default shader).</li>
+	<li><b>Boundary</b> shape that encloses all parts, used for culling and collision detection.</li>
+	</ul>
+		
+	<h2>Properties (see <a href="region.html">Region</a>)</h2>
+	<dl>
+	<dt>boundary</dt>
+	<dd>TBD - the bounding box, sphere or cylinder for clipping and other purposes</dd>
+	<dt>orientation</dt>
+	<dd>A Quat specifying the rotation used to orient the shape in its parent's coordinate system.
+	If not specified, no rotation takes place.</dd>
+	<dt>origin</dt>
+	<dd>The location of this shape's 0,0,0 position in the shape's parent's coordinate system.
+	This can be used to specify where to render this shape within its parent group's space.
+	If not specified, +Xyz(0,0,0) is assumed.</dd>
+	<dt>parts</dt>
+	<dd>Ordered list of all the group's positioned parts (groups, shapes, etc.).</dd>
+	<dt>render?</dt>
+	<dd>The method that is performed before rendering the group. 
+	The method should return 'false' if the group is not to be rendered. 
+	This method will have the <a href="rendercontext.html">render context</a> as 'self', 
+	enabling the group to define rendering attributes that will apply to all its parts.</dd>
+	<dt>scale</dt>
+	<dd>An Xyz vector specifying how much to re-size the shape's vertices when rendering in the parent group,
+	as defined by the 'view' method. The default is no scaling: +Xyz(1.,1.,1.)</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

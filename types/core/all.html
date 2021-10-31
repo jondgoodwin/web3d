@@ -1,0 +1,52 @@
+<html>
+  <head>
+	  <title>All - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">All (mixin)</div>
+		</div>
+
+    <div class="text">
+
+		<p><b>All</b> provides generic properties and methods baked into all values by default.</p>
+		
+		<h3>Properties and Methods</h3>
+		<dl>
+		<dt><=></dt>
+		<dd>Return 0 if two values are exactly equivalent (===), null otherwise</dd>
+		<dt>==</dt>
+		<dd>Return true if '<=>' method returns 0, false otherwise</dd>
+		<dt>===</dt>
+		<dd>Return true if two values are exactly equivalent (===), false otherwise</dd>
+		<dt>~~</dt>
+		<dd>Return true if '<=>' method returns 0, false otherwise</dd>
+		<dt>&lt;</dt>
+		<dd>Return true if '<=>' method returns -1, false otherwise</dd>
+		<dt>&lt;=</dt>
+		<dd>Return true if '<=>' method returns -1 or 0, false otherwise</dd>
+		<dt>&gt;</dt>
+		<dd>Return true if '<=>' method returns 1, false otherwise</dd>
+		<dt>&gt;=</dt>
+		<dd>Return true if '<=>' method returns 1 or 0, false otherwise</dd>
+		<dt>callable?</dt>
+		<dd>Return true if value is a method, closure or yielder, false otherwise</dd>
+		<dt>Mixin</dt>
+		<dd>Add a mixin to the beginning of object's the inheritance search order for properties and methods.
+		This only works with values whose type can be set, typically collections.
+		It returns 'self'.</dd>
+		<dt>property</dt>
+		<dd>Return the property's value</dd>
+		<dt>type</dt>
+		<dd>Return the type or array of types used for the value.</dd>
+		<dt>uses?</dt>
+		<dd>Return true if this property or method is defined for (inherited) by this value</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

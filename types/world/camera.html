@@ -1,0 +1,92 @@
+<html>
+  <head>
+	  <title>Camera Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Camera Type</div>
+		</div>
+
+    <div class="text">
+
+	<p>A <b>Camera</b> is a <a href="overlay.html">Overlay</a> that renders
+	a 3D scene on to a two-dimensional window or texture, as seen from the camera's point-of-view.
+	Its properties establish how the camera operates:
+	<ul>
+	<li>The <b>scene</b> to render (typically $.scene).</li>
+	<li>Its <b>placement</b> in the scene's world (or a shape's) coordinates: origin, orientation and scale.
+	<b>following</b> specifies a shape (avatar) in the scene which the camera 
+	is following or looking through the eyes of.
+	The camera's placement is automatically calculated into 'vmatrix', used to transform world into camera coordinates.</li>
+	<li>Its <b>projection</b> technique which specifies the clip and view frustum, whose distance from the camera 
+	is bounded by <b>near</b> and <b>far</b> and whose field of view angle is defined by <b>fov</b>.
+	This is converted to 'pmatrix', used to transform 3-D coordinates to a sized 2-D image.</li>
+	<li>The <b>render context</b>, state information that helps guide the render, such as background, border, etc.</li>
+	<li>The window or frame <b>target</b>, which is the main window ($window) by default. 
+	Rendering to a frame's texture can facilitate shadow maps, reflections, post-processing effects, etc.
+	A <b>viewport</b> can be specified within the target.</li>
+	</ul>
+	
+	<h2>Methods</h2>
+	<dl>
+	<dt>CameraXyz</dt>
+	<dd>(xyz, matrix) Convert an Xyz position to camera coordinates, by multiplying mvmatrix*xyz.
+	The assumption is that Xyz is a position (w=1.0), 
+	so the position will be scaled, rotated and translated as needed.</dd>
+	<dt>Lookat</dt>
+	<dd>Calculates the camera's lookat view using 'location', 'lookat' and 'up'.</dd>
+	<dt>New</dt>
+	<dd> -> camera.
+	Creates a new camera.</dd>
+	<dt>Orthogonal</dt>
+	<dd>Calculates the orthogonal projection using 'near', 'far', 'viewHeight', and the window's aspect ratio.</dd>
+	<dt>Perspective</dt>
+	<dd>Calculates the perspective projection using 'near', 'far', 'fov', and the window's aspect ratio.</dd>
+	</dl>
+
+	<h2>Properties</h2>
+	<dl>
+	<dt>background</dt>
+	<dd>The background color applied to the viewport before rendering the 3-D scene.</dd>
+	<dt>far</dt>
+	<dd>(Float) Maximum positive distance object can be from camera and still be visible. Default is 1000.</dd>
+	<dt>following</dt>
+	<dd>A shape that the camera is following. The camera's origin, orientation and scale is calculated
+	relative to the shape's eye/origin, orientation and scale.</dd>
+	<dt>fov</dt>
+	<dd>(Float) The vertical "field of view" angle (in radians) that defines a perspective frustum.
+	If the value is >= pi, it is converted from degrees to radians.  The default fov is 50 degrees.
+	The horizontal fov angle is calculated using the window's aspect ratio.</dd>
+	<dt>near</dt>
+	<dd>(Float) Minimum positive distance object can be from camera and still be visible. Default is 0.1.</dd>
+	<dt>orientation</dt>
+	<dd>A Quat specifying the rotation used to orient the camera in the world (or following's) coordinate system.
+	If not specified, no rotation takes place.</dd>
+	<dt>origin</dt>
+	<dd>(Xyz) The position of the camera within the scene. The default is +Xyz(0.,0.,3.).</dd>
+	<dt>projection</dt>
+	<dd>Name of the method to use when calculating the camera's projection matrix.</dd>
+	<dt>scale</dt>
+	<dd>An Xyz vector specifying how much to re-size the camera's view of the world,
+	The default is no scaling: +Xyz(1.,1.,1.)</dd>
+	<dt>scene</dt>
+	<dd>The scene to render. If unspecified: $.scene </dd>
+	<dt>target</dt>
+	<dd>The window or frame that receives the rendered 2-d image. If unspecified: $window</dd>
+	<dt>up</dt>
+	<dd>(Xyz) The camera's "up" direction. The default is +Xyz(0.,1.,0.).</dd>
+	<dt>viewHeight</dt>
+	<dd>(Float) The vertical size of the orthogonal projection clip and view box (the default is 10).
+	The horizontal size is calculated using the window's aspect ratio.</dd>
+	<dt>viewport</dt>
+	<dd>A Rect specifying which rectangular area of the target image to render into. 
+	If unspecified, rendering targets the entire image.</dd>
+	</dl>
+
+	</div>
+	</body>
+</html>

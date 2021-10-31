@@ -1,0 +1,146 @@
+<html>
+  <head>
+	  <title>3D and Acorn - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">3D and Acorn</div>
+		</div>
+
+    <div class="text">
+		<p>The reluctant creation of Acorn was triggered by need and frustration.</p>
+		<p>The driving <b>need</b> is to gather and plant seeds that will grow into the three dimensional web,
+		an open virtual universe where, with a click or a touch, one can explore millions of worlds (rather than pages).
+		This is not a new dream, but prior attempts have failed to attain wide-spread adoption and use.</p>
+		<p>The latest approach, giving Javascript access to OpenGL, is by far the best, giving rise
+		to two intriguing libraries: 
+		<a href="threejs.org" target="_">three.js</a> and 
+		<a href="babylonjs.com" target="_">babylon.js</a>.
+		WebGL notably improves on prior attempts in two key ways.
+		First, all 3-D content and behavior are managed using just one language (Javascript).
+		Second, it leverages the http/url protocol, 
+		so that 3-D content can be retrieved from any Internet server.
+		<p>For a taste of WebGL, admire the lovely artistry 
+		of this <a href="http://reath.free.fr/HDR/test.html" target="_train">train island</a>
+		or this <a href="http://madebyevan.com/webgl-water/" target="_water">water simulation</a>!
+		Then ponder: How long did it take to load the train scene?  
+		Why could you not do anything on this island except watch the train go around the track?
+		The sad truth is this: if you browse through the threejs and babylonjs showcases, 
+		you will likely find most scenes uninspiring.
+		Very few draw you in for long, often due to start-up delays, lackluster visuals, limited interactivity,
+		and no social interaction.</p>
+		<p>A language manual is not the place to explore everything necessary to succeed at the 3-D web.
+		However, one thing is certain: today's technology is capable of much better than this.
+		One need only look at the latest video games to realize this.</p>
+		<p>The 3-D web needs a browser and underlying programming language that:</p>
+		<ul>
+		<li>Simplifies the work of building appealing and engaging 3-D worlds</li>
+		<li>Delivers a responsive experience, both at start up and while exploring.</li>
+		<li>Uses and facilitates free and open standards and components</li>
+		</ul>
+		<p>The <b>frustration</b> is that no existing programming language is well suited for this task.
+		The 3-D web could be built far more quickly if we could plug in
+		an available and widely supported programming language.
+		Alas, existing languages were built to serve other purposes.
+		Using Javascript to deliver 3-D worlds is like using a wrench to pound nails.
+		You can do it, but you might not enjoy the experience.
+		It is not that Javascript is missing one or more major features. 
+		It is just that world-building would be slowed down by a thousand little knuckle-bumps,
+		particularly with regard to building and managing complex content.</p>
+		<p>Acorn is designed to be a better tool for the job: weaving together the best features 
+		from many great languages with its own innovative conveniences.
+		A lot of time was devoted to honing and polishing its simple design 
+		to make 3-D world-building as easy as possible:
+		easy to learn, easy to use, and easy to enrich.
+		What makes Acorn distinctive is not so much its capabilities, 
+		but the way it marries them together, powerfully and seamlessly.</p>
+		
+		<h2>Acorn is just a rich, flexible engine</h2>
+		<p>Even though Acorn was designed for 3-D world-building, 
+		there are no explicit three-dimensional capabilities baked into the language and its core types.
+		This is because Acorn is just the glue.
+		It provides only the essential programming abstractions needed to connect together the parts of a 3-D world
+		(or, really, any kind of model). 
+		Acorn is the engine that powers Pegasus3D, the 3D browser.</p>
+		<p>Acorn binds together all aspects of a 3D scene:
+		the look, location and properties of its parts, how they behave, and how people interact with them.
+		Unlike the world-wide web, which requires 3<sup>+</sup> languages to render an interactive web page,
+		Acorn facilitates all these capabilities within a single, concise, extensible language.</p>
+		<p>To make 3-D worlds, Acorn requires three-dimensional raw materials 
+		that we can clone, shape and then glue together with Acorn.
+		The starter set for these raw materials is the 
+		<a href="../types/world/index.html">World type</a> library.
+		These types are factories for creating a world's many different types of parts,
+		such as a scene, shape, texture, camera, widget or world.
+		It also provides types for encoding various property values, such as an Xyz coordinate 
+		or an RGBA color.</p>
+		
+		<h2>How does Acorn support 3D content?</h2>
+		<p>Imagine that a scene in your world is like a stage setting for a play.
+		Perhaps a wall divides the stage, separating a meadow from the overgrown garden. 
+		A locked, metal door traps anyone within the garden who does not have its key.
+		The moon casts a dim glow on two lovers sneaking towards the wall from opposite sides.</p>
+		<p>For Acorn, these are all <b>Parts</b>: both lovers, the moon, the wall, the door and the key.
+		Acorn invests much of its 3-D magic in the humble, but flexible Part:</p>
+		<ul>
+		<li>Every part has a dictionary of its named <b>properties</b>, varying from part to part.
+		A property's value can be as simple as 
+		a symbol (<span class="pre">name: 'Bottom'</span>)
+		or a number (<span class="pre">age: 36</span>).
+		A property's value can be a <b>collection</b>, 
+		such as a list (<span class="pre">pocket_items: +List</span>, which hopefully includes the garden key).
+		<p>A property's value can also be a <b>method</b>, 
+		a behavioral procedure which the part can perform on demand.
+		The lover named Bottom likely has one method named 
+		<span class="pre">'sneak'</span> and another called <span class="pre">'jump'</span>
+		(used when caught sneaking).
+		Methods are often triggered by events, such as user interactions or collisions.
+		</p></li>
+		<li>Parts can contain sub-parts.
+		The wall, door, and moon parts are listed within the garden scene's
+		<span class="pre">parts</span> property.
+		The scene part, in turn, is listed in the Midsummer world's <span class="pre">scenes</span> property.
+		<p>Typically, every part in a world is fully described by its Acorn <b>program</b>,
+		which is a Internet resource, uniquely identified by its url address.
+		Parts include or reference other parts using their url addresses.
+		This simple modularity scheme would allow
+		a world to license and make use of a dragon part hosted on a different domain by another company.
+		</p></li>
+		<li>Every part has a <b>type</b>,
+		which specifies the properties and methods it shares in common with other parts of the same type.
+		Thus, our scene's moon might be a Light, able to illuminate other scene parts.
+		The wall is an unmoving Thing, whose shape takes up space and provides an obstacle. 
+		The key is an Item which can be carried and used. 
+		The lovers are Avatars, whose actions are controlled by people.
+		<p>Types are like factories, used to create new parts (<b>instances</b>) of that type.
+		Once created, a part's properties can be customized to ensure it looks and behaves 
+		differently from other parts of that type, if desired.
+		The two lovers look and behave differently, even though both are Avatars.</p>
+		<p>Acorn provides a powerful starter set of <a href="../types/world/index.html">World types</a>. 
+		Additionally, Acorn supports creation of new types, enriched, specialized versions of other types.
+		It also supports creation of <b>mixins</b>, additional properties and methods
+		accessible on a part-by-part basis.</p></li>
+		<li>Property values can be synchronized between parts.
+		Thus, if the name of an avatar is changed using a windowed widget, 
+		the name displayed over the avatar changes accordingly.
+		The same mechanism also helps ensure that when two players visit the same world,
+		they are able to see the same things in the same places doing the same things.</li>
+		</ul>
+		
+		<p>This Acorn Language Reference only describes the language (and, to some degree, the core type library).
+		It does so using the terminology of general purpose programming.
+		It rarely touches on the World type library, and only infrequently applies the language's abstract capabilities
+		to the more concrete task of building 3-D worlds. 
+		For readers who would prefer to learn the language within the context of its primary purpose,
+		the <a href="../recipes/index.html">World-Building Recipes</a> might be more helpful.</p>
+
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="compare.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

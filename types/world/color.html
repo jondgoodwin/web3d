@@ -1,0 +1,41 @@
+<html>
+  <head>
+	  <title>Color Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Color Type</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Color</b> specifies a red, green, blue, alpha (RGBA) color, each with a Float number from 0.0 to 1.0.
+	The alpha value indicates the transparency, where 0.0 is fully transparent and 1.0 is fully opaque.</p>
+		
+	<h2>Class Properties <i>(see Type)</i></h2>
+	<dl>
+	<dt>New</dt>
+	<dd>(r,g,b,a)-> color.
+	If only r is specified, it is used as a gray scale value for rgb.
+	When a is not specified, 1.0 is assumed.</dd>
+	<dt>_newtype</dt>
+	<dd>-> mixin.
+	The type used by Color instances.</dd>
+	</dl>
+
+	<h2>Instance Properties</h2>
+	<dl>
+	<dt>set</dt>
+	<dd>(r,g,b,a)-> color.
+	If only r is specified, it is used as a gray scale value for rgb.
+	When a is not specified, 1.0 is assumed.</dd>
+	<dt>unpack</dt>
+	<dd>Return the r,g,b, and a values as separate Floats</dd>
+	</dl>
+	</div>
+	</body>
+</html>

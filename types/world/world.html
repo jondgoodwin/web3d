@@ -1,0 +1,77 @@
+<html>
+  <head>
+	  <title>World Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">World Type and $</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>World</b> is the root parent that organizes everything about a 3-D world: 
+	the 3-D scene, camera, overlays, user event handling, controllers, user info, etc. 
+	Every new world is run in a new AcornVM instance so that its global space is uncorrupted by other worlds.</p>
+	<p><span class="pre">$</span> holds the value of the current world, 
+	typically rendered in the current window ($window).
+	To switch worlds via a hyperlink:</p>
+<pre>
+# Close the current world and start a new world
+$browser.start('http://newworld.com/world.acn')
+</pre>
+		<p>At its core, the browser rapidly cycles between three actions on the current world ($):
+		process input events, update the state of the world, 
+		and then render to its window the world's current 3d scene and overlays.
+		The World's properties and methods may be used to control how these actions play out.</p>
+		<p>When created, a world should also specify what happens when launched, e.g.:</p>
+		<ul>
+		<li>Asking users to sign-in (as a scene) and then retrieving their information and state,
+		as well as any personalization information such as key maps, skinning and window layout.</li>
+		<li>Offering a character selection and avatar customization scene.</li>
+		<li>Personalizing various controllers that establish rules for motion, collision, etc.</li>
+		</ul>
+		
+		<h2>Properties <i>(see Type)</i></h2>
+		<dl>
+		<dt>camera</dt> 
+		<dd><a href="camera.html">camera</a> which renders the world's .scene to .window.
+		If .camera is undefined when the world is rendered, a default camera is created and stored here.</dd>
+		<dt>controllers</dt>
+		<dd>TBD. An ordered list of controllers to send an .update request to every frame.</dd>
+		<dt>dt</dt> 
+		<dd>TBD. The browser stores here the number of seconds since the last .update.</dd>
+		<dt>handleInput</dt>
+		<dd>TBD. Type whose methods handle specific input events forwarded by the browser.
+		This event-handling type might translate (e.g., using a keymap)
+		and dispatch some of these events to a "picked" 3-D part in the scene
+		or an overlay, depending on the placement of the cursor. 
+		More generic events might be forwarded to .user, .camera, the .scene or handled by the world directly.
+		</dd>
+		<dt>new</dt>
+		<dd>Create a new world.</dd>
+		<dt>nextFrame</dt>
+		<dd>Perform a full frame: handle input, send out update ticks, and render the world.</dd>
+		<dt>render</dt>
+		<dd>Specifies a list of overlays to render onto Frames or Windows in order.</li>
+		<dt>running?</dt>
+		<dd>Indicates whether the world (and therefore the browser) is running.
+		Typically, the answer is true. Setting it to false for the current world stops the browser.</dd>
+		<dt>overlays</dt>
+		<dd>TBD. Index of all <a href="overlay.html">overlay windows</a> (whether shown or not)</dd>
+		<dt>scene</dt>
+		<dd>the world's 3-D scene, typically a <a href="group.html">group</a>.
+		Changing this property alters the 3-D scene that is rendered.</dd>
+		<dt>updateState</dt>
+		<dd>TBD. This is called before each render, allowing the world to update the state of
+		anything that needs to change.</dd>
+		<dt>user</dt>
+		<dd>TBD. Information about the current user, such as their account, characters, avatars, 
+		keymap preferences, window skinning styles, etc.</dd>
+		</dl>
+	</div>
+	</body>
+</html>

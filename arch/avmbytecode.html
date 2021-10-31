@@ -1,0 +1,186 @@
+<html>
+  <head>
+	  <title>Bytecode - AcornVM</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<div id="title">AcornVM</div>
+			<div id="sub">Bytecode</div>
+		</div>
+
+    <div class="text">
+	<p>For faster performance, Acorn programs are compiled into byte-code prior to efficient interpretation.
+	Byte-code consists of 32-bit instructions. One byte is the op code, one byte is the A operand,
+	and the remaining two bytes vary depending on the op code: separate B and C byte-size
+	operands, a single unsigned 16-bit Bx operand, or a signed 16-bit sBx operand.</p>
+	
+	<p>The A operand always refers to one of 256 registers, all located on the current frame's data stack.
+	The contents of register A is specified below as R(A). Register 0 is always 'self'. 
+	Register 1 and up hold any fixed parameters passed to the program. Above the fixed parameters are
+	all the local variables. The rest of the registers are a temporary working area.</p>
+		
+	<h2>Load</h2>
+	<p>Use one of the basic load op codes to put a value into register A (and sometimes those that follow).
+	<dl>
+	<dt>LoadReg</dt>
+	<dd>R(A) := R(B)</dt>
+	<dt>LoadRegs</dt>
+	<dd>R(A .. A+C-1) := R(B .. B+C-1)</dd>
+	<dt>LoadLit</dt>
+	<dd>R(A) := Literals(Bx)<br />
+	<i>All literals found in the Acorn program are collected in an ordered list.
+	This retrieves a literal number, string (copy) or symbol into a register.</i></dd>
+	<dt>LoadLitX</dt>
+	<dd>R(A) := Literals(extra arg) {+ EXTRAARG(Ax)}<br/>
+	<i>Use when there are more than 65536 literals using data in the following instruction.</i></dd>
+	<dt>LoadPrim</dt>
+	<dd>R(A) := B==0? null, B==1? false, B==2? true<br/>
+	<i>For loading one of three primitive values, without requiring a literal.</i></dd>
+	<dt>LoadNulls</dt>
+	<dd>R(A), R(A+1), ..., R(A+B) := null<br/>
+	<i>For loading multiple nulls in consecutive locations.</i></dd>
+	<dt>LoadVararg</dt>
+	<dd>R(A), R(A+1), ..., R(A+B-1) := vararg<br />
+	<i>if (B == 0xFF) then use actual number of varargs and set top.
+	This retrieves any variable arguments passed to the program.</i></dd>
+	</dl>
+
+	<h2>Global and Closure variables</h2>
+	<p>These provide access to the thread's global variables or the current method's closure variables. 
+	The name of the global variable is a symbol stored in the literal list.
+	The closure variables are numbered: 0=get method, 1=set method, 2=first closure variable, etc.</p>
+	<dl>
+	<dt>GetGlobal</dt>
+	<dd>R(A) := Globals(Literals(Bx))</dd>
+	<dt>SetGlobal</dt>
+	<dd>Globals(Literals(Bx)) := R(A)</dd>
+	<dt>GetClosure</dt>
+	<dd>R(A) := Closure(Bx))</dd>
+	<dt>SetClosure</dt>
+	<dd>Closure(Bx) := R(A)</dd>
+	</dl>
+	
+	<h2>Property Access</h2>
+	<p>These provide access to a value's properties.</p>
+	<dl>
+	<dt>GetMeth</dt>
+	<dd>R(A) := R(A).*R(A+1), if R(A) is not executable</dd>
+	<dt>GetProp</dt>
+	<dd>R(A) := R(A).*R(A+1)</dd>
+	<dt>SetProp</dt>
+	<dd>R(A) := R(A).*R(A+1) = R(A+2)</dd>
+	<dt>GetActProp</dt>
+	<dd>R(A .. A+C-1) := R(A).R(A+1)</dd>
+	<dt>SetActProp</dt>
+	<dd>R(A) := R(A).R(A+1) = R(A+2)</dd>
+	</dl>
+
+	<h2>Jumps</h2>
+	<p>These provide various ways to transfer control to something other than the next instruction,
+	based on specific conditions. sBx is a signed 16-bit number (0x8000 bias) indicating how much the target instruction
+	precedes or follows the next one.</p>
+	<dl>
+	<dt>Jump</dt>
+	<dd>ip += sBx</dd>
+	<dt>JNull, JNNull</dt>
+	<dd>if R(A)==null then ip += sBx</dd>
+	<dt>JTrue, JFalse</dt>
+	<dd>if R(A) then ip += sBx</dd>
+	<dt>JLt, JLe, JGt ..</dt>
+	<dd>if R(A) is some combination of &lt;0, &gt;0, 0 or null then ip += sBx.
+	There are 12 variants: JEq, JNe, JLt, JLe, JGt, JGe, JEqN, JNeN, JLtN, JLeN, JGtN, JGeN.
+	The 6 that end with 'N' accept null as a valid value for a positive test.
+	Typically, use after doing a &lt;=&gt; method.</dd>
+	<dt>JSame, JDiff</dt>
+	<dd>if R(A)!===R(A+1) then ip+=sBx.</dd>
+	</dl>
+
+	<h2>Method Calls and Returns</h2>
+	<p>All calls are object-oriented, with register A pointing to a symbol representing the method
+	and register A+1 being the 'self' value whose type determines the method to execute.<p>
+	<dl>
+	<dt>LoadStd</dt>
+	<dd>R(A+1) := R(B); R(A) = StdMeth(C)<br />
+	<i>An efficient short-hand to load both 'self' and the symbol for a common method (e.g., '()').</i></dd>
+	<dt>GetCall</dt>
+	<dd>R(A .. A+C-1) := R(A+1).R(A)(R(A+1) .. A+B-1))
+	<br/><i>if (B == 0xFF) then B = top. If (C == 0xFF), then top is set to last_result+1, 
+	so next open instruction (CALL, RETURN, SETLIST) may use top.</i></dd>
+	<dt>SetCall</dt>
+	<dd>R(A .. A+C-1) := R(A+1).R(A)(R(A+1) .. A+B-1))
+	<br/><i>Like Call, but uses the closure's set method, with R(A+1) the value to be set.
+	if (B == 0xFF) then B = top. If (C == 0xFF), then top is set to last_result+1, 
+	so next open instruction (CALL, RETURN, SETLIST) may use top.</i></dd>
+	<dt>Return</dt>
+	<dd>retTo(0 .. wanted) := R(A .. A+B-1); Return<br />
+	<i>if (B == 0xFF), it uses Top-1 rather than A+B-1<br />
+	Caller sets where to return values to and how many wanted (if 0xFF, all return values)<br /></i></dd>
+	<dt>Yield</dt>
+	<dd>retTo(0 .. wanted) := R(A .. A+B-1); nexpected := C. Yield<br />
+	<i>if (B == 0xFF), it uses Top-1 rather than A+B-1<br />
+	Caller sets where to return values to and how many wanted (if 0xFF, all return values)<br /></i></dd>
+	<dt>Tailcall</dt>
+	<dd>return R(A)(R(A+1), ... ,R(A+B-1))<br/>
+	<i>A nice way to combine return and a call in one instruction without 
+	requiring an extra call frame. Especially valuable for recursive functions.</i></dd>
+	</dl>
+
+	<h2>Iterator Op Codes</h2>
+	<p>The following op codes make it easier to repetitively deal with iterators
+	(as Acorn's each statement does):</p>
+	<dl>
+	<dt>EachPrep</dt>
+	<dd>R(A) := R(B).Each<br/>
+	<i>If R(B) is executable, this loads R(B) into R(A).
+	Otherwise, it loads R(B).Each into R(A).</i></dd>
+	<dt>EachSplat</dt>
+	<dd>R(A+1) := R(A)/null, R(A+2) := ...[R(A)], R(A):=R(A)+1<br/>
+	<i>This acts like an 'each' iterator for ..., retrieving next value from varargs.</i></dd>
+	<dt>EachCall</dt>
+	<dd>R(A+1 .. A+C) := R(A+1).R(A)(R(A+1) .. A+B-1))
+	<br/><i>(like GetCall above, except it preserves R(A)'s value
+	if (B == 0xFF) then B = top. If (C == 0xFF), then top is set to last_result+1, 
+	so next open instruction (CALL, RETURN, SETLIST) may use top.</i></dd>
+	</dl>
+	
+	<h2>Example</h2>
+	<p>By way of example, the recursive Acorn factorial method:</p>
+<pre>
+Fact: [a]
+	return a if self&lt;=0
+	(self-1).Fact(self*(a&&1))
+</pre>
+	<p>Might compile into these byte-code instructions:</p>
+<pre>
+ 0: loadstd 2,0,'<=>'
+ 1: loadlit 4,0  ;0
+ 2: getcall 2,2,1
+ 3: jgt +1 ;goes to instruction 5
+ 4: return 1,1
+ 5: loadlit 2,1  ;'Fact'
+ 6: loadstd 3,0,'-'
+ 7: loadlit 5,2  ;1
+ 8: getcall 3,2,1
+ 9: loadstd 4,0,'*'
+10: jfalse 1,+2
+11: loadreg 6,1
+12: jmp +1
+13: loadlit 6,2 ;1
+14: getcall 4,2,1
+15: tailcall 2,2,1
+</pre>
+
+	<h2>Acknowledgements</h2>
+	<p>The Acorn byte-code was inspired by those for Lua, but reflects that the byte codes are pretty much 
+	just moving data around and transferring program control. All operations are object-oriented calls instead
+	of hard-wired. The Lua byte-codes are described in these resources:</p>
+	<ul>
+	<li><a href="http://wiki.luajit.org/Bytecode-2.0">LuaJIT byte-code</a></li>
+	<li><a href="http://luaforge.net/docman/83/98/ANoFrillsIntroToLua51VMInstructions.pdf">Lua 5.1 byte-code</a></li>
+	</ul>
+	
+	</body>
+</html>

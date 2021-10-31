@@ -1,0 +1,37 @@
+<html>
+  <head>
+	  <title>Symbol - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Symbol (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>A <b>Symbol</b> is an atomic, immutable collection of UTF-8 characters.
+		It is used for fast comparisons and indexing into Index or Type collections.</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>The parameter (required) is converted to a symbol.
+		If the parameter is not a Text or Symbol, the .Text method is used to convert the parameter to a Text value first.
+		If that conversion fails, 'null' will be returned instead of a symbol.</dd>
+		</dl>
+		
+		<h3>Instance Methods</h3>
+		<dl>
+		<dt><=></dt>
+		<dd>Returns 0 if exactly equal, otherwise returns 'null'.</dd>
+		<dt>Text</dt>
+		<dd>Converts the symbol to a Text value with the same characters.</dd>
+		</dl>
+
+	</div>
+	</body>
+</html>

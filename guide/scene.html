@@ -1,0 +1,280 @@
+<html>
+  <head>
+	  <title>Acorn Scene</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Making a Scene</div>
+		</div>
+
+    <div class="text">
+
+	<p>In Aoorn, every value keeps track of its type.
+	For example, the value <span class="pre">1</span> has the type of Integer and 
+	<span class="pre">4.5</span> is a Float (type names are typically capitalized).</p>
+	<p>A value's type defines its permissible values as well as how those values can be manipulated.
+	Acorn offers several <a href="types/index.html">built-in types</a>.  
+	In addition, Acorn supports and encourages the creation of new types.</p>
+	<p>This chapter introduces Acorn's fundamental types and shows how to build literal values for each. 
+	By the end of this chapter, the values provided in this trivial 3-D scene should feel familiar.</p>
+<pre>
+# Create a new scene
+Scene[
+	# Describe the scene's properties
+	name: 'Wonderland'
+	
+	# Create Frosty as part of the scene
+	Part[
+		name: 'Frosty'
+		pos: Xyz[0.,0.,0.] # where he stands in the scene
+		vel: Xyz[0.,0.,0.] # stands still
+		
+		# Frosty's snowball parts
+		Sphere[
+			pos: Xyz[0.,10.,0.]
+			radius: 10.
+			color: Color::White
+		Sphere[
+			pos: Xyz[0.,25.,0.]
+			radius: 5.
+			color: Color::White
+</pre>
+	<p><b>Note:</b> When Acorn encounters a pound sign on any line, it assumes the rest of the
+	line is a <a href="reftoken.html#comment">comment</a> intended for people to better understand the code.
+	All comments are essentially ignored by Acorn.</p>
+
+	<h2>Numbers</h3>
+	<p>Let's start our brief tour of value types with numbers.
+	Acorn natively supports two types of numbers: Integer and Float.</p>
+	
+		<h3>Integer</h3>
+		<p>An <a href="types/integer.html">Integer</a> value is what it sounds like: 
+		a positive or negative, whole "countable" number, including zero.
+		Here are several examples of integer literal values (explained with an accompanying comment).</p>
+<pre>
+13594     # A decimal integer uses just numeric digits. Do not use commas or a period
+-435      # Negative values start with '-'
+0x1E      # Hexadecimal integers begin with 0x followed by hex digits. 0x1E = 30 decimal
+</pre>
+		<p>Although Floats are typically used for 3-D scene attributes, the faster performing Integer
+		is useful for ordered list indexes, character encoding, and more.
+		To keep arithmetic fast, every Integer value has an upper and lower limit, which varies by device
+		(on smaller 32-bit machines, the range is: -536,870,912 to 536,870,911.</p>
+		
+		<h2>Float</h2>
+		<p>A <a href="types/integer.html">Float</a> value is a floating point real number, 
+		equivalent to numbers using scientific notation (e.g., −5.3×10<sup>4</sup>).
+		A floating point literal is a sequence of numeric digits
+		that has exactly one decimal point ('.') within the number 
+		(any number that leaves out the decimal point will be considered an Integer).
+		A power of ten exponent can be appended with an 'E' or 'e',
+		followed by a positive or negative integer indicating the exponent value.</p>
+		<p>These are all valid Float literals:</p>
+<pre>
+3.14159         # Approximate value of pi
+-124.           # Not an Integer, because of the period
+4.4958E-2       # Equivalent to .044958
+</pre>
+		<p>Because of the exponent, Float numbers scale to values larger and tinier than Integer
+		(with some loss of precision), 
+		making them more suitable for describing all dimensional attributes of a 3-D scene, such 
+		as position, distance, speed, and color (as shown in the Scene example above).
+		Like the Integer, a Float number's exponent and digit precision have limits,
+		varying based on whether Acorn is running as a 32-bit or 64-bit machine.</p>
+
+	<h2>true, false and null</h2>
+	<p>There are three simple, but important values, known by their reserved identifiers.</p>
+	<p><span class="pre">true</span> and <span class="pre">false</span> are the only two 
+	values of the type <a href="types/bool.html">Bool</a>. They are heavily used for making 
+	<a href="flow.html">control flow decisions</a>.</p>
+	<p><span class="pre">null</span> is the only value of the type <a href="types/null.html">Null</a>.
+	It is a value commonly used to indicate the absence of a value. Confused?
+	Well, imagine trying to retrieve the 6th letter of the word "Hello". 
+	Since there isn't one, it would be given the value <span class="pre">null</span>,
+	a value representing the absence of a value!</p>
+
+	<h2>Text and Symbol</h2>
+	<p>Text and Symbol values encode a sequence of characters (including Unicode glyphs). For example:</p>
+<pre>
+'Frosty'        # Symbol literal, whose value is enclosed in single quotes
+"Hello there!"  # Text literal, enclosed in double quotes
+"Μῆνιν ἄειδε, θεά, Πηληϊάδεω Ἀχιλῆος"   # Text literal, the first line of the Iliad
+</pre>
+	<p>These literals allow the use of <a href="reftoken.html#escape">escape sequences</a> 
+	(which start with a backslash) to represent calculated or hard-to-represent characters. For example:</p>
+<pre>
+"\Ldquo;Hello there,\Rdquo; said Ma\u00D1nuel.\n"   # is the line: &ldquo;Hello there,&rdquo; said Mañuel.
+</pre>
+	
+	<p>Text and Symbol values may look similar, but they are used in very different ways:
+	<ul>
+	<li>A Text value is typically created by or intended for people, as part of a user interface or resource file.
+	Since it is not uncommon to take a Text value apart or change it at the character level,
+	a Text value is intentionally malleable.</li>
+	<li>A Symbol is essentially frozen when created and transformed into a unique id 
+	which exactly represents its character contents. 
+	As a result, it is fast and easy to compare whether two symbols are identical,
+	making them well suited as keys for extracting values indexed by such keys.</li>
+	</ul>
+	<p><b>Note:</b> In many situations, Acorn allows a Symbol literal's single quotes to be omitted
+	to reduce punctuation clutter. This can be done whenever a symbol 
+	looks like an <a href="reftoken.html#identifier">identifier</a>
+	and is either preceded by a period or double colon, or followed immediately by a colon or a :>. 
+	For example:</p>
+<pre>
+"Happy".size  # size is a Symbol ('size')
+color: Color::White  # 'color' and 'White' are both Symbols. Color is not.
+</pre>
+	<p>The scene code excerpt above shows many examples of quoted and non-quoted symbols.
+
+	<h2>Compound Types</h2>
+	<p>All the value types described so far (other than Text) are elemental,
+	as they cannot be divided into smaller pieces.
+	Acorn has several compound types, built using a fixed number of other values.</p>
+
+	<h3 id="property">Property</h3>
+	<p><a href="types/property.html">Property</a> is a compound type, 
+	as its value is built using two values separated by a colon.
+	For example:</p>
+<pre>
+name: 'Frosty'
+gravity: 9.807
+town: "Alice Springs"
+</pre>
+	<p>The value on the left is the property being described, which is nearly always a Symbol.
+	'name', 'gravity' and 'town' above can leave out the single quotes because
+	the Symbol value is followed immediately (not even a space) by the Property's colon operator.</p>
+	<p>The property's descriptive value is to the right of the colon. It really can be pretty much 
+	any type of value, a Symbol, Float, Text or something far more complex.</p>
+	<p>Properties are a critical ingredient for the Index and Part types, as will be shown soon.</p> 
+
+	<h3>Range</h3>
+	<p><a href="types/range.html">Range</a> is another compound type.
+	Its values are also built using two values, separated by a double dot. For example:</p>
+<pre>
+1..7   # from 1 to 7
+5..-1  # from 5 to -1
+</pre>
+	<p>A Range value is a useful shorthand for a set of all consecutive values between (and including) 
+	the from and to values. They are used for retrieving or changing consecutive pieces in a collection.</p>
+
+	<h3>Other compound types</h3>
+	<p>The <a href="http://wom.jondgoodwin.com">World Object Model</a> type library
+	offers several compound types, such as Xyz and Color. 
+	To represent a point or vector in 3-D space, Xyz requires 3 Float coordinates.
+	To represent a specific color, Color requires 4 Float values, for Red, Green, Blue and Alpha.</p>
+	<p>The square bracket builder operator is the easiest way to build such compound values.
+	The type is specified to the left. The compound values are specified within the brackets, separated by commas.
+	For example:</p>
+<pre>
+Xyz[4.56, 304.22, 540.8]   # A coordinate in 3-D space
+Color[1.0, 0., 0., 0.5]    # Semi-transparent red
+</pre>
+	
+	<h2>Collections</h2>
+	<p>Collection types are similar to compound types, built from multiple values.
+	However, collection type values hold a changeable number of values.</p>
+	<p>A Text value is one example of a collection, holding an arbitrary number of characters.
+	Other collection types include List, Index and Part.</p>
+	
+	<h3>List</h3>
+	<p>A <a href="types/list.html">List</a> is an ordered collection of values, 
+	much like Text is an ordered sequence of characters.
+	Each member value within a List value can be of any type.</p>
+	<p>The square bracket builder operator is also used to build List values, with a couple of twists.
+	First, the member values are separated by semi-colons, instead of commas.
+	Secondly, each member value can be specified on a tab-indented line of its own, where the semi-colon is assumed.
+	Using the indented method, the closing square bracket is typically unnecessary.</p>
+	<p>For example:</p>
+<pre>
+List[]    # This creates an empty list
+
+# A list with two tab-indented text values
+List[
+	"Who are you?"
+	"How old are you?"
+
+# This nonsensical list has three different value types
+wild = List[
+	4..7
+	# include another List
+	List[
+		'sym'
+		22.543
+	crazy: 'thing'
+</pre>
+
+	<h3>Index</h3>
+	<p>An <a href="types/index.html">Index</a>, like a List, also holds a variable number of values. 
+	However, instead of being an ordered collection, 
+	an Index holds an unordered collection of Properties indexed by a property key.
+	The Index is designed to efficiently gather, retrieve and manipulate Property values.</p>
+	<p>In this example, the builder is used to create a new Index value.</p>
+<pre>
+tree = Index[
+	species: 'Ash'
+	height: 15.2
+	pos: Xyz[123.4, 10.5, 432.52]
+</pre>
+
+	<h3>Part</h3>
+	<p><a href="types/part.html">Part</a>
+	is turbo-powered hybrid of List and Index, collecting both Properties and an ordered List of values. 
+	If a Property is added to a Part, it is stored in its internal Index.
+	When any other value is added to a Part, it is appended to its internal List.</p>
+	<p>This example uses the builder to create a new Part with two properties and an ordered list with two Parts</p>
+<pre>
+solar = Part[
+	age: 4.568E9
+	size: 4.503E9
+	Part[
+		name: 'Sun'
+		type: 'star'
+	Part[
+		name: 'Mercury'
+		type: 'planet'
+</pre>
+	<p>The Part type is actually far more than a hybrid List and Index collection.
+	A Part can also hold procedural content in the form of Methods and a type list, 
+	as described <a href="methods.html">later</a>, making them "smart" and interactive.
+	Also, Parts can be linked to a <a href="resource.html">Resource</a> and provide two-way binding to other parts,
+	also discussed later, built-in features that greatly simplify the work of the world-builder.</p>
+	<p>Because of its power and flexibility, the Part is the backbone structure behind nearly
+	all of the Scene Object Model types. Thus, a Scene, Node, Sphere, and many more types
+	are actually all Parts, under the covers.</p>
+
+	<h2>Other types</h2>
+	<p>The value types introduced so far are enough to make sense out of the scene excerpt presented
+	at the beginning of this chapter. There are still more Acorn types to be introduced in later chapters,
+	importantly:</p>
+	<ul>
+	<li><a href="methods.html#function">Function</a> and <a href="methods.html#method">Method</a>, 
+	providing procedural logic for manipulating values.</li>
+	<li><a href="methods.html#type">Type</a>, enabling the creation of additional custom-defined types,
+	which can take advantage of all the same Acorn features as the built-in types.
+	This flexible capability adds so much additional power to Acorn's rich foundation.</li>
+	</ul>
+	
+	<h2>Summary: Putting all the Parts Together</h2>
+	<p>Having finished our brief tour of many of Acorn's built-in value types, 
+	you should now be able to decipher the simple scene shown at the beginning of this chapter,
+	understanding how literal values are assembled into parts using Acorn's builder operator.
+	The indented structure helps clarify the hierarchy of who owns which parts.</p>
+	<p>If you have built web content using XML or JSON, their influence on Acorn should be obvious.
+	Acorn's Parts correspond to XML nodes, specifying a type (tag), attributes (properties) 
+	and a list of values (child nodes). Like JSON, data content can be expressed as more than Text values
+	(although Acorn supports a far greater range of value types than JSON).</p>
+	<p>A world is too big (or even a scene) to be completely specified and managed 
+	as one mammoth content structure. In the next chapter, we explore how to
+	divide a world up across various part-based resources.</p>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="resources.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

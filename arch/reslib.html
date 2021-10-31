@@ -1,0 +1,46 @@
+<html>
+  <head>
+	  <title>Resource Types - Browser</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<span id="title">Browser</span>
+			<span id="sub">Resource Types</span>
+		</div>
+
+    <div class="text">
+		<p>The <b>Resource Types</b> facilitate access to resource files, offering these features:</p>
+		<ul>
+		<li>Access to Internet files via URL (fully qualified domain or relative addressing).
+		These resources can be automatically cached locally and fully loaded in-memory for shared use.</li>
+		<li>Access to resources stored in local storage.</li>
+		<li>Ability to exchange resources dynamically across the Internet using UDP</li>
+		<li>Customized plug-ins for deciphering or serializing the contents of specific types of resources.</li>
+		<li>Type libraries that provide programmatic Acorn access to resource capabilities. 
+		Protection mechanisms help ensure web programs do not have unfettered write (or read) access to local files.</li>
+		</ul>
+		<p>Working through Resource, some types implement various schemes (e.g., Http, File, and Udp)
+		and others implement various ways to load resources (e.g., Png, Jpg, etc.).</p>
+		
+		<h3>API Documentation</h3>
+		<p>Key scheme types:</p>
+		<ul>
+		<li><b>File</b> manages locally stored resources. Initialize a file object with a pathname.
+		<b>load(&size)</b> returns a pointer to the loaded file in memory and the size of the loaded file.
+		<p>Static functions are provided for folder manipulation as well, such as mkdirs, rmdirs, rm, mv, 
+		directory_exists, file_exists, ...</p></li>
+		<li><b>HttpFile</b> manages file resources retrieved from Internet servers, using a valid url.
+		<b>load(&size)</b> returns a pointer to the loaded file in memory and the size of the loaded file.</li>
+		</ul>
+		
+		<p>Online Resources:</p>
+		<ul>
+		<li><a href="http://stackoverflow.com/questions/244453/best-documentation-for-boostasio" target="_">Asio documentation</a></li>
+		<li><a href="http://stackoverflow.com/questions/6755111/read-input-files-fastest-way-possible" target="_">Boost interprocess shared memory</a></li>
+		</ul>
+	</div>
+	</body>
+</html>

@@ -1,0 +1,216 @@
+<html>
+  <head>
+	  <title>Tokens - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Tokens</div>
+		</div>
+
+    <div class="text">
+		<p>This chapter describes the atomic tokens used to build all Acorn programs.
+		These are assembled together using the grammar described by the Extended BNF chapter.</p>
+
+		<h2>Unicode characters</h2>
+		<p>An Acorn program is a stream of UTF-8 encoded Unicode characters.
+		If the stream starts with the byte-order mark (U+FEFF), it is ignored.
+		The last character of the program is either U+0000 or the end-of-stream, whichever comes first.</p>
+
+		<h2>Lines and Tokens</h2>
+		<p>A program consists of one or more <b>lines</b>, 
+		separated from each other using the line-feed (U+000A) character.
+		Line numbering begins with 1.</p>
+		<p>A program also consists of one or more multi-character <b>tokens</b>.
+		Each token's type is determined by the first character of the token. 
+		The token type sets the rules for which of the following characters are also part of that token.
+		Tokens can sometimes span more than one line.</p>
+		<p>Certain token types (more fully described in sections below) 
+		are used to generate executable code:</p>
+		<ul>
+		<li><b><a href="#number">Number</a></b>, 
+		which begins with a numeric digit from '0' to '9'.</li>
+		<li><b><a href="#quote">Text</a></b>, 
+		which begins with a double quote (").</li>
+		<li><b><a href="#quote">Symbol</a></b>, 
+		which begins with a single quote (').</li>
+		<li><b><a href="#name">Name</a></b>, 
+		which begins with any of the following, a roman letter ('a' through 'z'), 
+		a dollar sign '$', an underscore '_', or any unicode symbol above U+009F locally defined as a letter.</li>
+		<li><b><a href="#oper">Operator</a></b>, 
+		which begins with one of the common punctuation characters between U+0021 and U+007F.</li>
+		</ul>
+		<p>In addition, these token types play an important role:</p>
+		<ul>
+		<li><b><a href="#comment">Comment</a></b>, 
+		which begins with a sharp sign '#'.</li>
+		<li><b><a href="#line">Line indent</a></b>, 
+		which begins with a tab (U+0009) at the beginning of a line 
+		(and not contained within a multi-line text, symbol or comment).</li>
+		<li><b><a href="#eof">End-of-file</a></b>, 
+		which is either the null character (U+0000) or the end of the program.</li>
+		<li><b><a href="#space">White space</a></b>, 
+		which should typically be the space character (U+0020), 
+		but could be any character not matching the starting character for the other tokens listed above.</li>
+		</ul>
+		<p>The sections below describe each of these tokens in greater detail.</p>
+
+		<h2 id="line">Line Indentation, Blocks and Statements</h2>
+		<p>With most programming languages, the indented-line layout of a program's code
+		is irrelevant to the computer.
+		However, with some languages (e.g., Python and Coffeescript) the line layout does matter. 
+		So it is with Acorn. It adheres to the <a href="https://en.wikipedia.org/wiki/Off-side_rule">off-side rule</a>.
+		The benefit is code less cluttered with statement-end and block delimiters.</p>
+		<p>In most cases, the concept is simple and obvious:</p>
+		<ul>
+		<li>Each line is a <b>statement</b>, implicitly understood to be terminated with a semi-colon ';'.</li>
+		<li>Each successive level of tab indentation at the start of lines begins a <b>block</b> attached to the
+		preceding line. Each such block is implicitly surrounded by curly braces.</li>
+		</ul>
+		<p>So:</p>
+<pre>
+a=1
+while a&lt;4
+	wander(a)
+	if outside?
+		a = 2
+	a = 3
+</pre>
+		<p>Is the same as:</p>
+<pre>
+a=1; while a&lt;4 {wander(a); if outside? {a = 2;}; a = 3;};
+</pre>
+
+		<p>As the latter example shows, single-line brevity is allowed.
+		Use the semicolon to pack multiple statements onto a line.
+		Likewise, wrap curly braces around a block placed on the same line as the "preceding" line.</p>
+		<p><b>Note:</b> The leading tabs on a line are ignored when:</p>
+		<ul>
+		<li>The line is part of a multi-line comment or symbol/text literal.</li>
+		<li>It is a blank line, containing only white space or comments.</li>
+		</ul>
+		
+		<h4>Line continuations</h4>
+		<p>Sometimes, one wants to split a line across multiple lines.
+		To ensure Acorn does not automatically insert semi-colons between each line,
+		begin the continuation lines with a backslash at the same indentation:</p>
+<pre>
+a = 
+\ b or
+\ c       # equivalent to: a = b or c
+</pre>
+		<p>This backslash works properly even when a statement has an indented block in the middle:</p>
+<pre>
+# Below equivalent to: abc {monkey: foo;} if condition;
+abc
+	monkey: foo
+\ if condition
+</pre>
+		
+
+		<h2 id="comment">Comments</h2>
+		<p>Comments document the code to make it more easily understood by people.
+		Comments have no impact on program execution.</p>
+		<p>Comments may be placed between any two tokens
+		(and certainly not within a text or symbol literal).
+		A comment always begins with the sharp character '#'.</p>
+		<p>There are two types of comments:</p>
+		<ul>
+		<li>A <b>line comment.</b> begins with a pound sign ('#') and continues to the end of line.</li>
+		<li>A <b>block comment</b> starts with ###. It ends at the next ###, 
+		extending across multiple lines, if desired.</li>
+		</ul>
+
+		<h2 id="space">White Space</h2>
+		<p>Spaces are regularly used to improve code clarity and separate tokens.
+		Except within text or symbols, spaces are otherwise ignored.
+		Other control or unexpected characters, such as
+		tabs not at the start of the line or the carrier return (U+000D), are also ignored.</p>
+		
+		<h2 id="eof">End-of-File</h2>
+		<p>The program code ends when it reaches a null character (U+0000) or has no more characters. 
+		Acorn will tidy up whatever is unfinished (e.g., still open blocks, literals, or comments)
+		and then will complete the compilation.</p>
+		
+		<h2 id="number">Number Token</h2>
+		<p>A number token can represent either an integer or a float literal.
+		Both begin with a digit character from '0' to '9'.
+		It is determined to be a Float if it contains a period or 'E' character.</p>
+		<p><b>Note:</b> A negative number (e.g., -123) is actually two tokens, the operator '-' and the number '123'.
+		It must be done this way, as a '-' dash before a number might be a minus operator.
+		
+		<h3>Integer Literal</h3>
+		<p>An Integer literal may be:</p>
+		<ul>
+		<li><b>Decimal integer.</b>
+		A simple sequence of numeric digits which stops at the first non-digit character.</li>
+		<li><b>Hexadecimal integer.</b>
+		Starts with '0x' followed by either numeric digits or 'a'-'f' (or 'A'-'F') to 
+		represent the hexadecimal digit values ten through fifteen).</li>
+		</ul>
+		
+		<h3>Float Literal</h3>
+		<p>A Float literal is a sequence of numeric digits which must start with a first digit from '0' to '9'
+		and have exactly one decimal point ('.') within the number. 
+		<p>The Float token may end with an exponent, which is indicated by 
+		an 'e' or 'E' followed by an optional minus sign and additional numeric digits.</p>
+		<p>A number token that lacks a decimal point or exponent will be considered an Integer.</p>
+		
+		<h2 id="quote">Text or Symbol Token</h2>
+		<p>Text and Symbol tokens look nearly identical, except that a Text token begins and ends 
+		with the double quote (") and the Symbol token begins and ends with the single quote (').</p>
+		<p>Any unicode character may appear between the opening and closing quote marks. However, 
+		carrier return (U+000D), line feed (U+000A) and line-beginning tabs (U+0009)
+		are stripped and will not appear in the resulting literal's value.
+		Why strip them?  
+		So that multi-line text literals may be shaped into indented lines that match the code they are part of,
+		without their code format being imposed on wherever the text is ultimately displayed.</p>
+		<p>Use one of these backslash '\' escape sequences
+		to inject control, delimiter or other characters where they belong in the resulting literal:</p>
+		<dl id="escape">
+		<dt>\n</dt><dd>New-line (U+000A)</dd>
+		<dt>\r</dt><dd>Return (U+000D)</dd>
+		<dt>\t</dt><dd>Tab (U+0009)</dd>
+		<dt>\<i>char</i></dt><dd><i>char</i> character (typically: \\, \' or \")</dd>
+		<dt>\u<i>nnnn</i></dt><dd>unicode character which matches the specified hexadecimal code point.</dd>
+		<dt>\U<i>nnnnnnnn</i></dt><dd>unicode character which matches the specified hexadecimal code point.</dd>
+		</dl>
+		
+		<h2 id="name">Name Token</h2>
+		<p>An name is typically made up of letters. A letter is a lower-case Latin letter from 'a' to 'z',
+		an upper-case Latin letter from 'A' to 'Z', or (for now) any Unicode character above U+00A0.</p>
+		<p>The characters allowed in an name vary depending on its position:</p>
+		<ul>
+		<li>The first character must be a letter, '$' or '_'.</li>
+		<li>Subsequent characters may be a letter, digit, '$' or '_'.</p>
+		<li>The final character may also be a '?'.</p>
+		</ul>
+		<p>The following are all valid names:</p>
+<pre>
+balance toReturn True _temp_ $ funny? π
+</pre>
+		<p>The case of the letters is significant. Thus, 'abc' is a different name than 'ABC'.</p>
+		<p>In certain contexts, a name is treated as a literal symbol rather than a variable.
+		This happens when the name is immediately followed by ':' (with no intervening white space), 
+		or preceded by '.', '.:' or '::'.</p>
+		<p>Certain names are <a href="reserved.html#resnames">reserved</a> for exclusive use by Acorn
+		and may not be used as variables.</p>
+
+		<h2>URL Token</h2>
+		<p>The '@' operator followed by a URL or IRI address is treated as a static Resource literal.
+		The end of the url is detected by the first space, tab, line-feed or carriage-return found.</p>
+		<p>If the character right after the '@' is a space, tab, lf, cr, ", ', or (, then it is not treated
+		as a single token, but as the '@' operator token followed by tokenizing the subsequent characters
+		as normal.</p>
+		
+		<h2 id="oper">Operator Token</h2>
+		<p>An operator is a sequence of one or more punctuation characters with no intervening white space.
+		Acorn is greedy, and will look for the longest character sequence that matches one of these operators.
+		See <a href="reserved.html#resops">Reserved Operators</a> for a list.</p>
+				
+	</div>
+	</body>
+</html>
