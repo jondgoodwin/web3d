@@ -1,0 +1,60 @@
+<html>
+<head>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="standard.css" />
+<title>Web3D - Projects</title>
+</head>
+<body>
+	<div id="header">
+		<div class="column">
+		<a href="/">
+			<img src="pegicon.png" width="56" height="56" alt="logo">
+		</a>
+		</div>
+		<span id="title">Cone</span>
+		<span id="sub">Projects</span></div>
+		<div class="column flow-opposite">
+	</div>
+
+	<div class="text">
+	
+	<p>Several engineering initiatives have been launched to explore possible solutions to
+		delivering on the promise of web3d and overcoming technical challenges to its success.</p>
+	
+	<h2><a href="https://cone.jondgoodwin.com/index.html">Cone Programming Language</a></h2>
+	<p>Optimal performance and minimal code footprint are essential to a responsive 3D experience.</p>
+	<ul>
+	<li><b>Client.</b> 
+		3D worlds are punishing to deliver, as they have to perform millions of rendering and motion
+		calculations reliably every 16 milliseconds. 
+		<p>Internet bandwidth constraints magnify these challenges;
+		if we cannot keep world assets and the underlying engine's code compact, it will be impossible
+		to stream them from the server to the client on a timely basis. This will require the ability to 
+		stream needed assets on a just-in-time basis and then re-hydrate the assets without disrupting
+		real-time rendering.</p>
+		<p>These characteristics are hard enough when delivering these experiences via native executables.
+		How much worse, when delivering via a browser using WebGL and Wasm technologies.</p></li>
+	<li><b>Server.</b> 
+		3D world servers need to keep multiple player clients synchronized to the most recently re-calculated state of the world.</li>
+	</ul>
+	<p>The Cone programming language was designed and built as a foundation toolkit  
+		for satisfying these 3D world requirements.
+		Blazingly-fast, lagless runtime performance is key to its value proposition.
+		Cone makes it much easier to leverage performance strategies, such as cache-friendly data architecture (including ECS),
+		memory management (arena, pool, and borrowed references), and friendly actor-based concurrency.</p>
+
+	<h2><a href="pegasus3d/index.html">Pegasus3D browser and Acorn programming language</a></h2>
+	<p>This project explored the idea of encoding intelligent 3-d assets as programs written in the
+		<a href="pegasus3d/acorn/index.html">Acorn programming language</a> (a dynamically-typed language loosely inspired by Lua).
+		A working browser, called Pegasus3D, was built within the Acorn VM. 
+		It included built-in classes that facilitated 3d rendering, user interactivity, and the ability to retrieve
+		Acorn and image assets from the internet.</p>
+		</p>
+		
+	
+	
+	</div>
+
+</body>
+</html>
