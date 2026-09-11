@@ -1,0 +1,54 @@
+<html>
+  <head>
+	  <title>Texture Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Texture Type</div>
+		</div>
+
+    <div class="text">
+	
+	<p>A Texture is a color sampler, generally used to color pixels on the surface of a shape.</p>
+
+	<h2>Properties</h2>
+	<dl>
+	<dt>image</dt>
+	<dd>The two-dimensional RGB <a href="image.html">image</a> used for a 'Uvmap' mapping.</dd>
+	<dt>imagePosX</dd>
+	<dd>The two-dimensional RGB <a href="image.html">image</a> used for the right side of a cubemap.
+	The other five images are named: imageNegX, imagePosY, imageNegY, imagePosZ, and imageNegZ.</dd>
+	<dt>magFilter</dt>
+	<dd>How to sample the texture when u,v address covers more than one pixel.
+	The default is 'LinearFilter', which takes the four closest texels and bilinearly interpolates among them. 
+	The other option is 'NearestFilter', which uses the value of the closest texel.</dd>
+	<dt>mapping</dt>
+	<dd>Specifies how rendering locates the texture's colors. The default is 'UvMap', using the vertices
+	uv coordinates of the image found in 'image'. 'CubeMap' maps the vertex's position to one of the six images
+	of a cubemap. The filters are set to 'LinearFilter' and the wrap are set to 'ClampToEdge'.</dd>
+	<dt>minFilter</dt>
+	<dd>How to sample the texture is sampled when a texel covers less than one pixel. 
+	The default is 'LinearMipMapLinear', which uses mipmapping and a trilinear filter. 
+	Other choices are 'NearestFilter', 'NearestMipMapNearest', 'NearestMipMapLinear', 'LinearFilter', 
+	and 'LinearMipMapNearest'. 
+	These vary whether the nearest texel or nearest four texels are retrieved on the nearest mipmap or nearest two mipmaps. 
+	Interpolation occurs among the samples retrieved.</dd>
+	<dt>mipmap</dt>
+	<dd>If true (the default), automatically generate smaller (faster) versions of the texture
+	to use when far from the eye.</dd>
+	<dt>wrapS</dt>
+	<dd>Determines what happens when the 'u' value goes outside the 0.0-1.0 values. 
+	The default is 'ClampToEdge'. The values 'Repeat' or 'MirroredRepeat' are also possible.
+	Repetitive tiling of images works only if the image dimensions are a power of two.</dd>
+	<dt>wrapT</dt>
+	<dd>Determines what happens when the 'v' value goes outside the 0.0-1.0 values. 
+	The default is 'ClampToEdge'. The values 'Repeat' or 'MirroredRepeat' are also possible.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

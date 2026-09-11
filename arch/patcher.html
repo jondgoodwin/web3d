@@ -1,0 +1,58 @@
+<html>
+  <head>
+	  <title>Browser Patcher</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<span id="title">Browser</span>
+			<span id="sub">Patcher</span>
+		</div>
+
+    <div class="text">
+		<p><b>w3dlauncher</b> is a file patching program, responsible for keeping the browser
+		program files up to the most current release. Because of the small number of files to update
+		(as there are almost no media files), it uses a very simple scheme:
+		<ol>
+		  <li>The "as is" patch.cfg file is retrieved from the current directory, specifying which browser files have
+			already been downloaded (and the version of each).</li>
+			<li>Similarly, the "to be" patch.cfg is retrieved from the Web3D server, indicating the most current versions
+			of all browser files.</li>
+			<li>Every outdated local browser files is replaced by the most current version, downloaded from the server.
+			In some cases, this may mean deleting a file that is no longer needed.
+			The local patch.cfg file is replaced after each change to show the updated status of the file.</li>
+			<li>The browser is launched.</li>
+		</ol>
+		<p><i>Note:</i> The patcher is a separate program from the browser, so that it can update all the browser's
+		program files before running the browser. For this same reason, the browser is responsible for updating the
+		patcher program, if needed.</p>
+		<p><b>patch.cfg</b> This file format specifies both the as-is patch state (local) and to-be patch state (server).</p>
+		<ul>
+		<li>Package lines specify the package name and version number. All indented lines that follow
+		are files belonging to that package. The "w3dpatch" and "w3dbrowser" packages must always be present, representing the patch
+		and browser respectively. All other packages are for optionally downloaded plug-ins.</li>
+		<li>File lines are indented, specifying the file's path name and version number. If the file name begins with '-',
+		the file is to be deleted.</li>
+		<li>Version number is version.release.mod, where release and mod numbers do not exceed 99.</li>
+		</ul>
+		<p>Here is a sample patch.cfg on a server</p>
+<pre>
+w3dpatch 0.1.0
+  w3dpath.exe 0.1.0
+w3dbrowser 0.1.4
+  w3dbrowser.exe 0.1.3
+  boost.dll 0.1.3
+  -wonkers.dll 0.1.3
+</pre>
+		<p>Online Resources:</p>
+		<ul>
+		<li><a href="https://github.com/jbaugh/patcher" target="_">Patcher (Github)</a></li>
+		<li><a href="http://www.ogre3d.org/forums/viewtopic.php?f=16&t=65134" target="_">Karazeh and Kiwi Patch Manager</a></li>
+		<li><a href="http://stackoverflow.com/questions/2244439/execute-another-program-in-c">Execute another program</a></li>
+		<li><a href="http://www.altdevblogaday.com/2012/11/12/a-simple-system-to-patch-your-game-content/">Quake3's archive technique</a></li>
+		</ul>
+	</div>
+	</body>
+</html>

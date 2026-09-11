@@ -1,0 +1,155 @@
+<html>
+  <head>
+	  <title>AcornVM Architecture</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<div id="title">AcornVM</div>
+			<div id="sub">Architecture</div>
+		</div>
+
+    <div class="text">
+		
+		<p>The Acorn Virtual Machine is the foundation for the 3D web browser,
+		providing a virtual machine environment and a reference implementation of the Acorn language.
+		It manages all data structures, with built-in memory allocation and
+		dynamic, iterative garbage collection. 
+		In addition to basic data primitives, such as floating point numbers, text and lists,
+		it also provides support for procedural data structures, such as stacks, classes, functions and closures.
+		It includes a compiler and interpreter for Acorn.
+		It includes the core type library, and provides a C API for implementing
+		other high-performance types.</p>
+		
+		<h2>Using the AcornVM library</h2>
+		<p>The Acorn VM is a reentrant, thread-safe C library which can be embedded into a larger program,
+		such as the Marco Web3D browser.
+		It has no dependencies on other libraries.
+		It runs successfully on 32-bit Windows and 64-bit Linux. 
+		With few (if any) changes, it is likely to be portable to other machine architectures.
+		Its Git repository has a README.md with instructions for how to compile
+		and build the library.</p>
+		<p>Any program using the library should be sure to include:</p>
+<pre>
+#include "avm.h"
+</pre>
+		<p>The program creates a new VM by calling:</p>
+<pre>
+	Value th = newVM();
+</pre>
+		<p>The thread value returned must be passed to any use of a
+		<a href="avmcapi.html">C API</a> function.
+		To add additional types, either modify the global Index directly or 
+		load shared libraries and run their init function (which modify global).</p>
+		<p>One can then load and call an Acorn program to run it.</p>
+		<p>When done with the VM, it is closed as follows:</p>
+<pre>
+	vm_close(th);
+</pre>
+
+		
+		<h2>Architecture Layers</h2>
+		<p>The Acorn VM is built up in layers:</p>
+		<dl>
+		<dt>Values</dt>
+		<dd>A self-typed, fixed-sized structure for all possible values.
+		Its size is the size of the address space (32 or 64 bits). 
+		Using a trick inspired by Ruby, a value might be an in-place integer, floating point number,
+		or a special value (null, false, or true). 
+		Alternatively, it could be a pointer to a dynamically allocated block that describes
+		the properties for more complex values (such as collections, methods, or threads).
+		See the <a href="avmcapi.html">C API</a> or avm_value.h for more information.</dd>
+		<dt>VM</dt>
+		<dd>The virtual machine layer handles all memory management, 
+		including automatic, incremental, generational garbage collection.
+		It creates a clonable global variable areas.
+		It creates a one or more threads to manage a specific execution and data state (or stack).
+		Most of the Acorn VM code accepts a thread as the first parameter, 
+		which provides access to any value within the virtual machine.</dt>
+		<dt>Datatypes</dd>
+		<dd>The datatypes implement the core logic for the VM's atomic data encodings
+		that are stored within a value's allocated data block.
+		Datatypes are not the same as Acorn types, but do provide the foundation for them.
+		Manipulation of datatypes is done using functions rather than methods.</dd>
+		<dt>C API</dt>
+		<dd>The <a href="avmcapi.html">C API</a> enables Acorn types, methods, and global variables
+		to be implemented using C language code.
+		The API provides direct access to datatype and VM functionality.
+		Implementing types in C rather than Acorn improves performance 
+		and provide access to C-based libraries and operating environment services.</dd>
+		<dt>Core Types</dd>
+		<dd>This code implements Acorn's object-oriented core types	using the VM's C API.</dd>
+		</dl>
+		
+		<h2>Acorn Compiler</h2>
+		<p>The Acorn compiler is implemented within the Method's .new constructor.
+		It compiles a program in several steps, each requiring only a single pass:</p>
+		<dl>
+		<dt>Scanner</dt>
+		<dd>Divides the Acorn source program into discrete tokens.
+		This stage automatically converts line formatting (such as indentation) into appropriate tokens.</dd>
+		<dt>Parser</dt>
+		<dd>Using Acorn's <a href="../acorn/ebnf.html">syntax</a> and precedence rules,
+		the LR parser translates every Method's scanned tokens into an 
+		<a href="avmast.html">Abstract Syntax Tree</a> (AST).
+		The AST is an s-expression that encapsulates the semantic structure of the Method's procedural logic.</dd>
+		<dt>Generator</dt>
+		<dd>Converts every Method's AST into <a href="avmbytecode.html">bytecode</a>, 
+		which is stored as part of the allocated data block pointed at by the method's value.
+		Acorn's bytecode is similar to Lua's; 
+		the biggest differences stem from Acorn's object-oriented nature.</dd>
+		</dl>
+		<p>Whenever Acorn runs a bytecode-implemented method, its execution is interpreted
+		by the Acorn VM.</p>
+
+		<h2>Performance Considerations</h2>
+		<p>Responsive performance is critical to widespread eagerness to explore 3-D worlds.
+		Visitors want their virtual worlds to unfold and interact in a smooth and responsive way.</p>
+		<p>This is not easy to accomplish with large, complex worlds whose large polygon and texture
+		resources must be retrieved from the other side of the Internet.
+		Dynamic, object-oriented, interpreted languages are not known for their blazing speed.
+		So, performance is automatically handicapped when using Acorn to build Internet-hosted 3-d worlds.
+		No wonder most world-class games are built using C/C++ and are pre-downloaded before use.</p>
+		<p>Acorn's architecture substantially mitigates this handicap:</p>
+		<ul>
+		<li>Where possible, performance-critical logic is implemented close to the silicon, making the Acorn
+		code mostly a thin veneer of event-managing oversight controlling the work of skilled, high performance workers.
+		<ul>
+		<li>Acorn uses C-coded OpenGL and physics libraries, along with any dedicated graphics processor, 
+		to handle the repetitive, demanding work of rendering 3-D scenes and handling object 
+		motion and collision..</li>
+		<li>The methods for Acorn's core and 3D types are written in C using Acorn's C API.</li>
+		<li>Acorn code is pre-compiled into a simple bytecode, which the lightweight C-based interpreter can execute quickly.
+		In the future, this can be further optimized using a tracing, just-in-time interpreter.</li>
+		</ul></li>
+		<li>Acorn supports asynchronous and predictive resource loading to reduce start up delays.
+		Additionally, the set-up of less important parts can be delegated to a background thread,
+		so they appear as they become available for use.</li>
+		<li>Acorn supports native multi-threading and incremental garbage collection 
+		to reduce the likelihood of "lag spikes".</li>
+		<li>Most of a world's Acorn code initializes the world and its parts, and is only performed once.</li>
+		</ul>
+		<p>That said, this is a reference architecture for Acorn, 
+		a way to demonstrate the viability of the web 3D concept.
+		Additional performance enhancements can be straightforwardly accomplished.
+		For example, the bytecode interpreter could be replaced with a tracing, just-in-time compiler.
+		
+		<h2>Legacy</h2>
+		<p>The architecture for Acorn VM is inspired by Lua's VM architecture, inheriting its:
+		<ul>
+		<li><b>Simplicity.</b>
+		Using a relatively simple, but comprehensive architecture
+		helps speed the creation of a reference implementation for Acorn.</li>
+		<li><b>Lightweight impact.</b>
+		It is portable and minimizes storage requirements on host computers, particularly mobile devices.</li>
+		<li><b>Performance.</b>
+		It offers decent performance for both C-implemented type libraries and bytecode-compiled Acorn code.</li>
+		</ul>
+		<p>Acorn's datatypes purify Lua's clever hybrids: 
+		integers are distinct from floating point numbers, immutable symbols are distinct from mutable strings,
+		and ordered arrays, associated tables, and types emerge from Lua's tables and meta-tables.</p>
+	</div>
+	</body>
+</html>

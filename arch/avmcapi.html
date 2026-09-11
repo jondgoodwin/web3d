@@ -1,0 +1,565 @@
+<html>
+  <head>
+	  <title>C API - AcornVM</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<div id="title">AcornVM</div>
+			<div id="sub">C API</div>
+		</div>
+
+    <div class="text">
+	<p>This chapter shows how to augment Acorn VM's built-in global types and environment variables using C code. 
+	This ability offers significant benefits.
+	Types implemented using C can take advantage of existing C libraries or system software APIs.
+	Additionally, a C-implemented type often runs much faster than its Acorn-based equivalent.</p>
+	<p>This table categorizes quick access to the API function reference:</p>
+	<table class="capi"><tr>
+	<td><b>Atomic</b><br />
+		<a href="#null">Null</a><br />
+		<a href="#bool">Bool</a><br />
+		<a href="#integer">Integer</a><br />
+		<a href="#float">Float</a></td>
+	<td><b>Collection</b><br />
+		<a href="#symbol">Symbol</a><br />
+		<a href="#string">String</a><br />
+		<a href="#array">Array</a><br />
+		<a href="#table">Table</a></td>
+	<td><b>Store</b><br />
+		<a href="#local">Local</a><br />
+		<a href="#closure">Closure</a><br />
+		<a href="#global">Global</a></td>
+	<td><b>Other</b><br />
+		<a href="#method">Method</a><br />
+		<a href="#thread">Thread</a><br />
+		<a href="#vm">VM</a><br />
+		<a href="#all">All</a></td>
+	</tr></table>
+
+	<h2>Shared Library</h2>
+	<p>Creating a shared library (.dll or .so) is the most common way to implement a new type (or several related types).
+	Acorn VM enables these libraries to be loaded during its initialization process,
+	once the built-in global types and variables have been loaded.</p>
+	<p>To ensure a library loads and works successfully, it must be built to match the Acorn VM code in terms of
+	the 32- vs. 64-bit memory architecture, the version of the C API include file, and the operating system.</p>
+	<p>The library's code that directly interacts with Acorn VM should be written in C. 
+	That C code can then interface with code written in other languages, such as C++.
+	Use a C99-compatible compiler that also supports the Acorn VM library's use of the "avm::" namespace.
+	Wrap any C-functions (especially "init") with <span class="pre">extern "C" {}</span>,
+	so that the names of these functions are not mangled by a protective C++ compiler.</p>
+	<p>Insert the following line near the top of every C program that makes use of the Acorn VM C API:</p>
+<pre>
+#include "avm.h"
+</pre>
+
+	<h3>The "init" function</h3>
+	<p>The shared library must have an exported public function named "init".
+	Acorn VM will call the "init" function immediately after loading the shared library.
+	"init" should use the C API to create any new type(s) and corresponding methods,
+	storing them in appropriate global variables. For example:</p>
+<pre>
+#include "avm.h"
+#define AVM_LIBRARY 1
+
+int incr_method(Value th);	// C-function for a method
+
+AVM_API void init(Value th) {
+	pushType(th, aNull, 1);
+		pushCMethod(th, incrfunc);
+		popProperty(th, 0, “property-name”);
+	popGloVar(th, “NewType”);
+}
+</pre>
+	<p>Some notes about this example:</p>
+	<ul>
+	<li>"Value" (a C datatype defined by "avm.h") encodes all possible Acorn values.
+	See the <a href="#value">Value</a> section below for more information.</li>
+	<li>"th" represents the Virtual Machine's current thread.
+	It provides the state information needed by AcornVM's re-entrant library.
+	It must be passed on to every C API function that the "init" function calls.</li>
+	<li>"pushType" and "popProperty" are C API functions that respectively create a new Type
+	and add to it a new C-defined method. The C API reference below describes all such functions that can be used.</li>
+	<li>incr_method is a C function that implements a callable Acorn method. 
+	See the <a href="#cmethod">C method</a> section below for more information.</li>
+	</ul>
+	<p>The "init" function can do more than create new types.
+	It can also create global environment variables, 
+	alter or augment the definition of existing types,
+	and even re-configure Acorn VM settings.</p>
+	
+	<h3 id="cmethod">C method</h3>
+	<p>An Acorn method can be implemented either with Acorn or C code.
+	An Acorn program uses both kinds of methods in exactly the same way.
+	However, they work differently under the covers. 
+	The Acorn VM converts an Acorn-implemented method into byte-code which is interpreted.
+	By contrast, a C-implemented method is compiled from C into an shared library,
+	making it directly executable by the computer's CPU. 
+	Acorn handles both kinds of call dispatch automatically, as it knows how each method was implemented.</p>
+	<p>Here is a simple example of an Acorn method implemented in C:</p>
+<pre>
+// .incr: A c-method that increments self's number
+int incr_method(Value th) {
+	Aint nbr = toAint(getLocal(th, 0)); // Get 'self' as a C-integer
+	pushValue(th, anInt(nbr+1)); // Increment and push on stack
+	return 1;
+}
+</pre>
+	<p>Some notes about this example:</p>
+	<ul>
+	<li>When Acorn VM calls a C-method, it passes "th", the current thread, as a C-function parameter.
+	As with "init", this must be passed on to every C API function called.</li>
+	<li>Acorn VM places all Acorn-called parameters in order on the thread's stack,
+	with the undeclared parameter 'self' starting at index 0.
+	The thread's data stack API's (such as getLocal and pushValue) can be used to retrieve (or place) values.</li>
+	<li>The data stack includes additional empty value slots (typically 20) for working storage.
+	More must be explicitly allocated, if they are needed.</li>
+	<li>This code example did not validate whether 'self' actually encoded an Integer. Bad example!</li>
+	<li>Value holds encoded Acorn values. 
+	Conversion functions must be used to transform these values into datatypes digestible by C code,
+	or back into Values that are given back to Acorn.
+	"avm.h" gives the c-datatypes special names (like Aint) to ensure their precision (32 vs. 64-bit) matches 
+	the Acorn Value.</li>
+	<li>A C-method must always return at least one Value to its Acorn caller.
+	Its return value(s) should be placed in order on top of the data stack.
+	The C return statement should specify how many values the method returns.</li>
+	</ul>
+
+	<h3 id="value">Value</h3>
+	<p>As already mentioned, "Value" is the datatype to use to represent any Acorn value.
+	It is similar to a handle, in that the C code should not manipulate it directly.
+	Instead, you pass it to various C APIs to retrieve the information it possesses.
+	Various C APIs are able to convert a Value to and from the corresponding C data type.</p>
+	<p>All Values are exactly the same size, either 32-bits or 64-bits depending on the machine 
+	architecture it is built for. This consistency makes it easier for code to manage and pass them around.
+	For efficiency, Integers and Floats are actually encoded within the Value.
+	The drawback to doing this is the loss of 2-bits of precision for numbers,
+	which is not a huge loss when you realize at least 30 bits are still available.</p>
+	
+	<h3>C datatypes</h3>
+	<p>In addition to Value, "avm.h" defines these C datatypes used by the API functions:</p>
+	<dl>
+	<dt>Aint</dt>
+	<dd>A signed integer with the same bit-width as Value.
+	Be mindful that when a signed integer is encoded into a Value, it will lose 2 high-end bits of precision.</dd>
+	<dt>Afloat</dt>
+	<dd>A floating point number with the same bit-width as Value.
+	It also loses two bits of precision in the mantissa when encoded into a Value.</dd>
+	<dt>AintIdx</dt>
+	<dd>16-bit signed integer, typically used for indexing into a collection of Values</dd>
+	<dt>AuintIdx</dt>
+	<dd>16-bit unsigned integer, typically used for sizing a collection of Values</dd>
+	<dt>Afunc0</dt>
+	<dd>A pointer to a callable c-function with no parameters: Value (*fn) (void)</dd>
+	</dl>
+	
+	
+	<h2>C API Reference</h2>
+	<p>For ease of reference, the C API functions are organized according to either where they store Values
+	or what type of Value they focus on handling.</p>
+	
+	<h3 id="local">Local Data Stack</h3>
+	<p>Each thread holds on a single stack all local data values used by its in-process methods.
+	For each running method, it holds:</p>
+	<ul>
+	<li>All passed <b>parameters</b>. 'self' is first (at index 0). 
+	The rest follow in order. Initially, the stack top follows the last parameter.
+	<ul>
+	<li><b>AuintIdx getTop(Value th)</b> -
+	Return how many values the stack holds.
+	Initially, this is the number of parameters.</li>
+	<li><b>void setTop(Value th, AintIdx idx)</b> -
+	A positive index dictates how many values the stack should hold,
+	which can shrink or grow it (padding with 'null's).
+	A negative index pops that number of values off the top.</li>
+	<li><b>Value getLocal(Value th, AintIdx idx)</b> -
+	Retrieve the stack's value at the index.</li>
+	<li><b>void setLocal(Value th, AintIdx idx, Value val)</b> -
+	Replace the stack's indexed value with val.</li>
+	</ul>
+	<p><b>Warning:</b> To optimize performance, Acorn does not check the index passed 
+	(except when compiled in debug mode, where bad indices will generate an exception).
+	Be sure your method never passes any index value less than 0 or more than the number of known values
+	on your stack, or unexpected results may ensue.</p>
+	</li>
+	<li>The method's store of <b>local variables</b>, preserving in-process work.
+	Acorn VM ensures at least 20 Value slots are available for local variables
+	(use <b>needMoreLocal()</b> if the method requires more).
+	Generally, working values are pushed on and popped off from the stack's top.
+	The index for a just-pushed value is <span class="pre">getTop(th)-1</span>.
+	<ul>
+	<li><b>Value pushValue(Value th, Value val)</b> -
+	Push a value on the stack's top (which is incremented). Useful for atomic values. Return the value pushed.
+	Use other push functions for new collections, methods, globals and closure variables.</li>
+	<li><b>Value pushLocal(Value th, AintIdx idx)</b> -
+	Push a copy of the stack's value at index onto the stack's top.
+	Return the value pushed.</li>
+	<li><b>Value popValue(Value th)</b> -
+	Pop a value off the top of the stack. Top is decremented.</li>
+	<li><b>void popLocal(Value th, AintIdx idx)</b> -
+	Pop the stack's top value and use it to replace the stack's value at idx.</li>
+	<li><b>AintIdx getFromTop(Value th, AintIdx fromtop)</b> -
+	Retrieve the value using an index counting backwards from the top (0=top-1, 1=top-2, ...).</li>
+	<li><b>void deleteLocal(Value th, AintIdx idx)</b> -
+	Remove the value at index (shifting down all values above it)</li>
+	<li><b>void insertLocal(Value th, AintIdx idx, Value val)</b> -
+	Insert the value into index (shifting up all values there and above)</li>
+	<li><b>void copyLocal(Value th, AintIdx toidx, AintIdx fromidx)</b> -
+	Copy the stack value at fromidx into toidx.</li>
+	<li><b>int needMoreLocal(Value th, AuintIdx needed)</b> -
+	Ensure local data stack has room for 'needed' values above 'top'. 
+	Returns 0 if it cannot guarantee that amount of space.
+	This may grow the stack, but never shrinks it.</li>
+	</ul></li>
+	<li>The method's <b>return values</b>. There should always be at least one.
+	Acorn VM expects to find them at the top of the stack.
+	The fastest way to safely return 'self' is <b>setTop(th, 1)</b>.</li>
+	</ul>
+	
+	<h3 id="closure">Closure variables</h3>
+	<p>Some methods run in the context of a specific Closure.
+	These functions create a new closure and offer access to its bound closure variables
+	(indexed in order of their declaration, beginning with 0):</p>
+	<ul>
+	<li><b>Value pushClosure(Value th, AintIdx size)</b> -
+	Push and return a new Closure with space for get and set methods and the closure variables
+	all pushed onto the stack in that order.</li>
+	<li><b>Value pushCloVar(Value th, AintIdx varidx)</b> -
+	Push and return a specific closure variable's value 
+	(0 = get method, 1 = set method, 2 = first closure variable, etc.</li>
+	<li><b>void popCloVar(Value th, AintIdx varidx)</b> -
+	Change a closure variable to have the value popped off the local stack.</li>
+	</ul>
+	
+	<h3 id="global">Global variables</h3>
+	<p>Each process worker has its own global namespace, 
+	cloned from the VM's built-in global namespace and then altered as needed within the process worker.</p>
+	<ul>
+	<li><b>Value pushGloVar(Value th, const char* var)</b> -
+	Push and return the symbolically-named global variable's value.</li>
+	<li><b>void popGloVar(Value th, const char *var)</b> -
+	Alter the symbolically-named global variable to have the value popped off the local stack.</li>
+	<li><b>Value pushGlobal(Value th)</b> -
+	Push the value of the current process thread's global variable table.</li>
+	</ul>
+	
+	<h3 id="all">All</h3>
+	<p>The following functions apply to all or most Values</p>
+	<ul>
+	<li><b>int isSame(Value, Value)</b> -
+	Return 1 if the two values are identical ('==='), otherwise 0.
+	This is quick and highly accurate for null, false, true, integers and symbols.
+	For other Values, it can indicate that they refer to the same object.
+	It should not be used for trying to compare the contents of two collections 
+	or seeing if two float values are identical after rounding errors.</li>
+	<li><b>Value getProperty(Value th, Value self, Value propnm)</b> -
+	Get self's raw property value. Return aNull if not found.</li>
+	<li><b>int isCallable(Value val)</b> -
+	Return 1 if callable: a method, closure, or yielder.</li>
+	<li><b>void methodCall(Value th, int nparms, int nexpected)</b> -
+	Call a method whose property symbol is placed on stack (with nparms above it). 
+	nexpected specifies how many return values to expect to find on stack.
+	For example:
+<pre>
+	// C API calls, roughly equivalent to: A = Func("how", Tbl('index'), 14)
+	pushSym(th, “()”);
+	pushGloVar(th, “Func”);
+	pushNewStr(th, “how”);
+	pushGloVar(th, “Tbl”);
+	pushMember(th, thtop-1, “index”);
+	deleteLocal(th, thtop-2); // “Tbl”
+	pushValue(th, anInt(14));
+	methodCall(th, 4, 1); // 4 parms, returns 1
+	popGloVar(th, “A”);
+</pre>
+	</li><b>pushProperty(Value th, AintIdx validx, const char *propnm)</b> -
+	Push and return the value held by the uncalled property of the value found at the stack's specified index.</li>
+	<li><b>Value pushGetActProp(Value th, AintIdx selfidx, const char *propnm)</b> -
+	Push and return the value held by the perhaps-called property of the value found at the stack's specified index.
+	Note: This lives in between pushProperty (which never calls) and getCall (which always calls). 
+	This calls the property's value only if it is callable, otherwise it just pushes the property's value.</li>
+	<li><b>void popSetActProp(Value th, AintIdx selfidx, const char *mbrnm)</b> -
+	Store the local stack's top value into the perhaps-called property of the value found at the stack's specified index 
+	Note: This lives in between popProperty (which never calls) and setCall (which always calls). 
+	This calls the property's value only if it is a closure with a set method.
+	Otherwise, it sets the property's value directly if (and only if) self is a type.</li>
+	<li><b>void getCall(Value th, int nparms, int nexpected)</b> -
+	Get a value's property using indexing parameters. Will call a method if found.
+	The stack holds the property symbol followed by nparms parameters (starting with self).
+	nexpected specifies how many return values to expect to find on stack.</li>
+	<li><b>void setCall(Value th, int nparms, int nexpected)</b> -
+	Set a value's property using indexing parameters. Will call a closure's set method if found.
+	The stack holds the property symbol followed by nparms parameters (starting with self).
+	The first value after self is the value to set.
+	nexpected specifies how many return values to expect to find on stack.</li>
+	<li><b>int usesType(Value th, Value val, Value type)</b> -
+	Return 1 if the val value makes use of the provided type's properties.</li>
+	<li><b>Value getType(Value th, Value val)</b> -
+	Return the value's type (works for all values).
+	It may be a Type, an array of Types, or null.</li>
+	<li><b>void setType(Value val, Value type)</b> -
+	Set the type used by a value, if it is a collection based on a string, array or table.</li>
+	</ul>
+	<p>In many cases, use getGlosym("type") to retrieve the value for a specific type.</p>
+	
+	<h3 id="null">Null</h3>
+	<p>The C literal that represents Acorn's "null" value is "aNull".
+	To determine if a Value is null, simply compare it to "aNull" (using '==').</p>
+	
+	<h3 id="bool">Boolean true and false</h3>
+	<p>The C literals for Acorns "true" and "false" values are: "aTrue" and "aFalse".
+	To determine if a Value is true or false, simply compare it with "aTrue" or "aFalse".
+	These functions are focused on boolean values:</p>
+	<ul>
+	<li><b>Value aBool(int)</b> -
+	Return <span class="pre">false</span> if 0. Otherwise, return <span class="pre">true</span>.</li>
+	<li><b>int isFalse(Value)</b> -
+	Return 1 if value is <span class="pre">null</span> or <span class="pre">false</span>, otherwise 0.</li>
+	<li><b>int isBool(Value)</b> -
+	Return 1 if the value is <span class="pre">true</span> or <span class="pre">false</span>, otherwise 0.</li>
+	</ul>
+	
+	<h3 id="integer">Integers</h3>
+	<p>These functions apply to integer values:</p>
+	<ul>
+	<li><b>Value anInt(Aint)</b> -
+	Convert a C signed integer into an Integer Value.</li>
+	<li><b>Aint toAint(Value)</b> -
+	Convert an Integer Value into a C signed integer.</li>
+	<li><b>int isInt(Value)</b> -
+	Return 1 if the value is of type Integer, otherwise 0.</li>
+	</ul>
+
+	<h3 id="float">Floating Point Numbers</h3>
+	<p>These functions apply to floating point values:</p>
+	<ul>
+	<li><b>Value aFloat(Afloat)</b> -
+	Convert a C floating point number into a Float Value.</li>
+	<li><b>Afloat toAfloat(Value)</b> -
+	Convert a Float Value to a C floating point number.</li>
+	<li><b>int isFloat(Value)</b> -
+	Return 1 if the value is of type Float, otherwise 0.</li>
+	</ul>
+
+	<h3 id="symbol">Symbols</h3>
+	<p>These functions apply to symbols. Since symbols are immutable, they should never be altered.</p>
+	<ul>
+	<li><b>Value pushSym(Value th, char*)</b> -
+	Push and return the corresponding Symbol value for a 0-terminated c-string.</li>
+	<li><b>Value pushSyml(Value th, char*, AuintIdx len)</b> -
+	Push and return the corresponding Symbol value for byte sequence of specified length.</li>
+	<li><b>int isSym(Value)</b> -
+	Return 1 if the value is a Symbol, otherwise 0.</li>
+	<li><b>const char* toStr(Value)</b> -
+	Return a read-only pointer into a C-string encoded by a symbol (or string) Value (or Null for other Value types).
+	It is guaranteed to have a 0-terminating character just after its full length.</li>
+	<li><b>AuintIdx getSize(Value)</b> -
+	Return the number of bytes in a symbol.</li>
+	<li><b>int isEqStr(Value, char* str)</b> -
+	Return 1 if the symbol or string value's characters match the zero-terminated c-string, otherwise 0.
+	isSame() can be used to compare two symbol values. Other forms of string comparisons
+	can be built using toStr() and native C functions.</li>
+	</ul>
+	
+	<h3 id="string">Strings</h3>
+	<p>String operations deal with a single, resizeable, mutable block of data (essentially a collection of bytes).
+	This block can hold any data except an Acorn value
+	(and only because the garbage collector cannot find or make use of it there).
+	API functions support several use cases:</p>
+	<ul>
+	<li><b>String</b>, for when the buffer contains character- (or byte-) oriented data (e.g. Text).
+	The space allocated for the string is resizeable, as needed.
+	The size of a string may be smaller than the allocated block that contains the string.
+	The c-string ending character '\0' is automatically placed after the string and at the end of the block.
+	Its functions include:
+	<ul>
+	<li><b>Value pushString(Value th, Value type, char* str)</b> -
+	Push and return a new typed string for the specified, 0-terminated c-string (whose contents are copied over).
+	Specifying a type of aNull is changed to Text.newtype.</li>
+	<li><b>Value pushStringl(Value th, Value type, char* str, AuintIdx len)</b> -
+	Push and return a new typed string whose allocated block is len+1 bytes.
+	If a non-NULL str is specified, its contents for len bytes are copied over, making len the string's size.
+	If NULL is given for str, the string's size is set to 0 (and nothing is copied over).
+	Specifying a type of aNull is changed to Text.newtype.</li>
+	<li><b>Value pushSerialized(Value th, Value val)</b> -
+	Push a value's serialized Text, an abridged, human-readable view of the contents of a value,
+	as well as recursively all values it contains.</li>
+	<li><b>int isStr(Value)</b> -
+	Return 1 if the value is a string, otherwise 0.</li>
+	<li><b>const char* toStr(Value)</b> -
+	Return a read-only pointer into the string's byte data. This pointer can be re-cast as needed.
+	If API functions are used, it will have a 0-terminating character just after its full length.</li>
+	<li><b>int isEqStr(Value, char* str)</b> -
+	Return 1 if the symbol or string value's characters match the zero-terminated c-string, otherwise 0.
+	Other forms of string comparisons can be built using toStr() and native C functions.</li>
+	<li><b>AuintIdx getSize(Value)</b> -
+	Return the number of bytes used in the string.</li>
+	<li><b>void strResize(Value th, Value str, AuintIdx len)</b> -
+	Resize string's available space to a specified length, truncating if smaller.
+ 	Allocated space will not shrink, but may expand if required.</li>
+	<li><b>void strSub(Value th, Value val, AuintIdx pos, AuintIdx sz, char *str, AuintIdx len)</b> -
+	Replace part of a string with the c-string contents starting at pos.
+	If sz==0, it becomes an insert. If str==NULL or len==0, it becomes a deletion.
+	The string will be resized automatically to accommodate excess characters.
+	The operation will not be performed if resizing is not possible.</li>
+	<li><b>void strAppend(Value th, Value val, const char *addstr, AuintIdx addstrlen)</b> -
+	Append characters to the end of a string, growing its allocated block as needed.</li>
+	</ul></li>
+	
+	<li><b>CData</b>, valuable for holding C structured data, including pointers or handles.
+	In addition to the resizeable block of data, a CData can also ask for a small, fixed-size header area.
+	The header area has two benefits: it spares the need to allocate the resizeable block of data 
+	when the c-data is small and fixed in size (e.g., a file header), or it can be used to hold 
+	metadata for an array or buffer of data stored in the resizeable block.</p>
+	<ul>
+	<li><b>Value pushCData(Value th, Value type, unsigned char cdatatyp, AuintIdx len, int extrahdr)</b> -
+	Push and return a new typed C-data string that allocates len bytes for c-data
+	(if len=0, no block is allocated for c-data). The size begins at zero, but grows
+	when data is added using strSub or strAppend.
+	The c-data may hold pointers and handles, but never Values. 
+	The extrahdr indicates the size of the header extension for a small (&lt;= 124 bytes), fixed-size data area.
+	cdatatyp allows the using program to distinguish between up-to-256 different uses of c-data.</li>
+	<li><b>Value strHasFinalizer(Value cdata)</b> -
+	This sets a flag which ensures that the _finalizer method from this cdata's type is called by the garbage collector
+	before an unreferenced cdata value's memory is freed.
+	This ensures that any allocated resource whose handle or pointer is stored in this cdata (such as a file handle)
+	is properly closed and cleaned up.</li>
+	<li><b>void strSwapBuffer(Value th, Value val, char *buffer, AuintIdx len)</b> -
+	Use provided buffer of specified length, replacing whatever AcornVM might have allocated.
+	Provided buffer belongs to Acorn and should not ever be freed by caller.</li>
+	<li><b>unsigned char getCDataType(Value cdata)</b> -
+	Retrieve the cdata's cdatatyp value, allowing one to determine what sort of c-data this is.</li>
+	<li><b>bool isCData(Value)</b> -
+	Return true if the value is a C-data, otherwise false.</li>
+	<li><b>const void* toCData(Value)</b> -
+	Return a pointer into the c-data's resizeable data area. This pointer can be re-cast as needed.</li>
+	<li><b>void *toHeader(Value cdata)</b> -
+	Returns the address of the small, fixed-size header area allocated when the c-data was created.
+	This pointer can be re-cast as needed.</li>
+	<li><b>getSize</b>, <b>strResize</b>, <b>strSub</b> and <b>strAppend</b> may be used on cdata, 
+	as described above for strings. 
+	Non-character data will have to be re-cast as needed and sizes will have to be adjusted to byte lengths.</li>
+	</ul></li>
+	</ul>
+	
+	<h3 id="array">Array</h3>
+	<p>Array is an ordered, re-sizeable, mutable collection of Values.
+	It is used by the List and Closure types, as well as 
+	for holding a list of mixins and a prototype for a type's inheritype.
+	These functions work on arrays.</p> 
+	<ul>
+	<li><b>Value pushArray(Value th, Value type, AuintIdx size)</b> -
+	Return an Array of specified type (or List, if aNull), with space allocated for size Values.</li>
+	<li><b>int isArr(Value)</b> -
+	Return 1 if the value is a Array, otherwise 0.</li>
+	<li><b>void arrSetSize(Value th, Value val, AuintIdx len)</b> -
+	Resize array's available space to a specified length, truncating if smaller.
+ 	Allocated space will not shrink, but may expand if required.</li>
+	<li><b>void arrForceSize(Value th, Value val, AuintIdx len)</b> -
+	Force allocated and used array to a specified size, truncating
+	or expanding as needed. Growth space is initialized to aNull.</li>
+	<li><b>AuintIdx getSize(Value)</b> -
+	Return the size of a symbol, string, array, table or other collection. Any other value type returns 0.</li>
+	<li><b>Value arrGet(Value th, Value arr, AuintIdx pos)</b> -
+	Retrieve the value in array at specified position.</li>
+	<li><b>void arrSet(Value th, Value arr, AuintIdx pos, Value val)</b> -
+	Put val into the array starting at pos.
+	This can expand the size of the array.</li>
+	<li><b>void arrAdd(Value th, Value arr, Value val)</b> -
+	Append val to the end of the array (increasing array's size).</li>
+	<li><b>void arrRpt(Value th, Value arr, AuintIdx pos, AuintIdx n, Value val)</b> -
+	Propagate n copies of val into the array starting at pos.
+	This can expand the size of the array.</li>
+	<li><b>void arrDel(Value th, Value arr, AuintIdx pos, Value n)</b> -
+	Delete n values out of the array starting at pos. 
+	All values after these are preserved, essentially shrinking the array.</li>
+	<li><b>void arrIns(Value th, Value arr, AuintIdx pos, AuintIdx n, Value val)</b> -
+	Insert n copies of val into the array starting at pos, expanding the array's size.</li>
+	<li><b>void arrCopy(Value th, Value arr, AuintIdx pos, AuintIdx n, Value arr2, AuintIdx pos2, AuintIdx n2)</b> -
+	Copy n2 values from arr2 starting at pos2 into array, replacing the n values in first array starting at pos.
+	This can increase or decrease the size of the array. arr and arr2 may be the same array.</li>
+	</ul>
+	
+	<h3 id="table">Table</h3>
+	<p>Table is a hashed, resizeable, mutable, unordered collection of key and value pairs.
+	It is used by the Index, Type, and Mixin types.
+	A key is typically a symbol, but can be any value other than null.
+	These functions work on tables.</p> 
+	<ul>
+	<li><b>Value pushTbl(Value th, Value type, AuintIdx size)</b> -
+	Return a Table of specified type with space allocated for size key/value pairs.</li>
+	<li><b>Value pushType(Value th, Value type, AuintIdx size)</b> -
+	Return a Table of specified type with space allocated for size key/value pairs.
+	Flags are set to indicate it should be treated as a type.</li>
+	<li><b>Value pushMixin(Value th, Value type, AuintIdx size)</b> -
+	Return a Table of specified type with space allocated for size key/value pairs.
+	Flags are set to indicate it should be treated as a mixin.</li>
+	<li><b>int isTbl(Value)</b> -
+	Return 1 if the value is a Table, otherwise 0.</li>
+	<li><b>void tblResize(Value th, Value tbl, AuintIdx size)</b> -
+	Resize table's available space to a specified size (may only grow).</li>
+	<li><b>AuintIdx getSize(tbl)</b> -
+	Return the size of a symbol, string, array, table or other collection. Any other value type returns 0.</li>
+	<li><b>Value pushMember(Value th, AintIdx tblidx, const char *mbrnm)</b> -
+	Push and return the value of the named member of the table found at the stack's specified index.</li>
+	<li><b>void popTblSet(Value th, AintIdx tblidx, const char *mbrnm)</b> -
+	Put the local stack's top value into the named member of the table found at the stack's specified index.</li>
+	<li><b>void popProperty(Value th, AintIdx typeidx, const char *mbrnm)</b> -
+	Store the local stack's top value into the uncalled property of the type found at the stack's specified index 
+	Note: Unlike pushProperty, popProperty is restricted to the type being changed.</li>
+	<li><b>int tblHas(Value th, Value tbl, Value key)</b> -
+	Return 1 if table has an entry at key, 0 if not.</li>
+	<li><b>Value tblGet(Value th, Value tbl, Value key)</b> -
+	Return the value paired with 'key', or 'null' if not found.</li>
+	<li><b>void tblSet(Value th, Value tbl, Value key, Value val)</b> -
+	Insert or alter the table's 'key' entry with value.</li>
+	<li><b>void tblRemove(Value th, Value tbl, Value key)</b> -
+	Delete a key from hash table, if found.</li>
+	<li><b>void addMixin(Value th, Value type, Value mixin)</b> -
+	Insert the mixin at the top of a list of inheritable types in inheritype.</li>
+	</ul>
+	
+	<h3 id="method">Methods</h3>
+	<p>A method is a stateless description of a procedure that receives some parameter values,
+	does some work, and returns some values. 
+	A method can be written in C, using the C API, or as an Acorn program.
+	These CAPI functions work on methods.</p>
+	<ul>
+	<li><b>Value pushCMethod(Value th, AcMethodp func)</b> -
+	Push and return the value for a method written in C</li>
+	<li><b>Value pushAcornPgm(Value th, Value pgmtext, Value srcsym)</b> -
+	Push and return the value resulting from compiling and running an Acorn program.
+	pgmtext is the string text for the program. 
+	srcsym is the URL for the resource that is the source of the string text.</li>
+	</ul>
+	
+	<h3 id="thread">Thread</h3>
+	<p>The thread manages the execution state for running methods,
+	used by Process, Thread and Yield types.
+	These functions work on threads.</p>
+	<ul>
+	<li><b>Value pushThread(Value th)</b>
+	Push and return a new Thread.</li>
+	<li><b>int isThread(Value th)</b> -
+	Return 1 if a Thread, else return 0</li>
+	</ul>
+	
+	<h3 id="vm">Virtual Machine</h3>
+	<p>This refers to the singular virtual machine managing everything.
+	These functions work on the VM.</p>
+	<ul>
+	<li><b>Value pushVM(Value th)</b>
+	Push and return the VM's value.</li>
+	<li><b>void vmLog(char *, ...)</b> -
+	Send a printf message to the log (stderr)</li>
+	<li><b>int64_t vmStartTimer()</b> -
+	Start a micro-second based timer, capturing now</li>
+	<li><b>float vmEndTimer(int64_t starttime</b> -
+	Return a floating point number, showing seconds since starttime</li>
+	</ul>
+	
+	</div>
+	</body>
+</html>

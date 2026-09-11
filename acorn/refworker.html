@@ -1,0 +1,213 @@
+<html>
+  <head>
+	  <title>Asynchronous Threads and Processes - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Asynchronous Threads and Processes</div>
+		</div>
+
+    <div class="text">
+
+	<p>Methods are always run within the context of an execution context.
+	The context holds its execution state: the call and data stack that holds 
+	all local variables for the still-running methods performed within that context.</p>
+	<p>There are three types of execution context: Process, Thread and Yield.
+	This chapter shows how to use and manage asynchronous processes and threads.
+	The synchronous Yieldr was discussed earlier in the 
+	<a href="refmethod.html#yielder">Method Definition</a> chapter.</p>
+	
+	<h2>Process</h2>
+	<p>When Acorn is started, it automatically creates the main process and global variable context,
+	as well as setting up the display window and gaining access to input events.
+	The requested program (typically, a 3-D world) is automatically loaded into the global variable '$' 
+	and run within the main process.</p>
+	<p>The world assigns '$$' to be the current scene to render within the window. 
+	Input events are automatically queued. The world's main loop retrieves the queued events 
+	and dispatches them to the appropriate method for processing.</p>
+	<p>At some point, the running world may want to transfer control to a new world
+	(perhaps because the user has tripped a portal mechanism). 
+	The simplest way to do this is:</p>
+<pre>
+$ = +Process('newworld.com')
+</pre>
+	<p>This launches a second process with its own pristine global variable context.
+	It triggers the load and running of the program for a new world. While it is initializing, 
+	both processes are running concurrently, with the old world's process continuing to 
+	render the screen and process input events.</p>
+	<p>Assigning '$' to the new World makes it the new main process.
+	Control over the display and input devices is transferred to the new Process.
+	The old main process is shut down.</p>
+	<p>An alternative form is:</p>
+<pre>
++Process.window('newworld.com')
+</pre>
+	<p>Instead of replacing the old world with a new one within the same window, 
+	it launches a new window for the new world, leaving the old world (and its window) in place.</p>
+	<p>In summary: Processes run independently and simultaneously.
+	Each has its own global variable context. 
+	Each is responsible for its own window rendering and input event handling.
+	No facilities are provided for inter-process communications.
+	Every 3-D world runs in its own Process.</p>
+	
+	<h2>Thread</h2>
+	<p>Any process may launch asynchronous threads. 
+	The thread belongs to the process it is launched within.
+	Although a thread may not render the screen or handle input events,
+	it shares access to all values within the process, including its global variable space.</p>
+	<p>Unlike Yielders, threads execute simultaneously with each other and their owning process.
+	Thus, threads are valuable for performing some task that will take a while to complete, 
+	but whose answer is not needed immediately, such as resource loading and background calculations.
+	Threads are not needed for input device events, as these are already captured asynchronously 
+	and queued for processing by the main process.</p>
+	<p>Use of threads offers significant advantages and disadvantages.
+	Properly designed, threads can take advantage of multi-core devices and keep things moving during resource delays,
+	thereby improving performance and reducing lag. 
+	However, their use does carry penalties: they consume some performance bandwidth and 
+	need special care to ensure simultaneously-running threads do not collide when altering shared data.</p>
+
+	<p>This example asynchronously loads two resources into a part:</p>
+<pre>
+frosty = +Avatar
+	name: 'Frosty'
+	# '^' loads each resource in its own asynchronous thread
+	^ model: @"../models/frosty.acn"
+	^ skin: @"../materials/snowmatl.acn/"
+	fire_resist:   0
+	cold_resist: 100
+</pre>
+	<p>Frosty's 3-D model and skin are both defined in separate resources.
+	It significantly improves the time it takes to initialize Frosty to have these resources loaded simultaneously.</p>
+	<p>A lot happens under the covers of the simple '^' asynchronous operator.
+	The expression that follows is treated as the code for a new Method.
+	A new asynchronous thread is created to perform that Method, passing it
+	any shared values referenced by the code (for this example, that would be 'this'
+	which points to frosty). The thread starts immediately, effectively 
+	loading the named resource and storing the result in the named member of 'this'.
+	From the point of view of the caller, frosty's model and skin properties
+	get magically populated at some point in the future.</p>
+	
+	<p>If the work to be made asynchronous does not fit concisely in a single expression,
+	the block form of 'async' can be used:</p>
+<pre>
+primes = +List
+# asynchronously create a list of all primes between 2 and 1000
+async
+	each x in 2 .. 1000
+		sq = x.sqrt
+		isprime = true
+		each y in primes
+			break if y&gt;sq || (isprime=(x%y!=0))
+		primes &lt;&lt; y if isprime
+</pre>
+	<p>In this example, 'async' (synonym for '^') is followed by a block of code
+	rather than a single expression. Despite that difference, it is handled in the same way:
+	the block of code becomes the new method that a new asynchronous thread runs independently.</p>
+	
+	<h2>Every Context is a Value</h2>
+	<p>Every created context is a value. 
+	<span class="pre">+Process</span> returns the value for a created process.
+	<span class="pre">async</span> (or '^') is an operator that returns the value of a spawned thread.</p>
+	<p>As with all values, the context value can be stored, passed around and had methods performed on it.
+	For example, the <span class="pre">.status</span> can be used to retrieve the status of 
+	an execution context ('active', 'ready', 'done').</p>
+	<p>The reserved word <span class="pre">context</span> is the value of the 
+	currently running execution context. Using various context methods, one can navigate to pretty much any
+	value in the Acorn virtual machine from 'context'.</p>
+	
+	<h2 id="wait">Wait: Suspending Threads</h2>
+	<p>There are many situations where we want to suspend the operation of a thread.
+	This should never be accomplished using a while loop that waits on a conditional expression to turn true.
+	This can slow down the computer significantly and increase the likelihood of a runaway thread that freezes the 3-D world.
+	</p>
+	<p>The proper way to suspend a thread is by using one of Acorn's built-in '.wait' methods.
+	These take advantage of safe, efficient hardware and operating facilities for suspending a thread, 
+	then restarting it automatically when a pre-established condition is met.
+	These are described in the following sections.</p>
+	
+	<h3>Synchronizing with other threads</h3>
+	<p>To suspend the current thread until another thread has finished,
+	using .wait on the value for that context:</p>
+<pre>
+other_context.wait
+</pre>
+	<p>A very common scenario is to kick off several asynchronous threads, then wait until they are all finished.
+	Use a wait block to accomplish this:</p>
+<pre>
+wait
+	^ Avator = @'types/avator.acn'
+	^ AI = @'types/ai.acn'
+	^ NPC = @'types/npc.acn'
+</pre>
+	<p>A World will typically use this technique to ensure that all its custom types have been loaded
+	and are ready for use (other languages use 'require' for a similar purpose). 
+	Similarly, parts can use this technique to ensure all its critical properties have been
+	loaded and initialized.</p>
+
+	<h3>Timer delays</h3>
+	<p>The Timer .wait puts the current thread to sleep for at least the specified number of seconds.
+<pre>
+Timer.wait(0.5)  # pause for half a second. Equivalent to 500 milliseconds.
+</pre>
+	<p>If an Integer is used instead of a Float, the delay time is measured in milliseconds.</p>
+
+	<h3>Waiting for Input Events</h3>
+	<p>If the Input queue is empty, it can be efficient to suspend the main process until a new
+	input event arrives. A time-out should always be specified (but one no bigger than the desired frame rate).
+<pre>
+Input.wait(0.033)
+</pre>
+	<p>This is performed automatically by World, while it handles input event dispatching.</p>
+
+	<h3>Locking for Transactional Integrity</h3>
+	<p>Since asynchronous threads cannot use a yield handshake to communicate with each other,
+	they must coordinate activities through their access to shared collection values.
+	However, this creates risk. 
+	The biggest peril of simultaneous contexts happens when two contexts try to change the same
+	values at the same time, stepping on each other and making a royal mess in the process.
+	Such problems are hard to diagnose, as they happen unpredictably, sometimes with unexplained crashes,
+	and sometimes with strange effects apparent long after the damage was done.</p>
+	<p>A common way to avoid this is to place locks around code that manipulates a shared value.
+	Acorn already does this within the core type methods, making them indivisibly atomic.
+	A thread will automatically be suspended from changing a value while it is being changed by another thread.</p>
+	<p>Placing additional locks is straightforward: First, create a Lock that is shared between threads. 
+	Then use it to lock every section of code that might collide with each other over the same value,
+	so that only one thread can use any of them at one time:</p>
+<pre>
+# Create a lock
+alock = +Lock
+# ...
+# Lock a critical section
+do alock
+	list(2), list(4) = list(4), list(2)
+</pre>
+	<p>A 'do' block performs <span class="pre">alock.begin</span> at the start 
+	and <span class="pre">alock.end</span> at the end of the block.</p>
+
+	<h3>Monitoring a Condition</h3>
+	<p>There are times it is valuable for a thread to go to sleep for a while
+	until it gets a signal from another thread to wake up (some condition has been met).
+	A Monitor is used for this.</p>
+<pre>
+alock = +Lock
+mon = +Monitor
+# ...
+async
+	# Wait for signal
+	alock.lock
+	mon.wait(0.5) # Time-out if not received signal in half a second
+	alock.unlock
+
+# Perform monitor kiss to wake up Sleeping Beauty
+alock.lock
+mon.signal
+alock.unlock
+</pre>
+	
+	</div>
+	</body>
+</html>

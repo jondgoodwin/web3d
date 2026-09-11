@@ -1,0 +1,47 @@
+<html>
+  <head>
+	  <title>Object - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Object (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p><b>Object</b> is used to create a new objects/prototypes.
+		All objects/prototypes (including classes and mixins)
+		inherit methods and properties all the way up to Object via prototypical inheritance.</p>
+		
+		<h3>Methods and Properties</h3>
+		<dl>
+		<dt>[]</dt>
+		<dd>[name]<br/>
+		Get/set the symbol-named property/method value that is stored in self. 
+		Inherited properties/methods are not retrieved.</dd>
+		<dt>~~</dt>
+		<dd>[val]<br/>
+		Return true if val inherits properties or methods from self.traits</dd>
+		<dt>class?</dt>
+		<dd>Return true if self is a class (and not an object or mixin)</dd>
+		<dt>mixin?</dt>
+		<dd>Return true if self is a mixin (and not a class or object)</dd>
+		<dt>New</dt>
+		<dd>Create and return a new object that inherits from self.
+		If self is a class, the created object has traits point to a new mixin that inherits from self.traits</dd>
+		<dt>object?</dt>
+		<dd>Return true if self is an object (and not a class or mixin)</dd>
+		<dt>Subclass</dt>
+		<dd>Create and return a new object that inherits from self.
+		If self is a class, the created object has traits point to a new mixin that inherits from self.traits</dd>
+		<dt>traits</dt>
+		<dd>Type that provides the traits (methods and properties) for an instance of self.
+		For Classes this returns something different than self. Otherwise, it returns self.</dd>
+		</dl>
+	</div>
+	</body>
+</html>

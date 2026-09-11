@@ -1,0 +1,51 @@
+<html>
+  <head>
+	  <title>Placement Mixin</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Placement Mixin</div>
+		</div>
+
+    <div class="text">
+	
+	<p>The Placement Mixin is used by all objects placed in 3D space using an origin, orientation and scale.
+	This includes Camera, Shape, Group, Light and Speaker objects.
+	The mixin provides helper methods for managing the placement of such objects.</p>
+		
+	<h2>Methods</h2>
+	<dl>
+	<dt>CalcMatrix</dt>
+	<dd>(parentMatrix)->mmatrix
+	Calculate the "mmatrix" property to a Matrix4 equivalent to origin, orientation and scale,
+	relative to an optional passed matrix (typically, the parent's mmatrix).
+	This is automatically performed prior to rendering the object as part of a scene.</dd>
+	<dt>OrientTo</dt>
+	<dd>Set the "orientation" property to rotate the -z axis to point towards the specified Xyz position,
+	relative to the object's local coordinate system.</dd>
+	</dl>
+	
+	<h2>Properties</h2>
+	<dl>
+	<dt>mmatrix</dt>
+	<dd>A Matrix4 equivalent to origin, orientation and scale, 
+	updated automatically by CalcMatrix prior to every render.</dd>
+	<dt>orientation</dt>
+	<dd>A Quat specifying the rotation used to orient the shape in its parent's coordinate system.
+	If not specified, no rotation takes place.</dd>
+	<dt>origin</dt>
+	<dd>The location of this shape's 0,0,0 position in the shape's parent's coordinate system.
+	This can be used to specify where to render this shape within its parent group's space.
+	If not specified, +Xyz(0,0,0) is assumed.</dd>
+	<dt>scale</dt>
+	<dd>An Xyz vector specifying how much to re-size the shape's vertices when rendering in the parent group,
+	as defined by the 'view' method. The default is no scaling: +Xyz(1.,1.,1.)</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

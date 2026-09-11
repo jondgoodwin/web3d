@@ -1,0 +1,108 @@
+<html>
+  <head>
+	  <title>Browser - Pegasus3D</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<span id="title">3D Web</span>
+			<span id="sub">Browser</span>
+		</div>
+
+    <div class="text">
+	
+	<p>The core of the Pegasus3D browser is a simple engine that kicks off four activities:
+	start-up initialization, handling input events, updating the state of the current world, 
+	and rendering the current world onto the display. 
+	The last three represent the browser's main loop, 
+	cycled through over and over again endlessly until told to stop.</p>
+
+	<h2>Start-up Initialization</h2>
+	<p>Sequentially, the browser initializes itself in this order:</p>
+	<ol>
+	<li>Start SDL and the Acorn Virtual Machine</li>
+	<li>Initialize all built-in World types, Resource types, and global environment variables.</li>
+	<li>Run the browser's configuration program (written in Acorn).
+	In addition to performing system and user configuration and personalization tasks, 
+	it also loads and initializes shared libraries that define additional types.</li>
+	<li>Start libcurl and then load the browser's default (or specified) world ("world.acn") as the current world ('$').</li>
+	</ol>
+	<p>At this point, the browser starts running the main loop on '$', the current world.
+	Each iteration of the loop performs input event handling, scene state update and rendering
+	as described below, synchronized to the display's refresh rate.
+	The browser stops this loop when the current world returns false to .running?</p>
+
+	<h2>Input Event Handling</h2>
+	<p>This stage is responsible for exchanging events information between the world and external agents,
+	particularly user input and synchronization with the world's server.</p>
+	<p>Queued user input events (such as keyboard, mouse/pointer, touch screen, etc.) 
+	are retrieved (from SDL) and processed in the order they were detected.
+	Each distinct event type has its own unique symbol,  
+	enabling them to be easily dispatched to the appropriate input event processors.
+	The browser peels off some of these events for its own use (e.g., to close the browser or allow entry of a new url).
+	Some input events are handled directly by the world. 
+	Others are forwarded to the appropriate overlay, including the main 3-D view,
+	depending on the input context (e.g., where the pointer or selection box is located or 
+	the existence of an input focus for receiving keystrokes).</p>
+	<p>Queued UDP communications from the world's server are retrieved and dispatched accordingly.
+	These typically involve spawning new scene parts or events, 
+	or updating the attributes of existing scene parts based on server calculations and rules.</p>
+	<p>The final step involves sending back to the world's server 
+	important trigger events that need to be handled by the server, particularly certain user requests.</p>
+
+	<h2>Scene State Update</h2>
+	<p>The framerate is the heartbeat that governs the perception of motion within a world.
+	The browser calculates the delta time in seconds ($.dt) since the last update.
+	It then calls the .heartbeat method for every world part that has subscribed to the heartbeat.
+	This often goes to controllers responsible for animation, scripted behaviors,
+	streaming media, motion and collision detection, 
+	
+	<h2>Scene Rendering</h2>
+	<p>Rendering the world involves an ordered traversal of the world's render "scene graph":
+	<ol>
+	<li><b>World</b>.
+	_Render sequentially renders each <a href="../types/world/overlay.html">overlay</a> in .render's list,
+	which likely includes at least one <a href="../types/world/rendercontext.html">camera</a>
+	for rendering the 3-D scene to the browser's main window.</li>
+	<li><b>Overlay/Camera</b>.
+	It switches the OpenGL context to tbe designated .target window/frame,
+	and sets up and clears the viewport rectangle and appropriate buffers with needed background and borders.
+	The Camera goes further, scanning the scene graph in preparation to identify objects to render,
+	calculates all matrices for the camera and all nodes, and then renders all nodes in appropriate sorted order
+	(opaque from front to back, then transparent from back to front).</li>
+	The Camera in essence holds the rendering context containing valuable information for rendering
+	such as the camera matrices, lighting, etc.</li>
+	<li><b>Group</b>
+	Renders each part in its .parts list in order.</li>
+	<li><b>Shape</b>.
+	Shape activates the appropriate shader (using uniforms from the shape and camera context) and
+	then loads and renders the vertex information whose attributes are described by the Shape.</li>
+	<li><b>Shader</b>.
+	When Shape renders a Shader, it compiles it, if needed, loads the uniform values from the shape or context,
+	and then sets it as the active shader.</li>
+	</ol>
+
+	<h2>Code Dependencies</h2>
+	<p>The Pegasus3D browser is written in C. Its code uses these libraries:</p>
+	<ul>
+	<li><a href="avmindex.html">Acorn VM</a> -
+	A reentrant C library, able to compile and run Acorn programs in its own virtual machine.</li>
+	<li><a href="http://www.libsdl.org">Simple DirectMedia Layer</a> -
+	An operating system-independent API for managing media and other resources.</li>
+	<li><a href="http://www.opengl.org">OpenGL</a> -
+	An open API for high-performance graphics processing.</li>
+	<li><a href="https://curl.haxx.se/libcurl/">libcurl</a> -
+	A library enabling asynchronous HTTP, FTP, etc. network exchange of resources.</li>
+	<li><a href="https://github.com/libuv/libuv/">libuv</a> -
+	A library enabling asynchronous file, UDP, etc. i/o.</li>
+	<li><a href="https://github.com/nothings/stb">stb_image</a> -
+	Single-file include file for JPEG, PNG, GIF, TIFF, etc. image loading.</li>
+	<li><a href="https://github.com/richgel999/miniz">miniz</a> -
+	zlib-compatible de-compression and archive management.</li>
+	</ul>
+	
+	</div>
+	</body>
+</html>

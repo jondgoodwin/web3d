@@ -1,0 +1,193 @@
+<html>
+  <head>
+	  <title>Pegasus3D Vision</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+	<div id="header">
+		<div class="column">
+		<a href="/">
+			<img src="pegicon.png" width="56" height="56" alt="logo">
+		</a>
+		<span id="title">Pegasus3D</span>
+		<span id="slogan">Vision</span></div>
+		<div class="column flow-opposite">
+		<a href="download.html">
+			<img src="downloadbutton.png" width="145" height="40" alt="download">
+		</a></div>
+	</div>
+
+    <div class="text">
+	  <p>One score and several quadrillion nanoseconds ago, our web-father brought forth upon this Internet, 
+	  a new world-wide web, conceived in hypertext connectivity, and dedicated to the proposition that anyone 
+	  may freely use or modify it. 
+	  The simple web that Tim Berners-Lee wove in CERN&rsquo;s lab now stretches around the globe, 
+	  encompassing billions of colorful, interactive, interconnected pages offered up by millions of independent sources.</p>
+	  <p>But these pages, they are flat! 
+	  Sometimes we want to immerse ourselves within three-dimensional virtual worlds, 
+	  where we can explore, play, and make things happen in a way that feels like a more natural 
+	  extension to the three dimensional world we inhabit than flipping through virtual pieces of paper. 
+	  To make this possible, we must design and build an comparable Web3D eco-system of 
+	  browsers, servers and standards, inspired and informed by existing world-wide web technologies.</p>
+	  <p>Until a good working demonstration of Web3D has been created, 
+	  we must use these inadequate words on a page to imagine how users would experience this 3-dimensional web.</p>
+		
+	  <h3>Scenes and Objects</h3>
+		<p>The 3-D equivalent to a web page is a scene. 
+		A scene might be a virtual house, a landscape, a neighborhood or city, a store or marketplace, 
+		outer space, a game zone, a simulation, a living organism, and so much more. 
+		Every scene defines the location of all static and animated objects within its boundaries, 
+		as well as a view of the space that lies beyond its boundaries (such as the scene&rsquo;s terrain 
+		or floor and its sky or bounding walls).</p>
+		<p>A scene consists of various types of objects:</p>
+		<ul>
+		  <li><span class="p-hdr">Static Scenery.</span>
+			Static objects establish the scene&rsquo;s overall look and layout, 
+			including the landscape, buildings, flora and fauna, furniture, skyscrape, 
+			and any other decorations whose position and behavior never (or rarely) changes. 
+			These objects might employ some animation (such as flowing, rippling water or the swaying branches of a tree). 
+			Passive objects can be solid (obstacles to or pedestals for other objects) or 
+			immersive (other objects can pass through them, but perhaps with some potential effect). 
+			They may cast light or shadows, or distort views (like a smoky window or mirror). 
+			They may exert a force on other objects (such as gravity).</li>
+			<li><span class="p-hdr">Interactive agents.</span>
+			These objects have more sophisticated, 
+			scripted behavior that is triggered by or influences other scene objects. 
+			Their animated motion may represent a current state (running, climbing, waving, bowing, fighting, etc.). 
+			They may offer buttons or other controls that can be manipulated by users or other objects. 
+			They might have wallpaper surfaces that display video streams, images, web pages and more. 
+			They may have sensors which will trigger scripted behavior based on what they are near or what is happening around 
+			or to them.
+			<p>Truly amazing things are possible when the behavior of objects originates somewhere else on the 
+			Internet or the real-world. Imagine a mailbox that fully connects to your e-mail service provider. 
+			Imagine an accurate clock and calendar, synced to your time zone and appointments. 
+			Imagine a phone connected to your Skype account, able to place and receive calls around the world. 
+			Imagine a painting on your house&rsquo;s wall that can play movies from Netflix.</p></li>
+			<li><span class="p-hdr">Avatars.</span>
+			Each avatar in a scene represents a user that is currently visiting that scene. 
+			Avatars are interactive agents whose behavior is directly controlled by the user it represents. 
+			The look of each user&rsquo;s avatar represents an interesting challenge, as user&rsquo;s will 
+			want the flexibility to choose what their avatar looks like (even to the point of using the same 
+			avatar across every scene they might visit), but each scene&rsquo;s owner may want to 
+			restrict the look of avatars for functional or community policy reasons. This issue is discussed 
+			in greater depth below.</li>
+			<li><span class="p-hdr">Portals.</span>
+			These interactive objects (or specified regions at the outer boundary of the scene) 
+			operate like hyperlinks, providing a way to transport a user to another other Web3D scene or 
+			to another location within the current scene. The portal might be triggered by proximity 
+			or by using its provided controls. Since portals represent a gateway to another scene, 
+			it might render some perspective of the scene it references as part of its visual look, 
+			typically with a lower level of detail.</li>
+			<li><span class="p-hdr">Sound Sources.</span>
+			A scene can include sounds as well as sights. A scene&rsquo;s sound source can be ambient to a 
+			specific region within the scene, have a specific location in space, or be attached to a 
+			specific user wherever they go. A sound source might be music, an audio clip, or 
+			live audio streamed across the Internet.</li>
+		</ul>
+		
+		<h3>Scene View and Navigation</h3>
+		<p>At any point in time, the user views a scene from the perspective of an imaginary camera 
+		which is positioned relative to the location and orientation of their avatar. 
+		Generally this is a &nbsp;2-dimensional or stereoscopic projection of the scene. 
+		Various windows, icons and text may be overlaid onto this view based on how the user interacts with the scene.</p>
+		<p>Users navigate their avatar (and its accompanying camera view) through a scene 
+		using standard controls. Such controls move the avatar forward, back, right, left, up or down, or 
+		change the avatar&rsquo;s orientation. Some controls change the camera view that is loosely 
+		tied to the avatar&rsquo;s position and orientation (such as scrolling the camera back 
+		behind an avatar&rsquo;s &ldquo;eyes&rdquo;).</p>
+		<p>Although many controls are standardized, the effect they have varies depending on the scene&rsquo;s movement rules:</p>
+		<ul>
+			<li>Each scene defines its own physics rules for how objects move or collide. 
+			Movement behavior will be vary noticeably between land, outer space and underwater scenes, 
+			affected by gravity, friction, momentum, etc.</li>
+			<li>Some scenes may choose to restrict or not support certain kinds of movement.</li>
+			<li>The user&rsquo;s control devices will implement these standard controls in different ways. 
+			A mouse/keyboard user will navigate differently from a touch screen or glasses user.</li>
+			<li>Users may customize how their device&rsquo;s buttons are mapped to the standard navigation controls. 
+			Some users may prefer to use the up arrow to move forward, and others may prefer to use the 
+			&ldquo;w&rdquo; key.</li>
+		</ul>
+		<p>The key idea here is that once a user learns how to navigate any specific 3D scene, 
+		they already have a basic idea of how to navigate through any other 3D scene they might visit.</p>
+		
+		<h3>Scene Interaction and Manipulation</h3>
+		<p>Although some scenes will be built primarily for passive consumption (like a book or a movie), 
+		the greater value in other scenes comes from all the ways users can interact with the scene and 
+		other users in that scene. A user can do so in various ways:</p>
+		<ul>
+		  <li><span class="p-hdr">Targeted Object.</span>
+			A user targets a specific object using consistent controls (such as touching or clicking it, 
+			tab-cycling through interactive objects in-front of the user, etc.). 
+			A &ldquo;use&rdquo; touch (e.g., left-click) triggers the default action for the object. 
+			A &ldquo;query&rdquo; touch (e.g., right click) offers a window menu of actions the user can select between. &nbsp;</li>
+			<li><span class="p-hdr">Object Controls.</span>
+			Some objects may offer touch-sensitive controls on their surface. Each control governs 
+			a different aspect of the object&rsquo;s behavior (for example, a music player might have different controls to play, 
+			rewind, change playlist, etc.)</li>
+			<li><span class="p-hdr">Broadcast Action.</span>
+			A user may broadcast some action to all objects within a certain distance of their avatar, 
+			such as saying something, issuing a challenge, or swinging a weapon.</li>
+			<li><span class="p-hdr">Proximity.</span>
+			Some objects trigger specific scripted behavior whenever another object or avatar&rsquo;s position 
+			gets near it in a certain direction.</li>
+		</ul>
+		<p class="c0"><span>The scene and the object&rsquo;s script determine how it will respond to any of these triggers. 
+		The interaction may be ignored, may yield a change in the object&rsquo;s behavior (visual or auditory), 
+		or the object may display a custom <b>window</b>&nbsp;on the user&rsquo;s screen either 
+		to display additional information or to gather more information about what the user wants. 
+		The user interacts with these windows similarly to any web page, with the final action 
+		typically removing the window from the screen. 
+		The user can sometimes customize the position and size of this window on their screen 
+		for future interactions with similar objects. In many cases, the displayed window may actually 
+		be a real web page sourced from another site.</p>
+		<p>In some cases, users may wish to &ldquo;pin&rdquo; an object&rsquo;s window to their screen, 
+		which enables them to continue to interact with an object even when they have moved far 
+		from that object and are possibly in another completely unrelated scene. 
+		This pinned window can be minimized to an small icon on the screen and opened up later as needed. 
+		With this simple, but powerful mechanism, users can accumulate their most frequently used 
+		resources with them (chat, phone, e-mail, clock, calendar, portal bookmarks, etc.) 
+		and take them with them wherever they go. They can also use this mechanism to create <b>hotkeys</b> for 
+		common objects actions appropriate to specific scenes or situations. 
+		These icons can further be mapped to the user&rsquo;s device control, 
+		such as keyboard keys, mouse buttons, etc.</p>
+		<p>Some scenes may give authorized users the power to add or delete objects to the scene, 
+		reposition or resize them, change their properties or behavioral scripts, and more. 
+		Standard controls are defined for a basic core set of object manipulations.</p>
+		
+		<h3>Ownership Controls</h3>
+		<p><sA world-wide 3-D web needs controls to keep users and content providers safe and profitable. 
+		Fortunately, the same controls used by the Internet now will also well serve the 3-D web.</p>
+		<p>Every scene is owned and operated by the server at that scene&rsquo;s domain name. 
+		People entering that scene may be required to be pre-authorized to enter and 
+		will typically be asked to abide that site&rsquo;s rules of behavior.</p>
+		<p>Each web site that wants to limit access to their 3-d worlds can require users to register, 
+		login and interact via encrypted communications.</p>
+		<p>Similarly, 3-D web site owners can require users pay for access to all or some portion of their 
+		content or services.</p>
+		
+		<h3>Avatars</h3>
+		<p>In many cases, users enjoy being able to choose how they appear as an animated 3-D object 
+		(or being) within any particular scene. However, specific scenes may have legitimate reasons 
+		for wanting to restrict how those avatars might appear to other users within that scene. 
+		A scene in outer space may want avatars to only be spaceships, thinking a pink unicorn 
+		might be out of place. A virtual store may not want to allow nude people avatars.</p>
+		<p>One mechanism for solving this conflict:</p>
+		<ul>
+		  <li>Users acquire, customize or create one or more avatars, each of whose rendering instructions 
+			are actually stored as URL resources on the Internet, like any other 3-D object.</li>
+			<li>Users can submit their avatars to any certifying authority who ensures it complies 
+			with whatever appearance rules they have established.</li>
+			<li>A user chooses which avatar they wish to &ldquo;play&rdquo; for any specific scene they are in 
+			(typically, one of them is their default avatar for any new scene).</li>
+			<li>Whenever a user enters a scene, the scene confirms that the user&rsquo;s chosen avatar 
+			is listed by whatever certifying authority best enforces their rules. If the avatar conforms, 
+			that avatar will be shown to other users in that scene. If not, the scene will pick another 
+			acceptable avatar (which may be no avatar at all) to render that user to others in the scene 
+			(although the user still has the right to see their own chosen avatar within that scene).</li>
+		</ul>
+	</div>
+	</body>
+</html>

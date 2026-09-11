@@ -1,0 +1,225 @@
+<html>
+  <head>
+	  <title>Behavior Versatility - Acorn Design Rationale</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Behavior Versatility</div>
+		</div>
+
+    <div class="text">
+	
+	<p>Behavior is Content's better half.
+	A good picture can keep one's attention only so long.
+	But when the Animation Queen shimmies and sways, beckoning you to the dance, time loses all meaning.</p>
+	<p>Acorn's goal here, as always, is to make it easier for world builders to enliven their world of things,
+	so they can:</p>
+	<ul>
+	<li>Establish how things move through space and time</li>
+	<li>Determine how things collide and what happens when they do</li>
+	<li>Morph the shape of things based on their state</li>
+	<li>Trigger particle, lens, fog and other special effects</li>
+	<li>Incorporate sound and video</li>
+	<li>Interpret and respond to user interactions</li>
+	<li>Provide artificial intelligence agency to non-player characters</li>
+	</ul>
+	<p>This chapter does not explain how to do all those things (that requires a book or two),
+	but it does talk about how Acorn makes them possible.
+	In essence, we want Acorn to make it easy to describe how things change over time,
+	guided by events and state.
+	More particularly, we want Acorn to facilitate a helpful separation of concerns 
+	between the world and its parts:</p>
+	<ul>
+	<li>The world drums out time's heartbeat, sending life out to all animated parts</li>
+	<li>The world gathers input events and forwards them to appropriate parts for handling. decoding, etc.</li>
+	<li>The world sets rules for motion, collision and interaction that apply to compliant parts.</li>
+	<li>Parts can notify each other of their state changes.</li>
+	<li>The world renders light and sound, fused together from participating parts.</li>
+	</ul>
+	<p>Again, the specifics of how to accomplish that is covered elsewhere.
+	But when we look deeply into those needs, 
+	we can derive the essential capabilities Acorn must have to make such behavior possible:</p>
+	<ul>
+	<li>Methods control all behavior</li>
+	<li>Parts establish which methods work on them</li>
+	<li>State can be tightly packaged together with methods</li>
+	<li>Methods may run concurrently and independently</li>
+	<li>Controller parts facilitate group intelligence</li>
+	<li>Variables and properties run pre-established methods when their value is retrieved or changed</li>
+	<li>Events are detected and cascade out to interested parts</li>
+	</ul>
+	
+	<h2>Methods are Behavior</h2>
+	<p>In many others languages, the facilitator for behavior is functions,	which are typically free agents. 
+	They swim in a vast sea of many functions and are bound to specific data only when called.</p>
+	<p>In Acorn, the facilitator for behavior is always (and only) the Method.
+	Every behavior, every action, is completely accomplished through the use of one or more Methods.
+	Unlike functions, these Methods are rarely self-less, free agents.
+	The elegant versatility of the Method stems from the intriguing ways 
+	it is often bound to other values before and when used:</p>
+	<ul>
+	<li>as part of a defined interface for types or parts, who they refer to as 'self'</li>
+	<li>as part of a closure, which preserves their state from one use to the next</li>
+	<li>performed within a yielder, which manages their autonomous execution state and local variables</li>
+	<li>underneath an active variable or property, triggering activity whenever a value is retrieved or changed</li>
+	</ul>
+	<p>Let's explore each of these ideas further.</p>
+
+	<h2>Parts and Their Methods</h2>
+	<p>In Acorn, most methods belong to a type or part.
+	It is done this way so that every value can establish its library of methods, 
+	each of which represents a different action to perform with/on that value. 
+	Such methods specify 'self' to refer to the value they are working with/on.</p>
+	<p>Thanks to multiple inheritance, this design is driven from the bottom: by the needs of the part. 
+	Each part cooks its own library, simmering into the stew the methods from its type, methods from various mixins,
+	and methods unique to the part itself.</p>
+	<p>This method-within-part modularity brings several benefits:</p>
+	<ul>
+	<li>It facilitates a separation of concerns.
+	A part has a method for everything it can do on its own,
+	allowing it to define how it animates, how it is rendered, etc.</li>
+	<li>It provides an interface for other parts.
+	When a part needs something from another part, it does so by using that part's properties and methods.</li>
+	<li>It keeps parts lean and focused, as use of mixins and "singletons" 
+	helps avoid the bloated, top-down inheritance trees filled with unwanted side-effects
+	and behaviors, a common outcome from single-inheritance languages.</li>
+	</ul>
+	
+	<h2>Methods &#x2764 State</h2>
+	<p>Acorn provides many different ways for methods to be married to a specific state.
+	We have already discussed one of them:  the part, which packages its property state
+	with the interface methods that can be used to access or change the part's state.</p>
+	<p>The closure combines state and methods in a very different way.
+	It tightly binds together a small, private list of values to one or two Methods.
+	The result is a single value that can be used wherever a Method can be used.
+	It has several great uses:</p>
+	<ul>
+	<li>As an intelligent get/set interface for a specific part's property, 
+	triggering actions whenever that property is retrieved or changed.</li>
+	<li>To preserve a very specific action for performance at some point in the future, 
+	perhaps after a certain condition or event has occurred.</li>
+	<li>As an iterator able to generate a sequence of values that follow a certain pattern on lazy demand,
+	one value per call.</li>
+	</ul>
+	<p>The three types of executable context (yield, thread and process) provide yet another
+	way to package state with methods into a single value. 
+	A context's stack holds not just private values (like a closure) but also the entire execution state,
+	including all active methods it is in the middle of performing.
+	Contexts serve diverse purposes:</p>
+	<ul>
+	<li>Yielders are an alternative way to implement an iterator, 
+	valuable for when the iterator's state and logic resist conforming to the constraints of a closure.</li>
+	<li>Threads and processes enable concurrency: doing more than one thing at the same time.
+	This can markedly improve a world's seamless responsiveness to events and realtime video and audio media sources, 
+	despite having to juggle activities that take time to complete.</li>
+	<li>Processes allow a world to run autonomously, without any interference with or dependency on another world. 
+	Importantly, each world gets and manages its own global context for types and environmental values.</li>
+	</ul>
+	<p><b>Note:</b> Due to Acorn's commonly-used techniques for pre-binding Methods to a state, 
+	state machines can be straightforwardly implemented within a single part, closure or yielder.
+	Typically, all state names would be represented as symbols. 
+	The 'match' statement would be used to handle the state machine dispatch to the appropriate logic.
+	Alternatively (with parts), 
+	one could even use the state symbol to directly dispatch to the part logic defined by the same-named method.</p>
+	
+	<h2>Group Intelligence</h2>
+	<p>There are certain types of parts we might call controllers.
+	They are more than collections: their methods coordinate activities across their client parts.
+	Each controller generally has a narrow focus for the work it coordinates, such as:</p>
+	<ul>
+	<li>A storyboard that kicks off events or state change for other parts on a timed basis.</li>
+	<li>A tweener that smoothly interpolates a part's properties from one state to another over a certain interval of time.</li>
+	<li>A physics engine that calculates the position and motion of objects over time.</li>
+	<li>A collision engine that determines when and where objects collide with each other.</li>
+	<li>A flock or herd part that influences the motion or behavior of participating animals</li>
+	<li>A network agent that helps coordinate part properties and behavior with a multi-user world server.</li>
+	<li>The world, which manages scene rendering, animation updates, and input event handling across participating parts.</li>
+	</ul>
+	<p>As parts are created, they can subscribe to specific controllers, specifying the help they wish to receive.
+	Once controllers know who their clients are, they can make use 
+	of each clients' properties and methods as needed to accomplish their work.
+	Usefully, a part's mixins or types can automate this subscription and supply whatever properties and methods 
+	are needed to facilitate the handshake with the controller.
+	Acorn's dynamic, late-binding nature makes such dependency injection easy to perform.</p>
+	<p>Controllers help separate concerns between a world and its parts.
+	Controllers are typically attached to a world for easy accessibility by client parts, 
+	thereby extending the world's generic functionality. 
+	Responsibility for the controller's work is managed by the controller,
+	with the work apportioned appropriately between the controller and its client parts.</p>
+
+	<h2>Active Variables and Properties</h2>
+	<p>Acorn makes it possible for pre-arranged method(s) to be performed every time
+	a specific variable or part property is retrieved (get) or changed (set).
+	To anyone using the variable or property, it looks like it only holds a value.
+	But under the covers, the defined methods (typically provided by a get/set closure)
+	are performed whenever the variable or property is touched.</p>
+	<p>Using a closure, it is also perform something like a "super" override,
+	incorporating any previously-defined methods into a newly added method. 
+	The closure would simply capture the old value or method as a closure variable,
+	and then invoke it at the appropriate point in the new method.</p>
+	<p>The ability to instrument variables and properties with hidden methods can be very valuable, as it enables:</p>
+	<ul>
+	<li>Parts or types to override and augment inherited methods or properties.</li>
+	<li>Realtime calculation of a variable or property value every time it is accessed.</li>
+	<li>Domain validation checking for value changes</li>
+	<li>Interfacing and translating a value into or from some other place 
+	where it is stored or accessible, perhaps via a different format.</li>
+	<li>Triggered events when a value changes, 
+	such as notifying subscribing parts as part of 2-way binding.</li>
+	</ul>
+	
+	<h2>Event-driven Worlds</h2>
+	<p>In order to faithfully render animated, interactive 3-D worlds, 
+	these worlds must be good at detecting and handling events. 
+	Once a world's content is loaded, it runs its main loop over and over.
+	Many times every second, the main loop:</p>
+	<ol>
+	<li>Looks for and handles user interaction events (keyboard, pointer, touch, etc.).
+	These are delegated out to all affected parts for handling.</li>
+	<li>Updates the scene's state, effectively animating it.
+	This is accomplished by sending an event signal to every part (or controller) that wants to update its state.</li>
+	<li>Renders the scene 3-D parts and 2-D widgets (with their help), 
+	synchronized to the display's refresh rate.</li>
+	</ol>
+	<p>Any part can receive and send events, not just the world. 
+	Controllers typically do both. 
+	Importantly, parts can be wired to send an event signal to another part 
+	whenever the value of specified, computed properties change.
+	This capability can be used to implement two-way binding between some part and 
+	on-screen widgets used to view or change that object's properties.</p>
+	<p>Acorn provides several ways to communicate various types of event to a part:</p>
+	<ul>
+	<li>Most of the time, events are sent by calling a prearranged, specifically-named method for that part, 
+	passing additional information as parameters.
+	For example:<ul>
+		<li>The scene update might call the 'animate' method for all parts that ask for it,
+		communicating how many seconds have passed since the last update.</li>
+		<li>Every keystroke might be mapped to a symbol corresponding to the scene's method to call.</li>
+		<li>The collision controller might notify all colliders of the event using the 'hit' method.</li></ul></li>
+	<li>Less commonly, events are sent by calling a pre-provided closure or method, 
+	passing additional information as parameters.
+	This is useful when a more flexible approach is required.</li>
+	</ul>
+	<p>This straightforward technique for event handling depends on all participating parts
+	accomplishing their triggered tasks quickly, 
+	particularly when a single event triggers a cascading sequence of actions.
+	If event handling takes too long (e.g., when loading content resources), the world will stop and stutter. 
+	Such lag problems can often be ameliorated by spinning time-consuming work to threads.</p>
+
+	<h2>Summary</h2>
+	<p>At first glance Acorn's behavioral facilities seem too humble to discuss, 
+	as all behavior is performed by the simple, stateless Method.
+	However, it is the many different ways that a Method can be dressed up with state information
+	that makes Acorn versatile enough to gracefully model the complex, modular behavior of a 3-D world.</p>
+	
+	
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="despattern.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

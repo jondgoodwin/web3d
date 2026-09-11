@@ -1,0 +1,244 @@
+<html>
+  <head>
+	  <title>Reserved Tokens - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Reserved Tokens</div>
+		</div>
+
+    <div class="text">
+
+		<h2 id="resops">Reserved Operators and Precedence</h2>
+		<p>This lists all the multi-character "punctuation" operators.
+		Note that <span class="pre">...</span> is not an operator.</p>
+		<p>The operators are sequenced from highest to lowest evaluation priority. 
+		Operators grouped together have the same priority.
+		In parenthesis is shown whether an operator appears in front of a value (prefix) or 
+		between values (infix). Some operators can be used in both contexts.
+		It also specifies the symbolic name of any method associated with that operator.</p>
+		
+		<h3>Value operators</h3>
+		<dl>
+		<dt>' '</dt>
+		<dd><i>(p)</i> symbol literal</dd>
+		<dt>" "</dt>
+		<dd><i>(p)</i> text literal</dd>
+		<dt>yield</dt>
+		<dd><i>(p)</i> yield expression</dd>
+		<dt>( )</dt>
+		<dd><i>(p)</i> prioritizes expression to be evaluated as a group</dd>
+		<dt>[ ] *[ ] +[ ]</dt>
+		<dd><i>(p)</i> variable declaration</dd>
+		<dt>{ }</dt>
+		<dd><i>(p)</i> code block</dd>
+		</dl>
+		
+		<h3>Term operators</h3>
+		<dl>
+		<dt>+ <i>new</i></dt>
+		<dd><i>(p 'new')</i> new instance</dd>
+		<dt>.</dt>
+		<dd><i>(i)</i> method call/property access</dd>
+		<dt>.:</dt>
+		<dd><i>(i)</i> property access</dd>
+		<dt>::</dt>
+		<dd><i>(i '[]')</i> indexed access</dd>
+		<dt>( )</dt>
+		<dd><i>(i)</i> method call parameters</dd>
+		<dt>[ ]</dt>
+		<dd><i>(i '[]')</i> indexed access</dd>
+		</dl>
+		
+		<h3>Prefix operators</h3>
+		<dl>
+		<dt>-</dt>
+		<dd><i>(p '@-')</i> negate</dd>
+		<dt>@</dt>
+		<dd><i>(p)</i> Internet resource load</dd>
+		<dt>&lt;&lt;</dt>
+		<dd><i>(p '&lt;&lt;')</i> append to 'this'</dd>
+		<dt>&gt;&gt;</dt>
+		<dd><i>(p '&gt;&gt;')</i> prepend to 'this'</dd>
+		</dl>
+		
+		<h3>Arithmetic/Collection operators</h3>
+		<dl>
+		<dt>**</dt>
+		<dd><i>(i '**')</i> exponent</dd>
+		</dl>
+		<dl>
+		<dt>*</dt>
+		<dd><i>(i '*')</i> multiply</dd>
+		<dt>/</dt>
+		<dd><i>(i '/')</i> divide/split</dd>
+		<dt>%</dt>
+		<dd><i>(i '%')</i> remainder</dd>
+		</dl>
+		<dl>
+		<dt>+</dt>
+		<dd><i>(i '+')</i> add/concatenate</dd>
+		<dt>-</dt>
+		<dd><i>(i '-')</i> subtract</dd>
+		</dl>
+		
+		<h3>Range operator</h3>
+		<dl>
+		<dt>..</dt>
+		<dd><i>(i)</i> creates a range</dd>
+		</dl>
+
+		<h3>Evaluation operators</h3>
+		<dl>
+		<dt>==</dt>
+		<dd><i>(i '<=>')</i> equal</dd>
+		<dt>!=</dt>
+		<dd><i>(i '<=>')</i> not equal</dd>
+		<dt>===</dt>
+		<dd><i>(i)</i> equivalent</dd>
+		<dt>~~</dt>
+		<dd><i>(i '~~')</i> match</dd>
+		<dt><=></dt>
+		<dd><i>(i '<=>')</i> compare (rocketship)</dd>
+		<dt>&lt;</dt>
+		<dd><i>(i '<=>')</i> less than</dd>
+		<dt>&lt;=</dt>
+		<dd><i>(i '<=>')</i> less than or equal</dd>
+		<dt>&gt;</dt>
+		<dd><i>(i '<=>')</i> greater than</dd>
+		<dt>&gt;=</dt>
+		<dd><i>(i '<=>')</i> greater than or equal</dd>
+		</dl>
+		
+		<h3>Evaluation operators</h3>
+		<dl>
+		<dt>! <i>not</i></dt>
+		<dd><i>(p)</i> logical not</dd>
+		</dl><dl>
+		<dt>&& <i>and</i></dt>
+		<dd><i>(i)</i> logical and</dd>
+		</dl><dl>
+		<dt>|| <i>or</i></dt>
+		<dd><i>(i)</i> logical or</dd>
+		</dl>
+
+		<h3>Ternary operator</h3>
+		<dl>
+		<dt>? else</dt>
+		<dd><i>(i)</i> "if .. then .. else ..." expression</dd>
+		</dl>
+
+		<h3>Append/Prepend operators</h3>
+		<dl>
+		<dt>&lt;&lt;</dt>
+		<dd><i>(i '&lt;&lt;')</i> append</dd>
+		<dt>&gt;&gt;</dt>
+		<dd><i>(i '&gt;&gt;')</i> prepend</dd>
+		</dl>
+
+		<h3>Assignment operators</h3>
+		<p><b>Note:</b> Within variable declarations, the evaluation priority of ',' and '=' are reversed.</p>
+		<dl>
+		<dt>,</dt>
+		<dd><i>(i)</i> value separation</dd>
+		</dl><dl>
+		<dt>=</dt>
+		<dd><i>(i)</i> assign</dd>
+		<dt>:</dt>
+		<dd><i>(i)</i> 'this' property assign</dd>
+		<dt>:=</dt>
+		<dd><i>(i) '[]'</i> 'this' index set</dd>
+		</dl><dl>
+		<dt>+=</dt>
+		<dd><i>(i '+')</i> add in place</dd>
+		<dt>-=</dt>
+		<dd><i>(i '-')</i> subtract in place</dd>
+		<dt>*=</dt>
+		<dd><i>(i '*')</i> multiply in place</dd>
+		<dt>/=</dt>
+		<dd><i>(i '/')</i> divide in place</dd>
+		</dl>
+		
+		<h3>Async operator</h3>
+		<dl>
+		<dt>^ async</dt>
+		<dd><i>(p)</i> create asynchronous thread</dd>
+		</dl>
+
+		<h3>Line terminator</h3>
+		<p>The semicolon <span class="pre">;</span> is the lowest priority "operator".</p>
+		
+		<h2 id="resnames">Reserved Names</h2>
+		<p>Name tokens are typically used for variables or properties.
+		However, certain names are <b>reserved</b> for special meaning within an Acorn program:</p>
+		
+		<dl>
+		<dt>and</dt>
+		<dd>logical 'and' operator used in boolean expressions</dd>
+		<dt>async</dt>
+		<dd>asynchronous operator</dd>
+		<dt>baseurl</dt>
+		<dd>url of the program's source code</dd>
+		<dt>break</dt>
+		<dd>terminate a loop block</dd>
+		<dt>context</dt>
+		<dd>The value of the currently executing execution state</dd>
+		<dt>continue</dt>
+		<dd>Re-iterate a 'while' or 'for' block</dd>
+		<dt>do</dt>
+		<dd>A block that performs an automatic '.begin' and '.end'</dd>
+		<dt>each</dt>
+		<dd>The block for iterating over a collection of values</dd>
+		<dt>else</dt>
+		<dd>A clause within an 'if' statement</dd>
+		<dt>elif</dt>
+		<dd>A clause within an 'if' statement</dd>
+		<dt>false</dt>
+		<dd>The value of 'false'</dd>
+		<dt>if</dt>
+		<dd>A conditional block or clause</dd>
+		<dt>in</dt>
+		<dd>A clause within a 'each' block</dd>
+		<dt>into</dt>
+		<dd>A clause within a 'match/with' block</dd>
+		<dt>local</dt>
+		<dd>ensures variable(s) are treated as locally scoped</dd>
+		<dt>match</dt>
+		<dd>Matches a calculated value to several possible values</dd>
+		<dt>new</dt>
+		<dd>Creates a new instance</dd>
+		<dt>null</dt>
+		<dd>The value of 'null'</dd>
+		<dt>not</dt>
+		<dd>logical 'not' operator used in boolean expressions</dd>
+		<dt>or</dt>
+		<dd>logical 'or' operator used in boolean expressions</dd>
+		<dt>return</dt>
+		<dd>terminate execution of a method with a return value</dd>
+		<dt>self</dt>
+		<dd>references the method's self parameter value</dd>
+		<dt>selfmethod</dt>
+		<dd>the currently executing method or closure</dd>
+		<dt>this</dt>
+		<dd>The value of the most inclusive 'with' block</dd>
+		<dt>true</dt>
+		<dd>The value of 'true'</dd>
+		<dt>using</dt>
+		<dd>clause on this block</dd>
+		<dt>wait</dt>
+		<dd>A block that waits until all its execution contexts are done.</dd>
+		<dt>while</dt>
+		<dd>A repetitive block or clause</dd>
+		<dt>with</dt>
+		<dd>A clause in a 'match' block</dd>
+		<dt>yield</dt>
+		<dd>suspend a generator with a return value</dd>
+		</dl>
+		
+	</div>
+	</body>
+</html>

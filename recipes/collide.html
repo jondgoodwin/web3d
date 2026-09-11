@@ -1,0 +1,65 @@
+<html>
+  <head>
+	  <title>World Object Model - Collision</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">WOM</div></a>
+			<div id="sub">Collision</div>
+		</div>
+
+    <div class="text">
+	
+<pre>
+###
+Properties:
+- state: spinning, exploding
+- radius. Size of the planet
+- orbit. Size of the planet's orbit
+- spinrate. How fast it spins around its axis
+###
+Plant = Type[
+	Object
+
+	begin:>
+		::state = 'spinning' if !state
+		.position = Xyz[::orbit, 0, 0]
+		.rotation = [0, 0, 0]
+		::mesh = Mesh::Sphere(::radius)
+
+	# Define motion rules (dt is seconds since last frame)
+	animate(dt):>
+		if ::state == 'spinning'
+			::rot += dt * ::spinrate
+		# Also calculate new orbital position, and what happens if planet is exploding
+
+	# Define an action we can perform on a planet
+	explode:>
+		::state = 'exploding'
+
+	# Will only interact with object that have non-zero mass
+	interact?(obj):>
+		obj.mass > 0
+	
+	# Define interaction rules
+	interact(obj,dt):>
+		obj.vel += dt*::grav:: # Not correct physics, but you get the idea
+		obj.destroy = exploding if .distance(obj) <= ::radius
+
+# Create a new planet		
+earth = Planet[
+	name: 'Earth'
+	orbit: 149.5e9
+	radius: 6.37e3
+	spinrate: 476.1
+	grav: 9.78
+	mass: 5.97E24
+	skin: @skins/earth.jpg 
+</pre>
+		
+	</div>
+	</body>
+</html>

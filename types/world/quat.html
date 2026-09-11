@@ -1,0 +1,86 @@
+<html>
+  <head>
+	  <title>Quat Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Quat Type</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Quat</b> is a <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">quaternion </a>
+	whose x,y,z,w floating point components specify a rotational orientation. 
+	The x,y,z components represent the axis of rotation.
+	The w component determines the rotation around that axis.</p>
+		
+	<h2>Class Properties <i>(see Type)</i></h2>
+	<dl>
+	<dt>New</dt>
+	<dd><i>(Quat) or (x,y,z,w)-> quat</i>
+	Create a new Quat value. Its x,y,z,w components are initialized by another Quat or up to 4 Floats as parameters.
+	Otherwise, the components are initialized to 0.0, 0.0, 0.0, 1.0.</dd>
+	</dl>
+
+	<h2>Instance Methods</h2>
+	<dl>
+	<dt>Conjugate</dt>
+	<dd><i>(Quat) or ()-> Quat</i>
+	Return a Quat's conjugate. 
+	If an Quat value is passed, put its conjugate in self.
+	Otherwise calculate self's conjugate into self.</dd>
+	<dt>Inverse</dt>
+	<dd><i>(Quat) or ()-> Quat</i>
+	Inverse and return an Quat value. 
+	The inverse represents the opposite rotation, achieved by normalizing its conjugate.
+	If an Quat value is passed, put its inverse in self.
+	Otherwise invert self.</dd>
+	<dt>Lerp</dt>
+	<dd><i>(Xyz1, Xyz2, scalar) -> xyz.</i>
+	Calculate and return Xyz value linearly interpolated between two Xyz values by a scalar from 0 to 1.</dd>
+	<dt>Mult</dt>
+	<dd>Multiply two quaternions, returning result in self.
+	Either multiplies self by parm1 or parm1 * parm2</dd>
+	<dt>Normalize</dt>
+	<dd>-> Quat
+	Normalize and return self to its unit equivalent (length is 1.0).</dd>
+	<dt>Set</dt>
+	<dd><i>(Quat) or (x,y,z,w)-> quat</i>
+	Update Quat value's x,y,z,w with components from passed Quat or passed x,y,z,w Floats</dd>
+	<dt>SetAngleAxis</dt>
+	<dd><i>(angle, axisx, axisy, axisz) or (Float, Xyz)-> quat</i>
+	Set Quat's x,y,z,w to correspond with rotation axis and angle (right-hand rule).</dd>
+	<dt>SetRotateXyz</dt>
+	<dd><i>(x,y,z) or (Xyz)-> quat</i>
+	Update Quat's x,y,z,w to correspond to Euler axis rotations, first X then Y then Z.</dd>
+	<dt>SetRotateYxz</dt>
+	<dd><i>(x,y,z) or (Xyz)-> quat</i>
+	Update Quat's x,y,z,w to correspond to Euler axis rotations, first Y then X then Z.</dd>
+	<dt>SetVectors</dt>
+	<dd><i>(Xyz,Xyz)-> quat</i>
+	Calculate and return a Quat able to rotate a vector from u vector to v vector</dd>
+	<dt>Slerp</dt>
+	<dd><i>(quat1, quat2, scalar) -> quat.</i>
+	Calculate and return self's quat value via spherical, linear interpolation between
+	two Quat values using a scalar from 0 to 1.</dd>
+	</dl>
+	
+	<h2>Instance Properties</h2>
+	<dl>
+	<dt>x</dt>
+	<dd>Get or set the 'x' component.</dd>
+	<dt>y</dt>
+	<dd>Get or set the 'y' component.</dd>
+	<dt>z</dt>
+	<dd>Get or set the 'z' component.</dd>
+	<dt>w</dt>
+	<dd>Get or set the 'w' component.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

@@ -1,0 +1,172 @@
+<html>
+  <head>
+	  <title>Binary Format - AcornVM</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<div id="title">AcornVM</div>
+			<div id="sub">Binary Format</div>
+		</div>
+
+    <div class="text">
+	<p>Acorn's binary format is used as an efficient way to transmit serialized data of any level of complexity.
+	It is used in several scenarios:</p>
+	<ul>
+	<li><b>Binary encoded Acorn program or data resources.</b>
+	Acorn can load Acorn programs/data as human-readable character (.acn) or binary-encoded (.avm) files.
+	Both are platform-independent and mostly interchangeable. In general, use the character format for
+	world-building and testing. Then, convert .acn files to .avm for deployment, as they are likely to be
+	smaller and easier-to-digest, which means your worlds will start up more quickly.
+	Using binary-encoded files makes it harder (but not impossible) for others to decipher your logic,
+	which may be an advantage or disadvantage for your needs.</li>
+	<li><b>Saved configuration or state data.</b>
+	This is used where the resource's file system allows data to be changed and preserved for later use,
+	such as for user configuration information (and keyboard maps), avatar's current state, etc.</li>
+	<li><b>Client-server synchronization.</b>
+	This format is used to propagate to object properties from one machine to others.</li>
+	</ul>
+	<p>This section describes how Acorn data is serialized in a binary encoding.
+	It is optimized for rapid, sequential loading of the entire data structure into an existing 
+	virtual machine. The resulting single value from the loaded data is then used by whatever
+	program requested and received it.</p>
+	
+	<h2>The Header</h2>
+	<p>All .avm files begin with this header block.</p>
+	<ul>
+	<li><b>"AVMB"</b> - Identifies the file as an Acorn Virtual Machine Binary file</li>
+	<li><b>length</b> (16-bit uint) - size of the header block (not including "AVMB"</li>
+	<li><b>Version</b> (16-bit uint): version of .avm standard used (starts with 0). Use the lowest number
+	that applies to the encoding, for maximal compatibility.</li>
+	<li><b>Flags</b> (16-bit)
+		<ul>
+		<li>0x8000 - </li>
+		</ul>
+	</ul>
+	
+	<h2>Blocks</h2>
+	<p>The rest of the file is a sequential collection of variable-sized blocks.
+	Each block implicitly has a number (starting with 0), representing its position in the sequence.
+	While loading, Acorn will map this number index to its internal value (typically a pointer).
+	The blocks are effectively bottom-up sequenced, so a list would have a block for each 
+	of its members, before putting the block for the list itself.</p>
+	<p>Every block begins with:</p>
+	<ul>
+	<li><b>Encoding type and sizing</b> (8-bit). The bottom 4 bits represent an <b>encoding type</b>:
+	<ul>
+	<li>0x00 - null, true or false</li>
+	<li>0x01 - signed integer</li>
+	<li>0x02 - floating-point number</li>
+	<li>0x03 - short symbol (up to 16 characters)</li>
+	<li>0x04 - long symbol (more than 16 characters)</li>
+	<li>0x05 - bytes</li>
+	<li>0x06 - Integer list</li>
+	<li>0x07 - Float list</li>
+	<li>0x08 - Value list</li>
+	<li>0x09 - Property list</li>
+	<li>0x0a - Function call</li>
+	</ul>
+	<p>The meaning of the top 4 bits varies depending on the encoding type. 
+	In most cases, it provides byte-sizing information regarding numbers or indices in the block,:</p>
+	<ul>
+	<li>0x0 - 1 byte</li>
+	<li>0x1 - 2 bytes</li>
+	<li>0x2 - 3 bytes</li>
+	<li>0x3 - 4 bytes</li>
+	<li>0x4 - 6 bytes</li>
+	<li>0x5 - 8 bytes</li>
+	</ul>
+	</ul>
+	
+	<h3>Null, true, false block</h3>
+	<ul>
+	<li><b>0x00</b> = null, true, false value, according to the top "sizing" bits:</li>
+	<ul>
+	<li><b>0x0</b> - null</li>
+	<li><b>0x1</b> - false</li>
+	<li><b>0x2</b> - true</li>
+	</ul>
+	</ul>
+	
+	<h3>Integer block</h3>
+	<ul>
+	<li><b>0x01</b> with sizing bits up top, indicating size of the data that follows.</li>
+	<li><b>integer</b> (varying size) - a signed integer.</li>
+	</ul>
+	
+	<h3>Float block</h3>
+	<ul>
+	<li><b>0x02</b> with sizing bits up top, indicating size of the data that follows (typically 4 or 8 bytes).</li>
+	<li><b>float</b> (varying size) - an IEEE 744 floating point number.</li>
+	</ul>
+	
+	<h3>Small symbol block</h3>
+	<ul>
+	<li><b>0x03</b> with length bits up top indicating number of characters in the symbol, where 0-15 represents 1-16 characters.</li>
+	<li><b>characters</b> (varying number of characters) - the symbol's characters.</li>
+	</ul>
+	
+	<h3>Large symbol block</h3>
+	<ul>
+	<li><b>0x04</b> with sizing bits up top indicating size of length field.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of characters in the symbol</li>
+	<li><b>characters</b> (varying number of characters) - the symbol's characters.</li>
+	</ul>
+	
+	<h3>Byte block</h3>
+	<ul>
+	<li><b>0x05</b> with sizing bits up top indicating size of type and length fields below.</li>
+	<li><b>type</b> (varying size) - an index pointing the symbol for the type applied to the byte data stream.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of bytes in the data stream</li>
+	<li><b>bytes</b> (varying number of characters) - the data stream (no pointers or numbers).</li>
+	</ul>
+	
+	<h3>Integer List block</h3>
+	<ul>
+	<li><b>0x06</b> with sizing bits up top indicating size of type, length and each integer below.</li>
+	<li><b>type</b> (varying size) - an index pointing the symbol for the type applied to the integer list.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of integers in the list.</li>
+	<li><b>integers</b> (varying size and number) - the signed integers.</li>
+	</ul>
+	
+	<h3>Float List block</h3>
+	<ul>
+	<li><b>0x07</b> with sizing bits up top indicating size of type, length and each float below.</li>
+	<li><b>type</b> (varying size) - an index pointing the symbol for the type applied to the float list.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of floats in the list.</li>
+	<li><b>floats</b> (varying size and number) - the floating point numbers.</li>
+	</ul>
+	
+	<h3>Value List block</h3>
+	<ul>
+	<li><b>0x08</b> with sizing bits up top indicating size of type, length and each value below.</li>
+	<li><b>type</b> (varying size) - an index pointing the symbol for the type applied to the value list.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of values in the list.</li>
+	<li><b>values</b> (varying size and number) - the values.</li>
+	</ul>
+	
+	<h3>Property List block</h3>
+	<ul>
+	<li><b>0x09</b> with sizing bits up top indicating size of type, length and each value below.</li>
+	<li><b>type</b> (varying size) - an index pointing the symbol for the type applied to the property list.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of value pairs in the list.</li>
+	<li><b>value pairs</b> (varying size and number) - pairs of values.</li>
+	</ul>
+
+	<h3>Function Call block</h3>
+	<ul>
+	<li><b>0x0A</b> with sizing bits up top indicating size of length and each value below.</li>
+	<li><b>length</b> (varying size) - an unsigned integer specifying number of values in the list.</li>
+	<li><b>values</b> (varying size and number) - The first value is the function to call.
+	The remaining values are parameters to pass.</li>
+	</ul>
+	
+	<h2>Data Synchronization</h2>
+	<p>TBD: Address format of data synchronized between servers and client devices (multiple pieces of data 
+	updated), and maybe to run an update or assignment "program".</p>
+	
+	</div>
+	</body>
+</html>

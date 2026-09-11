@@ -1,0 +1,113 @@
+<html>
+  <head>
+	  <title>Xyz Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Xyz Type</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Xyz</b> specifies a x,y,z position or vector.</p>
+		
+	<h2>Class Properties <i>(see Type)</i></h2>
+	<dl>
+	<dt>New</dt>
+	<dd><i>(Xyz) or (x,y,z)-> xyz</i>
+	Create a new Xyz value. Its xyz components are initialized by another Xyz or up to 3 Floats as parameters.
+	Otherwise, the components are initialized to 0.0 (the zero vector).</dd>
+	</dl>
+
+	<h2>Instance Methods</h2>
+	<dl>
+	<dt>+</dt>
+	<dd>(Xyz) -> Xyz
+	Return a new Xyz, calculated as the addition of self to the passed Xyz.</dd>
+	<dt>-</dt>
+	<dd>(Xyz) -> Xyz
+	Return a new Xyz, calculated as the subtraction of self by the passed Xyz.</dd>
+	<dt>*</dt>
+	<dd><i>(Xyz) or (scalar) -> Xyz</i>
+	Return a new Xyz value that is scaled by a float or Xyz value.</dd>
+	<dt>Add</dt>
+	<dd><i>(Xyz, *scale) or (Xyz1, Xyz2, *scale) or (x,y,z)-> self</i>
+	Return the Xyz value after adding two Xyz vectors.
+	If three floats are passed, they are added to self.
+	If only one Xyz value is passed, it is added to self.
+	If two Xyz values are passed, their addition is stored in self.
+	If a scalar Float is also passed, it is multiplied to the latter Xyz value.</dd>
+	<dt>Cross</dt>
+	<dd><i>(Xyz) or (Xyz, Xyz)-> xyz.</i>
+	Return the Xyz value after calculating into it the cross-product of two Xyz vectors.</dd>
+	<dt>Distance</dt>
+	<dd><i>(Xyz)-> len</i>
+	Return the distance between self and passed Xyz.</dd>
+	<dt>DistanceSquared</dt>
+	<dd><i>(Xyz)-> len</i>
+	Return the square of the distance between self and passed Xyz.</dd>
+	<dt>Dot</dt>
+	<dd>(Xyz) -> Float
+	Return the dot product of self with the passed Xyz value.</dd>
+	<dt>Equals?</dt>
+	<dd><i>(Xyz) -> Bool</i>
+	Return true if self is (almost) equal to the passed Xyz value, false if not equal, or null if an Xyz is not passed.</dd>
+	<dt>Length</dt>
+	<dd>-> len.
+	Return the length of xyz vector as a Float: sqrt(x*x+y*y+z*z)</dd>
+	<dt>LengthSquared</dt>
+	<dd><i>-> lensquared.</i>
+	Return the squared length of xyz vector as a Float: x*x+y*y+z*z</dd>
+	<dt>Lerp</dt>
+	<dd><i>(Xyz1, Xyz2, scalar) -> xyz.</i>
+	Calculate and return Xyz value linearly interpolated between two Xyz values by a scalar from 0 to 1.</dd>
+	<dt>Mult</dt>
+	<dd>Return the Xyz value obtained from multiplying two values.
+	If the second parm is an Xyz, it is the Xyz value used on the right side of the multiplication, 
+	otherwise self is used as the right-hand term.
+	The first parameter (left-hand term) can be a Float scalar, Xyz scalar, Quaternion or matrix.</dd>
+	<dt>Negate</dt>
+	<dd><i>(Xyz) or ()-> Xyz</i>
+	Negate and return an Xyz value.
+	If an Xyz value is passed, put its negative in self.
+	Otherwise negate self.</dd>
+	<dt>Normalize</dt>
+	<dd>-> Xyz
+	Normalize and return self to its unit equivalent (length is 1.0).</dd>
+	<dt>Scale</dt>
+	<dd><i>(Xyz) or (scalar)-> xyz.</i>
+	Return the Xyz value after scaling it up by a scalar or passed x,y,z values.</dd>
+	<dt>Set</dt>
+	<dd><i>(Xyz) or (x,y,z)-> xyz.</i>
+	Update Xyz value's x,y,z with components from passed Xyz or passed x,y,z Floats</dd>
+	<dt>Unit</dt>
+	<dd>(Xyz) or ()-> Xyz
+	Populate a passed Xyz or return a new Xyz value that holds the unit equivalent to self (length is 1.0).</dd>
+	<dt>Unpack</dt>
+	<dd>-> x,y,z.
+	Return the x,y,z values as separate Floats</dd>
+	<dt>Zero</dt>
+	<dd><i>() -> Xyz</i>
+	Set the xyz components to 0 and return self.</dd>
+	<dt>Zero?</dt>
+	<dd><i>() -> Bool</i>
+	Return true if (almost) equal to the zero vector or false if not.</dd>
+	</dl>
+	
+	<h2>Instance Properties</h2>
+	<dl>
+	<dt>x</dt>
+	<dd>Get or set the 'x' component.</dd>
+	<dt>y</dt>
+	<dd>Get or set the 'y' component.</dd>
+	<dt>z</dt>
+	<dd>Get or set the 'z' component.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>

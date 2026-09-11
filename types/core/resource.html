@@ -1,0 +1,88 @@
+<html>
+  <head>
+	  <title>Resource - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Resource type</div>
+		</div>
+
+    <div class="text">
+
+		<p>A resource provides access to a specific data stream based on its Internet 
+		<a href="https://en.wikipedia.org/wiki/Uniform_Resource_Locator">URL</a> or 
+		<a href="https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier">IRI</a> address.
+		A resource might be an Acorn program, an image, or an audio or video stream.
+		For example, the address for a 3-D world might be:</p>
+<pre>
+http://futureworld.com/world.acn	# An Acorn program
+</pre>
+		<p>Acorn's '@' operator, used to <a href="../../acorn/refresource.html">load resources</a>,
+		implicitly makes use of Resource and baseurl (the address of the referring program).
+		Acorn programs typically use '@' to automatically load their static resource parts using relative addresses:</p>
+<pre>
++World
+	scene: @scene	# refers to the value of the resource at http://futureworld.com/scene.acn
+</pre>
+
+		<h3>Class Methods and Properties</h3>
+		<dl>
+		<dt>extensions</dt>
+		<dd>-> index
+		<p>Resource.Load uses this Index to map a loaded resource's
+		filename <a href="https://en.wikipedia.org/wiki/Filename_extension">extensions</a>
+		to the Acorn type able to deserialize its byte streams into values. 
+		For example, the 'acn' extension maps to the Method type which compiles and runs the Acorn program
+		to obtain its value.</dd> 
+		<dt>loaders</dt>
+		<dd>-> index
+		<p>The loaders cache is a weak Index that maps a resource's absolute url (a symbol) to 
+		the resource's loader, if the resource is currently being loaded.
+		The loader stores load status properties like "resource" and "value".</p></dd>
+		<dt>New</dt> 
+		<dd>(url, baseurl) -> resource
+		<p>This creates a resource instance which 
+		points to a resource located at a specific address. It performs no i/o.
+		If url does not specify any path, 'world.acn' is assumed.
+		If the resource name has no extension, '.acn' is assumed.</p>
+		<p>If baseurl is not specified, url must be an absolute URL.
+		If the url has a domain (authority) but is missing the scheme, 'http://' is assumed.
+		Otherwise, 'file://' is assumed (which allows use of '.' or '..' off the current working directory).</p>
+		<p>If baseurl is specified, url may be a relative url (without scheme and domain).
+		The relative url may begin with '/' to reset the full path.
+		The relative url may make use of '.' or '..' for relative folder navigation.</p></dd>
+		<dt>schemes</dt>
+		<dd>-> index
+		<p>Resource.Load uses this Index to determine which Acorn type to use to Get the resource's stream
+		based on the scheme specified by the resource.
+		For example, the 'http' scheme maps to Http and 'file' to File.</dd> 
+		<dt>values</dt>
+		<dd>-> index
+		<p>The values cache is an weak Index that maps a resource's absolute url (a symbol) to 
+		the value of the resource, if it has already been loaded.
+		The values cache ensures that a resource is not loaded more than once.</p></dd>
+		</dl>
+
+		<h3>Instance Methods and Properties</h3>
+		<dl>
+		<dt>fragment</dt> 
+		<dd>-> sym
+		<p>Return a symbol containing the resource's fragment 
+		(the part of the resource's URL that followed the '#' pound sign).</p></dd>
+		<dt>Load</dt> 
+		<dd>(success, failure)->
+		<p>If not already loaded, this gets the resource's data stream (using its scheme)
+		and then decodes it (based on its extension). This may be done asynchronously. 
+		When the resource is loaded, the success method is called, passing the resource's value as a property.
+		If the resource cannot be loaded, the failure method is called, passing the error reason.</dd>
+		<dt>url</dt> 
+		<dd>-> sym
+		<p>Return a symbol containing the absolute url for the resource.</p></dd>
+		</dl>
+	</div>
+	</body>
+</html>

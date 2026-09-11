@@ -1,0 +1,160 @@
+<html>
+  <head>
+	  <title>Programs and Resources - Acorn Reference</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Programs and Resources</div>
+		</div>
+
+    <div class="text">
+
+	<p>Acorn's modularity features make it easy to divide a complex model into separately-built parts
+	that automatically and seamlessly snap together when the model is run.
+	The heart of this scheme is that every part is a resource (file) that has its own unique URL address. 
+	When a model is run, all its resources are automatically loaded and converted into an Acorn value for each part.
+	These part values are substituted into the model everywhere the parts' resources are referenced.
+	As much as possible, Acorn tries to hide the complexity of Internet-based resource retrieval 
+	behind a simple syntax.</p>
+	
+	<h2>The Basic Idea</h2>
+	<p>Let's start with a very simple example, an Acorn program that references a picture on the Internet:</p>
+<pre>
+myphoto = @http://mywebsite.com/selfie.jpg
+</pre>
+	<p>The '@' operator obtains the value of the resource located at the specified URL.
+	Acorn loads that JPEG image from the Internet and decompresses it into a collection of colored pixels.
+	The resulting collection of color pixels is the value of the image resource, which is then stored
+	in the local variable myphoto. 
+	It is important to understand that every specified resource is only loaded once.
+	All references to the same resourcce URL point to the same value.</p>
+	<p>Acorn programs are also resources. The value of a program is obtained in a similar way:
+	The source code for a program is loaded across the Internet.
+	After compilation and linking, the program is run as if all of it was a single anonymous 
+	<a href="refmethod.html">method</a>.
+	The explicit or implicit return value from running the program's method is treated as the value
+	of that Acorn program resource.</p>
+	<p>Say what? Well, consider this Acorn program located at the address http://tinyurl.com/main.acn:</p>
+<pre>
+# Build an return a type that contains a list of squares built elsewhere.
++Type
+	squares: @squares.acn
+</pre>
+	<p>It references another Acorn program called squares.acn:</p>
+<pre>
+# Build and return a list
++List(1,4,9,16,25)
+</pre>
+	<p>Before running main.acn, Acorn will load and run the squares.acn program,
+	whose method implicitly returns a list containing five integers.
+	That list is automatically plugged in as the value of the 'squares' property of main.acn's new Type.
+	With this paradigm, we can see that the typical job of every Acorn program within a model is to build one specific part,
+	whose value it returns back to every other program (part) that refers to it by its URL address.</p>
+	<p>There is a lot going on behind the scenes of these simple examples, as the following sections describe.
+	However, the basic idea is pretty straightforward: 
+	'@' resource references act very much like an Internet-spanning namespace of variables,
+	where the variable's name is the part's URL address and the variable's value is the decoded value for that part.
+	Hidden in this simplicity lies a lot of modularity and power.</p>
+	
+	<h2>Specifying the URL after the '@' operator</h2>
+	<p>The resource's URL address is more accurately called a
+	<a href="https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier">Internationalized Resource Identifier</a>,
+	as it may include unicode characters.
+	The IRI must immediately follow the '@', and usually begins with a letter or number.
+	The end of the IRI is signalled by a space or the end-of-line.</p>
+	<p>For example:</p>
+<pre>
+	boss: @http://ddd.dragonworld.com/plaguedragon.acn?mode=hard&name=Γεώργιος
+</pre>
+	<p>Alternatively, a text string may be used:</p>
+<pre>
+	boss: @"http://ddd.dragonworld.com/plaguedragon.acn?mode=hard&name=Γεώργιος Καζαντζάκης"
+</pre>
+
+	<h3>Relative Address</h3>
+	<p>The example above is an <b>absolute</b> IRI, as it fully specifies all components of the resource's address
+	(the scheme, domain, and a path from root '/').</p>
+	<p><b>Relative</b> addresses are more common. A relative address
+	specifies the path and name of the desired resource relative to <span class="pre">baseurl</span>
+	(a pseudo-variable that contains the address of the Acorn program that is making the reference).
+	The absolute IRI of the desired address is formed by replacing the resource's filename and all that follows
+	with the relative address. The relative address may also use '..' to navigate backwards through a baseurl's path.</p>
+	<p>Here are several examples of relative addresses:</p>
+<pre>
+# Assume baseurl is http://ddd.dragonworld.com/dragons/plaguedragon.acn
+@icedragon.acn         # Equivalent to: http://ddd.dragonworld.com/dragons/icedragon.acn
+@breath/poisonmist.acn # Equivalent to: http://ddd.dragonworld.com/dragons/breath/poisonmist.acn
+@../pets/unicorn.acn   $ Equivalent to: http://ddd.dragonworld.com/pets/unicorn.acn
+</pre>
+	
+	<h3>Static vs. Dynamically-loaded Resources</h3>
+	<p>All examples so far have been <b>static</b>, as they specify a literal address hardcoded into the Acorn program.
+	Acorn waits until all of a program's static resources have been loaded (in parallel, if possible)
+	before running the program. If any load fails, the resource is assigned the value of null.
+	In effect, Acorn guarantees all static addresses are resolved to a value before use.</p>
+	<p>However, if the IRI is specified using an expression (in parentheses),
+	the resource will be dynamically loaded:
+<pre>
+@("icedragon.acn")
+@(nextScene)	# the resource's URL is stored in the variable
+</pre>
+	<p>This starts a dynamic load when encountered, but does not wait for the load to finish before
+	continuing execution. When loading finishes, the return value is essentially ignored.
+	Thus, dynamic loading should only be done with an Acorn program that can act as its own callback,
+	"hooking" content changes to the current model where needed.</p>
+
+	<h2>Resource Retrieval and Decoding</h2>
+	<p>A IRI/URL contains many components: the scheme, authority (domain name), path, query, and fragment.
+	All play a role in how Acorn retrieves and converts a resource into a value.
+	This work is coordinated under the covers by Acorn's Resource core type.</p>
+
+	<h3>Scheme Retrieval</h3>
+	<p>An absolute IRI begins with the scheme, typically several letters followed by a colon (':'),
+	such as 'http', 'https', 'file', or 'ftp'.
+	The scheme specifies the technique used to get the resource's byte stream from the specified address
+	(minus any specified fragment).
+	Acorn uses the scheme as an index into Resource.schemes to obtain the Type used to 'get' the
+	requested resource.</p>
+	<p>For example:</p>
+<pre>
+@http://futureworld.com/world.acn # retrieve using Http.Get
+@file:///c:/user/sampleworld/world.acn # retrieve using File.Get
+</pre>
+
+	<h3>Stream Decoding</h3>
+	<p>The extension on the resource's name (the letters following the final '.' in
+	the resource's path name) is meaningful to Acorn, 
+	Acorn uses the extension as an index into Resource.extensions
+	to obtain the Type used to decode the resource stream.	
+	This type converts the resource's serialized content stream into 
+	an internal data structure more amenable to real-time use.
+	If an extension is not specified, '.acn' (an Acorn program) is presumed.</p>
+	<p>For example:</p>
+<pre>
+@dragon  # compiles the dragon.acn Acorn program using AcornProgram.New
+@dragon_skin.jpg  # decodes this image using Image.New
+</pre>
+	<p>Acorn passes the fragment on to the type that decodes the resource's contents,
+	to indicate what sort of return value is desired back.
+	Alternatively, if the resource IRI is followed by a parameters enclosed in parentheses,
+	these parameters are used to guide how the resource stream is converted to a value.</p>
+	<p>Any resource that cannot be converted is given the value 'null'.</p>
+	
+	<h3>Resource Archives and Compression</h3>
+	<p>Acorn automatically de-compresses any compressed resources.</p>
+	<p>Acorn also automatically unpacks a resource that is a zip archive containing multiple resources.
+	All resources in the archive are processed appropriately based on their content type extension
+	and relative folder path. Packing multiple related resources into one archive is a great
+	way to significantly reduce resource loading delays.</p>
+
+	<p style="text-align: right; margin-top: 2em;">
+		<a href="refasync.html"><img alt="_" src="next.png" /></a>
+	</p>
+
+	</div>
+	</body>
+</html>

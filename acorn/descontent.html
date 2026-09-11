@@ -1,0 +1,354 @@
+<html>
+  <head>
+	  <title>Content Versatility - Acorn Design Rationale</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Content Versatility</div>
+		</div>
+
+    <div class="text">
+	
+	<p>From early on, the world-wide web cleanly separated static content from its behavior. 
+	HTML was invented first to encode the content structure of a document's various elements. 
+	A few years later, Javascript, a very different language, 
+	was introduced to script the interactive behavior of those elements.</p>
+	<p>As the interactivity of the web grows, this language-driven division of labor 
+	between content and behavior contributes to code bureaucracy, slowing progress.
+	By analogy, then, designing a single language that seamlessly weaves together 3-D content and behavior 
+	will make it easier to build rich, interactive worlds, as:</p>
+	<ul>
+	<li>World builders only need to learn and master one language and its integrated eco-system.</li>
+	<li>Worlds are more quickly created and maintained when assembled together using modular parts,
+	each defined by a program which specifies all of that part's interrelated properties and behavior.</li>
+	<li>Rich procedural generation and dynamic alteration of world content becomes much easier
+	when the content language is an integral aspect of a full-fledged procedural language.</li>
+	</ul>
+	<p>For these reasons, a key design goal for Acorn is seamless support for both content and behavior.
+	For static 3-D content, Acorn's content grammar should compare favorably to the web's most used content languages
+	(<a href="https://en.wikipedia.org/wiki/XML">XML</a>, 
+	<a href="http://www.json.org/fatfree.html">JSON</a> and
+	<a href="http://www.yaml.org/spec/1.2/spec.html">YAML</a>)
+	in simplicity, expressiveness, and readability. 
+	As world builders add increasingly advanced features to the static content
+	(such as interactive behaviors, procedural generation, dynamic content changes),
+	Acorn should facilitate these capabilities in an incremental, intuitive and organic way.</p>
+	<p>This chapter explains how Acorn incorporates lessons learned from XML, JSON and YAML,
+	with regard to three criteria:</p>
+	<ul>
+	<li>De-serialization fidelity</li>
+	<li>Clarity</li>
+	<li>Dynamic Content</li>
+	</ul>
+	
+	<p>Before we begin the assessment, here is a very simple whimsical example 
+	implemented in all four languages. 
+	It offers a brief taste-test that highlights some of their stylistic differences:</p>
+	
+	<table><tr>
+	<th>XML</th><th>JSON</th><th>YAML</th><th>Acorn</th>
+	</tr><tr>
+	<td width="25%">
+<pre>
+&lt;invoice
+  receipt="Oz-Ware Invoice"
+  date="2012-08-06"&gt;
+  &lt;customer
+    first-name="Dorothy"
+    family-name="Gale" /&gt;
+  &lt;items&gt;
+    &lt;item
+      part-no="A4786"
+      descrip="Water Bucket"
+      price="1.47"
+      quantity="4" /&gt;
+
+    &lt;item
+      part-no="E1628"
+      descrip="Ruby Slippers"
+      size="8"
+      price="133.7"
+      quantity="1" /&gt;
+  &lt;/items&gt;
+&lt;/invoice&gt;  
+</pre>
+	</td><td width="25%">
+<pre>
+{
+  "receipt":     "Oz-Ware Invoice"
+  "date":        "2012-08-06"
+  "customer": {
+    "first_name":   "Dorothy"
+    "family_name":  "Gale"
+  }
+  "items": [
+    {
+      "part_no":   "A4786"
+      "descrip":   "Water Bucket"
+      "price":     1.47
+      "quantity":  4
+    }
+    {
+      "part_no":   "E1628"
+      "descrip":   "Ruby Slippers"
+      "size":      8
+      "price":     133.7
+      "quantity":  1
+    }
+  ]
+}
+</pre>
+	</td><td width="25%">
+<pre>
+--- !invoice
+receipt:     Oz-Ware Invoice
+date:        2012-08-06
+customer: !person
+    first_name:   Dorothy
+    family_name:  Gale
+
+items:
+    - !item
+      part_no:   A4786
+      descrip:   Water Bucket
+      price:     1.47
+      quantity:  4
+
+    - !item
+      part_no:   E1628
+      descrip:   Ruby Slippers
+      size:      8
+      price:     133.7
+      quantity:  1
+</pre>
+	</td><td width="25%">
+<pre>
++Invoice
+  receipt:     'Oz-Ware Invoice'
+  date:        2012-08-06
+  customer: +Person
+    first_name:   'Dorothy'
+    family_name:  'Gale'
+
+  items: +List &lt;&lt;
+    +Item
+      part_no:   'A4786'
+      descrip:   'Water Bucket'
+      price:     1.47
+      quantity:  4
+    +Item
+      part_no:   'E1628'
+      descrip:   'Ruby Slippers'
+      size:      8
+      price:     133.7
+      quantity:  1
+</pre>
+	</td>
+	</tr></table>
+
+	<h2>De-serialization Fidelity</h2>
+	<p>The days are long gone when web content's sole purpose is rendering free-form documents.
+	Interactive web sites now require their content languages to serialize complex data structures.
+	It is a great kindness to web developers if these data structures
+	can be automatically, rapidly and accurately de-serialized: 
+	converted (when loaded) into an appropriate binary format 
+	ready for manipulation by the scripting logic.</p>
+	<p>This requirement is even more important with 3-D worlds, as
+	3-D content is often massive, and filled with coordinates and other numbers.
+	Responsive worlds require that this content can be loaded quickly and be ready-to-use.</p>
+	<p>This section examines several content language design factors that facilitate accurate de-serialization:
+	the use of atomic literals, the syntax for collections,
+	the specification of custom types, and the handling of white space.</p>
+	
+	<h3>Atomic Literals</h3>
+	<p>Atomic literals are powerful aids to deserialization, as they encode
+	both the type and content of simple values in a familiar, succinct and distinguishable syntax.
+	This chart summarizes the atomic data type literals supported by each language:</p>
+	<table><tr>
+	<th>XML</th><th>JSON</th><th>YAML</th><th>Acorn</th>
+	</tr><tr>
+	<td width="25%">
+		text
+	</td><td width="25%">
+		text<br />number<br />true, false<br />null
+	</td><td width="25%">
+		text<br />number<br />true, false<br />null<br />timestamp
+	</td><td width="25%">
+		text<br />number<br />true, false<br />null<br />symbol
+	</td>
+	</tr></table>
+	<p>Like many dynamic languages, Acorn believes the distinction between text and symbols is important.
+	Even though both encode a collection of Unicode characters, they have differently uses.
+	Symbols are lightning fast for keys and comparisons.
+	The price they pay for this speed is that symbols are frozen and unchangeable.
+	Use text any time you want the freedom to alter it. Otherwise, use symbols. 
+	Acorn supports both types of literals.</p>
+	<p>Acorn does not provide a timestamp literal, as it is little needed outside of log files.
+	However, Acorn does provide a simple way to specify a specific time-stamp value,
+	for example: <span class="pre">+Time("2012-08-06")</span>. 
+	This approach may also be used for representing and de-serializing 
+	other values whose type is not listed above.</p>
+	
+	<h3>Collections</h3>
+	<p>All four languages support both ordered and indexed collections of values.</p>
+	<p>XML does so with significant restrictions.
+	It offers only one collection format, the node, which can be given indexed attributes
+	and/or an ordered sequence of nodes (or text).
+	Unfortunately, a node's indexed attribute cannot hold another node. It can only hold text.</p>
+	<p>Acorn, like JSON and YAML, is free of XML's restrictions.
+	It supports various types of collections (List, Index, Type, and Part) and
+	does not restrict what type of data that indexed collections may carry.</p>
+	
+	<h3>Custom Types</h3>
+	<p>A 3-D content language must support the mapping of content to custom types, particularly for collections.
+	Custom typing improves modularity, allowing a world's parts to share properties and behavior
+	with other similarly typed parts. For example, "animals" can move around and "walls" can block their movement.</p>
+	<p>Like XML and YAML, Acorn supports the named specification of a value's custom type.
+	It does so using the "+" operator which creates a new value of the specified type.</p>
+	
+	<h3>Text Fidelity</h3>
+	<p>Text does not have the same primacy in 3-D worlds that it has on the web.
+	Despite the reduction in its role, text still plays an important part.
+	When specified, text needs to be formatted and rendered exactly as indicated.</p>
+	<p>Surprisingly, XML sometimes struggles with this, due to its eagerness to accommodate human readability needs.
+	For example, XML collapses multiple consecutive spaces, new line characters and tabs into 
+	a single space, which could be a problem in some situations. 
+	Furthermore, certain characters can be undesirably interpreted as tags or entities and
+	therefore not rendered correctly.
+	Sometimes, the syntactically awkward CDATA must be used to overcome these challenges.</p>
+	<p>JSON has a very different limitation: it does not support multi-line text. 
+	Any long text must be placed within a single line, making it potentially inconvenient to view and change.</p>
+	<p>YAML is the most versatile: it supports many styles for precisely specifying text.
+	It permits text to be free-form and unquoted (like XML) or quoted and precise (like JSON). 
+	It supports many variations of multi-line text.</p>
+	<p>Acorn makes it easy to precisely specify readable text, but 
+	(for important reasons) does so with fewer stylistic options than YAML. 
+	Being a programming language, Acorn insists that all text literals be quoted. 
+	This prevents confusion over whether words are to be interpreted as text or variables.
+	Furthermore, Acorn supports a single style for multi-line text, using a consistent syntax
+	that balances readability with precision. 
+	Like JSON and YAML, Acorn supports escape sequences for incorporating special characters.</p>
+	
+	<h3>De-serialization Summary</h3>
+	<p>Given XML's many deficiencies for de-serializing general-purpose data structures,
+	it makes sense that better content languages, such as JSON and YAML, 
+	were created and broadly adopted less than five years later.
+	Of these two, YAML supports a richer de-serialization palette, 
+	as it supports custom types and multi-line text.</p>
+	<p>For 3-D content, Acorn provides excellent de-serialization power,
+	comparable to YAML and then some (providing native support for symbols).</p>
+	
+	<h2>Clarity</h2>
+	<p>Clarity in a content language refers to how concise and comprehensible the content
+	is to another person who might want to understand or change it. 
+	Given the tight relationship between content and behavior, it is important that 3-D
+	content be highly readable by the people who maintain and enrich worlds, 
+	even when the content is generated by tools.</p>
+	<p>The criteria for clarity are somewhat subjective, given that people have widely varying opinions
+	about what makes code easy to understand.
+	Nonetheless, several best practice techniques can be employed to improve a language's clarity:</p>
+	<ul>
+	<li>Use white space to illuminate structure</li>
+	<li>Use punctuation sparingly, in a way that does not distract from the content</li>
+	<li>Use idioms most people are familiar with</li>
+	<li>Keep the grammar rules small and simple</li>
+	<li>Allow comments</li>
+	</ul>
+	
+	<p>Applying these guidelines to the three web content languages yields this subjective assessment:</p>
+	<ul>
+	<li>XML can be somewhat difficult to read, due to the eye-distracting punctuation used to start and end nodes.
+	Also, its grammatical rules can get surprisingly complicated under special conditions.</li>
+	<li>JSON has the simplest grammar rules: 
+	Five straightforward railroad diagrams describe its entire grammar.
+	Only seven punctuation characters are used as delimiters between values.
+	Despite the simplicity of these rules, 
+	its resulting content comes across somewhat cluttered with required, but distracting punctuation.
+	Furthermore, JSON does not support comments.</li>
+	<li>YAML documents can be remarkably concise and easy-to-read,
+	as its design capitalizes well on the first three techniques.
+	Its biggest clarity challenge is that it supports so many ways to accomplish (almost) the 
+	same thing (e.g., 9 different ways to support multi-line text).
+	That flexibility can be useful, but can also create readability challenges 
+	for people encountering multiple YAML documents, each written in a different style.</li>
+	</ul>
+	<p>Acorn's content is as easy-to-read as YAML, and nearly as concise.
+	Acorn's incremental verbosity, relative to YAML, stems from it being a full programming language:
+	Text must be quoted, collection types must always be explicitly named, and lists 
+	require use of the '&lt;&lt;' append operator.</p>
+	<p>Acorn facilitates readability by keeping its content grammar simple.
+	It supports a single, but powerful style for specifying content.
+	Like YAML, Acorn supports comments.</p>
+	
+	<h2>Dynamic Content</h2>
+	<p>All three web content languages were designed for static content, 
+	making them useful for web sites that always present the same pages every time.
+	With the advent of database-driven, interactive web sites,
+	web builders need the ability to dynamically generate content,
+	thereby blurring the line between content and procedural logic.
+	They need their content languages to be able to:</p>
+	<ul>
+	<li>Preserve some portion of the content within a variable for later repeat use in other part(s) of the content.</li>
+	<li>Incorporate expressions to dynamically calculate various properties within the content.</li>
+	<li>Make use of 'this' and 'each' control structures to generate content according to algorithmic rules.</li>
+	<li>Incorporate procedural code to animate the interactive behavior of the content.</li>
+	</ul>
+	<p>The three web content languages are not built to handle these requirements.
+	As a result, several very different approaches have been taken to address these requirements:</p>
+	<ul>
+	<li>Both YAML and XML have extensions that provide a way to accomplish the first requirement.</li>
+	<li>Web server framework libraries (e.g., Ruby on Rails) use server-side languages to dynamically generate 
+	static content on the server before forwarding it on to the user's browser. 
+	The template for this dynamic content is coded using either a full-blown programming language (e.g., Ruby)
+	or some content language that has been extended to support these capabilities 
+	(e.g., Mustache or AngularJS's extensions to XML).
+	This approach satisfies the first three requirements.</li>
+	<li>XML supports the ability to incorporate a scripting language like Javascript. 
+	The Javascript code is performed after the content is loaded, 
+	hooking into the content to transform it or animate its behavior.
+	This approach effectively addresses all the above-listed requirements,
+	but the need to synchronize communications across two languages can complicate maintenance as websites grow.</li>
+	<li>Google pioneered a technique called Ajax, allowing the interactive exchange of data
+	between a web page and its server. 
+	The server sends content changes and embedded JSON data as a Javascript program fragment.
+	Being a full programming language, Javascript can service all the above requirements.</li>
+	</ul>
+	<p>When it comes to 3-D worlds, the need for dynamic generation of content is even stronger:
+	Procedural content generation can greatly improve both a world's performance and realism.
+	3-d models and materials are often re-used. Content properties are regularly in flux,
+	changing due to human and inter-object interactions.</p>
+	<p>This is where Acorn truly shines, as it gracefully supports all the dynamic content requirements
+	in a way that avoids the complexities of the listed web solutions.
+	Within the design of a single language is seamless integration of content and procedural logic.
+	In every place where a static value can be placed, Acorn permits the use of a variable,
+	an expression, a method, or a control structure.</p>
+	<p>Economically, Acorn uses the same language facilities for both static content and procedural logic.
+	Acorn’s content grammar may appear descriptive, but its versatile operators are actually procedural. 
+	They serve equally well for building or changing content whenever required.
+	Using these tools, a static world can be incrementally transformed into something rich and interactive 
+	as quickly as the world-builder's skill and imagination improves.</p>
+	
+	<h2>Summary</h2>
+	<p>With regard to static web content, YAML is the most versatile and readable of the three content languages.
+	It supports creation of concise, easy-to-read content that ready-for-use by a scripting language.
+	However, all three languages stumble to support dynamic content,
+	ultimately requiring them to back into a full programming language (notably Javascript)
+	to get the job done.</p>
+	<p>Acorn, inspired by and rivaling what other languages have done well,
+	has been carefully designed to provide a single language 
+	that addresses all de-serialization, clarity and dynamic content requirements for 3-D content,
+	Its simple, concise grammar is highly readable, yet it also supports the accurate, code-ready
+	loading and de-serialization of a world's modular content.
+	Most importantly, world-builders can incrementally exploit Acorn's procedural capabilities
+	to improve the visual appeal, diversity and engaging interactive behavior of their worlds.</p>
+	
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="desbehavior.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

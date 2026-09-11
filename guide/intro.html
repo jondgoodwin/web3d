@@ -1,0 +1,173 @@
+<html>
+  <head>
+	  <title>Acorn Introduction</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Introduction</div>
+		</div>
+
+    <div class="text">
+		<p style="text-align:center;"><i>"Grow mighty worlds from little acorns."</i></p>
+		
+		<p>The <b>Acorn</b> language is designed to make it easier and faster to build immersive, sharable 3-D worlds
+		using just one approachable, powerful, extensible language. 
+		Acorn binds together all aspects of a Web3D scene:
+		the look and location of its parts, how they behave and how people interact with them.</p>
+		<p>If you are new to 3-D or programming, you will appreciate how approachable Acorn is.
+		It uses common-sense words, minimizes distracting punctuation, and employs straightforward, consistent rules.
+		It allows you to get started with a few powerful techniques, and then grow your
+		knowledge bit by bit as your skill and confidence grows.
+		If you are eager to start learning, skip the rest of this introduction and dive in to the 
+		<a href="scene.html">first chapter</a>
+		or find a helpful introductory tutorial.</p>
+		<p>If you are a professional, Acorn should feel deliberately familiar, as it
+		seamlessly merges together useful design concepts from static, content languages (XML and JSON)
+		as well as popular dynamically-typed, object-oriented languages (particularly Ruby, Lua, Coffeescript and Javascript).
+		Acorn's simple grammar concisely supports the specification of static or procedurally-generated 3-D content.
+		Enriching 3-D scenes with captivating motion and interactivity is efficiently described using 
+		Acorn's powerful methods and type architecture that 
+		supports dynamic inheritance, mixins, singleton behaviors, and manipulation as first-class values.</p>
+		<p>The rest of this introduction highlights several of Acorn's more useful features in more detail.</p>
+
+		<h2>All The World's a Stage</h2>
+		<p>Imagine that a scene in your world is like a stage setting for a play.
+		Perhaps a wall divides the stage, separating a meadow from the overgrown garden. 
+		A locked, metal door traps anyone within the garden who does not have its key.
+		The moon casts a tiny glow on two lovers sneaking towards the wall from opposite sides.</p>
+		<p>For Acorn, these are all Parts: both lovers, the moon, the wall, the door and the key.
+		They are parts of the scene, which is itself a part in a world with many scenes.
+		Acorn invests much of its 3-D magic in the humble, but flexible Part.</p>
+		<p>Every part has its own content and behavior.</p>
+		<ul>
+		<li>A part's content consists of an ordered list of its <b>sub-parts</b> (for example, the objects in a scene)
+		as well as a dictionary of its named <b><a href="scene.html#property">properties</a></b> 
+		(such as its position, size, shape or coloring).
+		Which properties are specified can vary from one part to another, even for two parts of the same type.
+		A property's value can be as simple as a number or a symbol, or something more complex, such as a list or part.</li>
+		<li>A part's behavior is typically established by its <b>type</b>.
+		A type is a library of named, procedural methods that specify how parts of that type are rendered and how they behave.
+		Thus, our scene's moon might be a Light, able to illuminate other scene parts.
+		The wall is an unmoving Thing, whose shape takes up space and provides an obstacle. 
+		The key is an Item which can be carried and used. 
+		The lovers are Avatars, whose actions are controlled by people.</p>
+		<p>Web3D provides a basic collection of 3-D part types, called the 
+		<a href="http://wom.jondgoodwin.com">World Object Model (WOM)</a>.
+		Each of its part types (e.g., Light, Thing, Scene and World) acts like a factory, 
+		manufacturing ready-to-use parts for the 3-D world.
+		A lot of the complicated stuff needed to manage 3-D worlds is buried within these types,
+		offering a lot of power at a low cost to the world builder.</p>
+		<p>Furthermore, Acorn enables each world to define and use its own custom-built part types,
+		building off of the capabilities provided by the WOM.
+		Acorn also allows any part to define its own custom behavior, distinct from other parts of the same type.
+		Two robots in a scene might look identical and yet have wildly different behavior, if desired.
+		Unlike other Items, the garden key might be designed to vanish after being used five times.</p></li>
+		</ul>
+		<p>The content and behavior of each and every part within a world can be hierarchically specified
+		in a very straightforward, readable manner using Acorn's <b><a href="scene.html#builder">builder</a></b> grammar.
+		Static content generally only requires literal numbers, symbols and (perhaps) some procedural methods.
+		Procedurally-generated content can make use of variables, expressions and even embedded control structures.</p>
+		<p>New parts can be added at any time. Any aspect of any existing part can be altered at any time.
+		Acorn's extensible part <b><a href="parts.html#sel">selector</a></b>
+		makes it easy to select and manipulate the specific parts in the world that match the specified criteria.</p>
+		
+		<h2>Plays Well With Others</h2>
+		<p>Acorn not only helps custom craft modular bricks, 
+		it also offers powerful Internet-based mechanisms for snapping those bricks together.
+		Making Acorn Internet-savvy is essential for accomplishing Web3D's open-world vision:</p>
+		<ul>
+		<li>Acorn encourages every part in a world to be a URL-named
+		<b><a href="resources.html#">resource</a></b> on the Internet,
+		rather than trying to cram an entire world into a single Acorn program.
+		Each part uses the appropriate part URLs to references each of its sub-parts and other related parts.
+		When a user enters a world, the Web3D browser begins with the Acorn program resource for the world.
+		By following all link references, the browser ultimately finds and loads all of the world's various parts,
+		thereby snapping them together.</li>
+		<li>Acorn also offers <b><a href="parts.html#bind">2-way binding</a></b>,
+		another valuable form of part connectivity. Each part automatically 
+		synchronizes its property values with other parts that need the most current values.
+		This is commonly used to connect a 3D part to a 2D panel used to view or change some of the part's values.
+		For example, an panel might show the items an avatar is carrying, 
+		allowing someone to equip or drop one of these items.
+		2-way binding ensures that as things change both the panel and the avatar 
+		continue to have the same accurate info about what the avatar is carrying.</li>
+		</ul>
+		<p>Acorn's built-in Internet connectivity and 2-way binding capabilities grant 
+		the world builder many benefits with little extra work:</p>
+		<ul>
+		<li>A world can make use of parts found anywhere on the Internet, not just the 3D world's server.
+		In this way, worlds can incorporate creatures, furniture, dwellings, world-to-world portals, and even
+		specialized part types licensed for use by other artists.</li>
+		<li>A world server not only provides the most up-to-date part information when requested, 
+		it can automatically keep every client device updated any time changes are made to the part.
+		Synchronized server updates makes it possible for multiple people 
+		to use their own devices to explore the same changeable world together.</li>
+		<li>Resources can be cached on the local device to reduce performance "lag", 
+		yet automatically age out when used infrequently.</li>
+		<li>Servers can manage security and licensing arrangements on a part-by-part basis.</li>
+		</ul>
+		
+		<h2>One Language to Rule Them All</h2>
+		<p>By this point, developers of interactive web sites should be experiencing deja vu all over again,
+		as all the Acorn features discussed so far are a part of their tool suites. 
+		The difference is that Acorn does in one language what otherwise requires multiple languages
+		and libraries:</p>
+		<ul>
+		<li>To specify content (only), one must use HTML, XML or JSON, each with different strengths and weaknesses.
+		HTML and XML encode everything as text, requiring conversion (as needed) for other types of data.
+		JSON handles multiple data structures, but requires translation so they can be integrated and rendered with HTML.
+		Language extensions (e.g., Handlebars) are required to support procedurally-generated content.
+		None of the content languages natively provide procedural capabilities.</li>
+		<li>To define the behavior of responsive, interactive websites, one must use Javascript.
+		Javascript code is generally monolithic and is only loosely coupled with the content.
+		The jQuery library is needed to manipulate content, integrate with the browser,
+		and handle dynamic server communications. Other libraries are needed for 2-way binding.</li>
+		</ul>
+		<p>Doesn't that seem unnecessarily complicated to you? 
+		All those layers of software wrestling each other's differences just 
+		steepens the learning curve and makes everyone's job unnecessarily difficult.</p>
+		<p>Such complexity can be defended by explaining each of the historical steps it took to evolve the web 
+		to what it has become.
+		But if we are going to embark on a new and more complicated three-dimensional journey,
+		we need a more approachable synthesis of what we have learned over the last 25 years.
+		Acorn is the result of distilling and re-bottling the "good parts" of the world-wide web
+		into something simple, expressive and powerful, leaving behind the legacy artifacts that add no value.</p>
+		<p>With one readable, world-building language, we can:</p>
+		<ul>
+		<li>efficiently assemble static AND procedurally-generated content (beyond XML and JSON).</li>
+		<li>offer a broad range of extensibility to value types and parts (beyond Javascript and XML).</li>
+		<li>make it easy to select and change qualifying parts using extensible criteria (beyond XPath and CSS selectors)</li>
+		<li>provide built-in part synchronization, without having to pick and learn a framework extension</li>
+		<li>define interactivity and behavior in a modular, part-oriented manner, side-by-side with the content</li>
+		</ul>
+		<p>What makes Acorn distinctive is not its capabilities, but the way it marries them together,
+		powerfully and seamlessly.</p>
+		
+		<h2>Fast and Furious</h2>
+		<p>Let's switch gears, and talk about speed.</p>
+		<p>Responsive performance is critical to widespread acceptance of 3-D world exploration.
+		Visitors want their virtual worlds to unfold and interact in a smooth and responsive way.
+		Unfortunately, the price one pays for Acorn's dynamic language flexibility is that 
+		it can never perform as well as a compiled language like C/C++. </p>
+		<p>Fortunately, the architecture of Web3D and Acorn greatly minimizes this handicap:
+		<ul>
+		<li>The performance-critical code is written in C/C++, not Acorn.
+		This includes the 3-D graphics engine, physics engine, the Acorn virtual machine and the WOM.</li>
+		<li>Type extensions (similar to the WOM types) can also be written in C.
+		This means that any scene's Acorn code is a thin layer on top of a high performance foundation.</li>
+		<li>To further improve performance, the Acorn Virtual Machine uses a lightweight interpreter 
+		to execute pre-compiled Acorn code. It also supports multi-threading and an incremental 
+		garbage collector to reduce the likelihood of "lag spikes".</li>
+		<li>Acorn enables asynchronous and predictive loading of part resources as needed to reduce load-time delays</li>
+		</ul>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="scene.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

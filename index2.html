@@ -1,0 +1,141 @@
+<html>
+<head>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="standard.css" />
+<title>Web3D</title>
+</head>
+<body>
+	<script src="three.min.js"></script>
+
+	<div id="header">
+		<a href="/">
+			<img src="earthsketch.jpg" width="56" height="56" alt="logo">
+		</a>
+		<span id="title">Web3D</span>
+		<span id="slogan">Blow up the page and make a scene!</span>
+	</div>
+
+	<div class="text">
+	<div id="earth">
+		<img id="earthpic" src="earth3d.jpg" width="300" height="300" alt="earth" />
+	</div>
+	<img >
+	<p>Web3D leaps out of flat browser pages!</p>
+	<p>Using Web3D's browser, one click-travels from one 3-dimensional, virtual world to the next,
+	each independently built and hosted using open standards.</p>
+	<p>Immersive Web3D worlds can teem with breathtaking scenery and engrossing activities, enabling
+	travellers to shop, socialize, play, explore, learn, decorate their dream island, and so much more.</p>
+	</div>
+	
+	<ul class="nav">
+		<li id='nav-explore'>
+			<a href="explore.html">
+				<img src="icon-chat.png" width="74" height="74" />
+				<h3>Explore</h3>
+				<p>Take a sight-seeing tour of various Web3D worlds.</p>
+			</a>
+		</li>
+		<li id='nav-build'>
+			<a href="build.html">
+				<img src="icon-book.png" width="74" height="74" />
+				<h3>World-building</h3>
+				<p>Resources for building your own Web3D worlds.</p>
+			</a>
+		</li>
+		<li id='nav-download'>
+			<a href="download.html">
+				<img src="icon-download.png" width="74" height="74" />
+				<h3>Download</h3>
+				<p>Get Web3D tools or resources.</p>
+			</a>
+		</li>
+		<li id='nav-tooldev'>
+			<a href="tooldev.html">
+	  		<img src="icon-gears.png" width="74" height="74" />
+		  	<h3>Tool Development</h3>
+			  <p>Resources for Web3D tool developers.</p>
+  		</a>
+		</li>
+	</ul>
+
+		<script>
+			
+			// Test to see if WebGL is available
+			function webglAvailable() {
+				try {
+					var canvas = document.createElement("canvas");
+					return !!
+						window.WebGLRenderingContext && 
+						(canvas.getContext("webgl") || 
+							canvas.getContext("experimental-webgl"));
+				} catch(e) { 
+					return false;
+				} 
+			}
+			
+			if (webglAvailable()) {
+			
+				// This sets up a 3-D render within <div id="earth"> to replace a static <img id="earthpic">
+				// It uses image's size rather than typical window.innerWidth, window.innerHeight
+				var element = document.getElementById("earth");
+				var earthpic = document.getElementById("earthpic");
+				var renderer = new THREE.WebGLRenderer();
+				renderer.setSize( earthpic.offsetWidth, earthpic.offsetHeight );
+				element.appendChild( renderer.domElement ); // instead of document.body.appendChild
+				var camera = new THREE.PerspectiveCamera( 75, earthpic.offsetWidth/element.offsetHeight, 0.1, 1000 );
+				var scene = new THREE.Scene();
+				earthpic.parentNode.removeChild(earthpic);
+
+				var texloader = new THREE.TextureLoader();
+
+				// Establish a point light source
+				var light = new THREE.PointLight(0xffffff);
+				light.position.set(4,2,5);
+				scene.add(light);
+	
+				var earth;
+				texloader.load( 'body_earth.jpg',
+					function ( texture ) {
+						// do something with the texture
+						var earthMaterial = new THREE.MeshLambertMaterial( {
+							map: texture
+						} );
+						var earthGeometry = new THREE.SphereGeometry( 1, 20, 20 );
+						earth = new THREE.Mesh( earthGeometry, earthMaterial );
+						earth.position.set(0,0,0);
+						scene.add(earth);
+					}
+				);
+	
+				var stars;
+				texloader.load( 'starfield_hippo.gif',
+					function ( texture ) {
+						// do something with the texture
+						var starsMaterial = new THREE.MeshBasicMaterial( {
+							map: texture, side: THREE.DoubleSide
+						} );
+						var starsGeometry = new THREE.SphereGeometry( 100, 20, 20 );
+						stars = new THREE.Mesh( starsGeometry, starsMaterial );
+						stars.position.set(0,0,0);
+						scene.add(stars);
+					}
+				);
+	
+				camera.position.z = 3;
+
+				var render = function () {
+					requestAnimationFrame( render );
+	
+					if (typeof earth != "undefined")
+						earth.rotation.y += 0.02;
+						stars.rotation.y -= 0.002;
+	
+					renderer.render(scene, camera);
+				};
+
+				render();
+			}
+		</script>
+</body>
+</html>

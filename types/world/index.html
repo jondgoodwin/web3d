@@ -1,0 +1,99 @@
+<html>
+  <head>
+	  <title>World Type Library - Acorn</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">World Types</div>
+		</div>
+
+    <div class="text">
+
+	<p><b><a href="world.html">World and $</a></b> -
+	the root parent that organizes everything about a 3-D world: the 3-D scene, camera, overlays, 
+	user info, user event handling, controllers, etc. '$' is the current world:
+	
+	<h4>3-D Scene Objects</h4>
+	<p>Such objects (and Camera) use the <a href="placement.html">Placement</a> mixin.</p>
+	<dl>
+	<dt><a href="group.html">Group</a></dt>
+	<dd>A group of parts that are positioned and rendered together.</dd>
+	<dt><a href="light.html">Light</a></dt>
+	<dd>A light in the scene.</dd>
+	<dt><a href="shape.html">Shape</a></dt>
+	<dd>A geometrical mesh of vertices that is rendered using a specific shader</dd>
+	<dt><a href="sound.html">Speaker</a></dt>
+	<dd>A place where sound can be heard from.</dd>
+	</dl>
+	
+	<h4>Helpers and Controllers</h4>
+	<p>TBD ... Ordered list receiving .update from World. Accepts subscriptions from part
+	(e.g., SendUpdate, StopUpdate). Physics, collision, tweening, storyboard, Updater</p>
+	<dl>
+	<dt><a href="shader.html">Shader</a></dt>
+	<dd>A graphics program for high-performance skinning and re-shaping a Shape.</dd>
+	</dl>
+	
+	<h4>Renderer Overlays</h4>
+	<p>An overlay is a renderer that draws into a rectangular viewport of a window or frame target,
+	graphically representing some current state and possibly responding to user input or other events.</p>
+	<dl>
+	<dt><a href="camera.html">Camera</a></dt>
+	<dd>Renders a 3-D scene into a target from a certain point-of-view.</dd>
+	<dt><a href="overlay.html">Overlay</a></dt>
+	<dd>A renderer that draws into a rectangular viewport of a window or frame target.</dd>
+	</dl>
+	
+	<h4>Render Targets</h4>
+	<dl>
+	<dt><a href="texture.html">Texture</a></dt>
+	<dd>One or more image samplers guiding the coloring or geometry of a Shape</dd>
+	<dt><a href="window.html">Window</a></dt>
+	<dd>A display window that shows a rendered scene.</dd>
+	</dl>
+		
+	<h4>Structures:</h4>
+	<dl>
+	<dt><a href="color.html">Color</a></dt>
+	<dd>A red, green, blue, alpha (RGBA) color.</dd>
+	<dt><a href="matrix4.html">Matrix4</a></dt>
+	<dd>A 4x4 floating point matrix used for transformations.</dd>
+	<dt><a href="quaternion.html">Quat</a></dt>
+	<dd>A rotational quaternion.</dd>
+	<dt><a href="rect.html">Rect</a></dt>
+	<dd>The position and size of a 2D rectangle.</dd>
+	<dt><a href="uv.html">Uv</a></dt>
+	<dd>The u,v coordinates that map a vertex to a texture color</dd>
+	<dt><a href="xyz.html">Xyz</a></dt>
+	<dd>A 3-D coordinate point or vector.</dd>
+	</dl>
+
+	<h4>Buffers:</h4>
+	<dl>
+	<dt><a href="colors.html">Colors</a></dt>
+	<dd>A list of red, green, blue, alpha (RGBA) floating point colors.</dd>
+	<dt><a href="image.html">Image</a></dt>
+	<dd>A two-dimensional bitmap of colored pixels</dd>
+	<dt><a href="integers.html">Integers</a></dt>
+	<dd>An array of integers, typically used by Shape's .vertices</dd>
+	<dt><a href="stream.html">Stream</a></dt>
+	<dd>A video or audio media source</dd>
+	<dt><a href="uvs.html">Uvs</a></dt>
+	<dd>A list of u,v coordinates that map a vertex to a texture color</dd>
+	<dt><a href="xyzs.html">Xyzs</a></dt>
+	<dd>A list of 3-D coordinate point or vector.</dd>
+	</dl>
+	
+	<h4>Other types</h4>
+	<dl>
+	<dt><a href="http">Http</a></dt>
+	<dd>Scheme type for getting a resource that uses the 'http://' protocol.</dd>
+	</dl>
+	
+	</div>
+	</body>
+</html>
