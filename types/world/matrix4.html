@@ -1,0 +1,54 @@
+<html>
+  <head>
+	  <title>Matrix4 Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Matrix4 Type</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Matrix4</b> a 4x4 transformation matrix containing 16 Floats.
+	Its indices are ordered in column first ordering:</p>
+<pre>
+ 0   4   8  12
+ 1   5   9  13
+ 2   6  10  14
+ 3   7  11  15
+</pre>
+		
+	<h2>Class Properties <i>(see Type)</i></h2>
+	<dl>
+	<dt>New</dt>
+	<dd>()-> matrix4.
+	Returns a new identity matrix.</dd>
+	<dt>_newtype</dt>
+	<dd>-> mixin.
+	The type used by Matrix4 instances.</dd>
+	</dl>
+
+	<h2>Instance Properties and Methods</h2>
+	<dl>
+	<dt>[]</dt>
+	<dd>(row, column)-> Float. 
+	Get or Set the matrix's Float element at the specified row and column..</dd>
+	<dt>Inverse</dt>
+	<dd>() or (matrix)
+	Calculate the inverse of the passed matrix (or self) and place result in self.
+	This calculated inverse assumes the bottom row's values are 0, 0, 0, 1.</dd>
+	<dt>Mult</dt>
+	<dd>(matrix1, matrix2) or (matrix)
+	Multiply matrix1 by matrix2 (or self by matrix) and store the result in self.</dd>
+	<dt>Set</dt>
+	<dd>(matrix4) or (origin, orientation, scale)
+	Set the matrix's numbers to the contents of another matrix,
+	or the calculated result of a transformation matrix able to translate, rotate and scale.</dd>
+	</dl>
+	</div>
+	</body>
+</html>

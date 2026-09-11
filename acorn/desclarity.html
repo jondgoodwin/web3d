@@ -1,0 +1,94 @@
+<html>
+  <head>
+	  <title>Modularity and Clarity - Acorn Design Rationale</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Modularity and Clarity</div>
+		</div>
+
+    <div class="text">
+	
+	<p>A very important design goal for Acorn is that its code be clear, intuitive and easy to follow.
+	It is not enough to make it easy for novices and professionals to create the code.
+	More importantly, any resulting, well-designed code should be easy to understand when 
+	picked up by the author or others months later.</p>
+	<p>Several principles were employed in a balanced way to ensure Acorn code clarity:</p>
+	<ul>
+	<li>Minimize the language's grammar and rules to a few powerful constructs.</li>
+	<li>Minimize confusing or distracting punctuation delimiters.</li>
+	<li>Leverage familiar terms, concepts and grammars.</li>
+	<li>Take advantage of the brain's organizational preference to "chunk" information into a related, small groups
+	(a key design principle that helps drive the need for modularity).</li>
+	<li>Use white space to indicate how items are grouped.</li>
+	<li>Make it easy to express commonly used scenarios using concise code.</li>
+	</ul>
+	<p>These principles have been applied to Acorn's design at every level.</p>
+	
+	<h2>Programs as Parts</h2>
+	<p>Lego bricks have a well-deserved reputation for being easy to snap together to form shapes.
+	Lego accomplishes this by ensuring that all pieces conform to a simple inter-locking standard.</p>
+	<p>In the same vein, Acorn defines a simple, modular mechanism for snapping together a world's various parts:</p>
+	<ul>
+	<li>Each part is a fully defined by one Acorn program that can be referenced by its unique Internet address.
+	The program defines the part using a 'this' block, whose value is implicitly returned to 
+	any owning part that references it.</li>
+	<li>Every part incorporates all its sub-parts by referencing their Internet addresses, using the '@' operator.
+	Since the resource returns the built part as a single returned value, it can be plugged right into 
+	the appropriate property for its owning part.</li>
+	</ul>
+	<p>Thus, every 3-D world starts with a single part (program). 
+	That world part incorporates its scene and widget parts by URL reference to their programs. 
+	These sub-parts, in turn, incorporate their models, skins, and other parts. And so it goes...</p>
+	<p>This "part-of" organizational scheme is simple, modular, and easy to create and read.<p>
+	
+	<h2>Reusing Properties and Methods</h2>
+	<p>In a similar way, parts can plug into one or more types: 
+	each a sharable collection of properties or methods that can be used by multiple parts.
+	This dynamic inheritance mechanism is simple and flexible: each part can specify multiple type collections 
+	whose properties and methods are then considered members of the part. 
+	The part can then supplement or override these with its own methods and properties.
+	Once defined, this part can then be used as a type collection (prototype) for yet another part.</p>
+	<p>This "type-of" organizational scheme is also simple, modular, and easy to create and read,
+	so long as the inheritance design of a world's types is kept appropriately lean and flat.</p>
+	
+	<h2>Modular blocks</h2>
+	<p>Within programs, Acorn makes extensive use of code blocks: 
+	indented code statements bound together for a single purpose.
+	Using white space to highlight blocks, rather than character delimiters, makes them more concise and readable.</p>
+	<p>As structured programming showed, assembling code using a small collection of simple block structures 
+	with well-defined entry and exit points makes code far easier to follow than spaghetti code.
+	Acorn offers ten varieties of blocks, four for conditional execution,
+	two for defining methods and closures,
+	and four as unique, useful wrappers around related statements of code.
+	Of these wrapper blocks, the most noteworthy is the versatile 'this' block which, along with the 'this' operators, 
+	enable the concise, readable assembly of both static and dynamic content.</p>
+	<p>Another readability bonus is Acorn's control clauses, a concise way to combine a simple statement
+	and one or more conditional logic blocks together into a single statement.</p>
+	
+	<h2>Expressions</h2>
+	<p>Several notable dynamic languages (such as Lisp, Forth, or Smalltalk) are built around 
+	distinctive, minimalist grammars. 
+	Although the rules are simple and flexible, many find the resulting code difficult to understand,
+	mostly due to various challenges deciphering what happens when, according to unfamiliar rules.</p>
+	<p>Similar to the most widely used programming languages, Acorn's more complex expression grammar is an
+	outgrowth of the familiar arithmetic expression grammar taught in school. 
+	Acorn provides a small collection of prefix and infix operators mostly for arithmetic, comparison, 
+	boolean logic and assignment. 
+	These operators, and their evaluation precedence rules, are likely to be very familiar to most people.</p>
+	<p>Acorn makes moderate use of syntactic sugar: operators and other grammatic structures 
+	that can be accomplished in a another, fundamental but more verbose way.
+	For example, many operators are theoretically unnecessary, as they be can performed using a method call.
+	These sugared constructions help make the code more concise and easier to read, 
+	outweighing any minor complexity they add to the language's grammar.</p>
+	
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="descontent.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

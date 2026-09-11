@@ -1,0 +1,139 @@
+<html>
+<head>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="standard.css" />
+<title>FAQ for Pegasus3D, the 3-D Browser</title>
+</head>
+<body>
+	<div id="header">
+		<div class="column">
+		<a href="/">
+			<img src="pegicon.png" width="56" height="56" alt="logo">
+		</a>
+		<span id="title">Pegasus3D</span>
+		<span id="slogan">Frequently Asked Questions</span></div>
+		<div class="column flow-opposite">
+		<a href="download.html">
+			<img src="downloadbutton.png" width="145" height="40" alt="download">
+		</a></div>
+	</div>
+
+	<div class="text">
+	<p><b>What is the 3D web?</b></p>
+	<p>When you click on the URL for a 3D world in your browser, the browser renders it in 3-dimensions 
+	(typical web pages are very flat). 
+	The experience is much like playing a 3D videogame: the camera moves with the character you play, 
+	re-rendering the scene with full perspective and lighting 60x a second. 
+	You can interact with the world in real-time, either as a single user or interacting with other visitors to that world.
+	A much more immersive experience become possible when using a virtual reality (VR) headset.</p>
+
+	<p><b>How is this different than PC gaming?</b></p>
+	<p>With PC games you have to wait for the game to fully download to your PC before you can start experiencing it.
+	Web-based distribution offers a more timely and convenient click-and-play experience.
+	It also unlocks 3D content from proprietary distribution channels (e.g., Steam), 
+	so you can freely access 3d content located on any Internet server anywhere in the world.
+	You benefit from open, timely, world-wide access to 3D content, much like what you enjoy today with web pages.
+	
+	<p><b>No way! Games are BIG. Won't you still wait hours before you can play?</b></p>
+	<p>No. 
+	When you click on a world's URL, the browser retrieves only the 3D content needed at start up.
+	While interacting with this start-up subset (e.g., perhaps selecting and customizing an avatar),
+	additional content packages are automatically streamed from the server to your browser in the background, 
+	in the order of when you need them.
+	Handled properly, the content will be staged and sequenced to stay ahead of the your experience as much as possible.</p>
+	<p>Furthermore, by taking advantage of procedural generation techniques,
+	the size of 3D content can be reduced significantly, thereby speeding its transmission over the Internet.
+	Instead of multi-megabyte models and textures, these assets can be reduced to re-sculpting instructions
+	that refine low-fidelity assets into realistic scenes. 
+	For example, Catmull-Clark subdivision usefully transforms simple geometric shape into a complex model with smooth curves. 
+	Other techniques, such as extrusion, lathes, and random noise generators, offer similar promise.</p>
+	
+	<p><b>So the 3D Web is just for games?</b></p>
+	<p>No.
+	As 3D content becomes progressively easier and less expensive to create, its use will rapidly diversify.
+	Imagine the possibilities: architectural and landscape designs, medical imagery, 
+	virtual museums, real and imaginary time and place travel adventures, static and animated 3D art and entertainment,
+	online shopping with more realistic, customizeable products viewable from all angles,
+	virtual communities, online training and education, etc.</p>
+	
+	<p><b>Hasn't this been done already?</b></p>
+	<p>Yes. It has been attempted several times before:</p>
+	<ul>
+	<li><a href="https://en.wikipedia.org/wiki/VRML">Virtual Reality Markup Language (VRML)</a> (1994).
+	It never took off. Static, low-fi content is 
+	<a href="https://www.google.com.au/search?q=vrml+examples&tbm=isch">not very attractive</a>.</li>
+	<li><a href="https://en.wikipedia.org/wiki/X3D">X3D</a> (2004).
+	It never took off, though it featured better integration with HTML, Javascript, and eventually WebGL.
+	It still <a href="http://www.web3d.org/x3d/content/examples/Basic/">lacks pizzazz</a>.</li>
+	<li><a href="https://en.wikipedia.org/wiki/WebGL">WebGL</a> (2006).
+	This thin layer to OpenGL has been more successful.
+	It looks much better: consider this 
+	<a href="http://madebyevan.com/webgl-water/">water simulation</a> or this
+	<a href="http://reath.free.fr/HDR/test.html">train island</a> (warning, it takes forever to load!).
+	WebGL is solid, but accessing it via Javascript is not, due to performance and language deficiencies.
+	Using Javascript to create engaging worlds featuring rich landscapes and complex interactions 
+	between many parts and multiple users is hard to accomplish. 
+	A scan of <a href="https://experiments.withgoogle.com/chrome?tag=WebGL">WebGL/JS showcase sites</a> 
+	shows how limited their offerings still are, ten years later.</li>
+	<li><a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a> (2016).
+	WebAssembly does more than free the Internet from Javascript,
+	it offers the promise of a high-performance execution platform for 3D.
+	Working in harmony with WebGL, we can hopefully do much better than this
+	<a href="http://webassembly.org/demo/">Unity game ported to WebAssembly</a>.
+	This technology is still too new for us to know for sure.</li>
+	</ul>
+	
+	<p><b>So, the 3D Web is just WebAssembly and WebGL?</b></p>
+	<p>No. Those low-level technologies are not enough.
+	We need a language that makes it easy to snap together 3D objects like Lego pieces to build worlds.
+	When building websites, we use HTML (content) and Javascript (behavior).
+	Similarly, 3D worlds are built using the <b>Cone</b> programming language, 
+	which marries 3D content and behavior together in a single language.</p>
+	<p>Cone is a static, compiled language that offers a performance profile competitive with C and C++.
+	However, its rich, modular content-handling features,
+	procedural generation capability, and native Unicode and URL/resource support
+	make Cone much better suited for 3D.
+	Specifying static content is like filling out an outline. 
+	World parts are modular URL resources, snapped together like toy bricks. 
+	Complex behaviors can be facilitated in simple ways using various built-in rules engines.</p>
+	<p>Cone also offers many other improvements over C/C++: compile-time safety, 
+	built-in high-level language constructs (concurrency, interfaces, sum types, closures, managed iterators, 
+	slices, pattern matching, multiple return values, etc.) 
+	and syntax conveniences (control clauses, 'this' operators, operator overloading, implicit return, parallel assignment, offside rule, etc.).
+	<p>3D worlds are built using Cone programs and other assets. 
+	The Cone programs are compiled to WebAssembly's binary format and stored with other assets on the world's server,
+	ready to be rendered using any popular browser.</p>
+	
+	<p><b>Where does Pegasus3D fit in?</b></p>
+	<p>In addition to Cone, we also need a rich library of factories for creating world parts.
+	Much as Cone provides a convenient high-level layer for WebAssembly,
+	Pegasus is a high-level layer that enriches use of WebGL, input and network devices.
+	Think of this as the Document Object Model (DOM) for 3D worlds.
+	Pegasus offers built-in support for features typically found in 3D engines: 
+	motion and collision physics, physically-based rendering (realistic lighting), 
+	skeletal animation, event triggers and storyboards, HUDs and user input handling, 
+	networking support for multiple visitors to the same world, and so on.</p>
+	
+	<p><b>Can't I just use existing tools like Unity, Unreal or Godot instead?</b></p>
+	<p>Of course, once they make it easy to port 3D content to WebAssembly.
+	There are many advantages for using these tools, as demonstrated by the quality of the games
+	they have built.
+	If you have an itch to build a top-selling AAA game, go invest heavily in a professional game engine and staff. 
+	Pegasus3d is not for you.</p>
+	<p>The challenge is these tools were built for a dedicated gaming platform, 
+	where assets and the engine are huge, local and insular.
+	Their architecture is not so well suited to the performance and size constraints of web delivery,
+	leading to long load times, and greater inconvenience supporting
+	procedural generation and staged, background streaming of content.
+	Furthermore, these engines do not support hyperlinked portals between worlds
+	nor modular, cross-domain hyperlinks to sharable content, as you would expect from
+	the open-access Internet.</p>
+	<p>In addition, Cone and Pegasus are free and open-source.
+	So, if you have a limited budget and some grit and ingenuity, 
+	Pegasus3d offers a great way to home-brew and distribute not only your own game, 
+	but many other kinds of immersive, interactive, engaging worlds.</p>
+</div>
+
+</body>
+</html>

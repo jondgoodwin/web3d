@@ -1,0 +1,55 @@
+<html>
+  <head>
+	  <title>Range - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Range (type)</div>
+		</div>
+
+    <div class="text">
+
+		<p>The <b>Range</b> type holds a 'from', 'to' and 'step' value, such that one can iterate
+		from 'from' to 'to' by steps of 'step'. Negative step values may be provided for integers and floats.</p>
+		<p>The '..' operator may be used as a shortcut for specifying a new Range.</p>
+<pre>
+# The space before .. prevents confusing 1 with the Float 1.
+1 .. 4        # equivalent to: +Range(1,4)
+1 .. 5 .. 2   # equivalent to: +Range(1,5,2)
+</pre>
+		<p>Ranges are useful for 'each' loops and interval matches.
+		Range works on any type of value, so long as it implements these two methods:
+		.Incr(step) for incrementing the value and .'<=>'(to) for comparing two values of that type.</p>
+		
+		<h3>Class Methods <i>(see <a href="type.html">Type</a></i>)</h3>
+		<dl>
+		<dt>New</dt>
+		<dd>(from, to, step) Creates a new Range. 
+		The default for an unspecified 'step' is 1 (when 'from' is an Integer),
+		1.0 (when 'from' is a Float), and null otherwise.</dd>
+		</dl>
+
+		<h3>Traits</h3>
+		<dl>
+		<dt>~~</dt>
+		<dd>Returns true if the matched value is of the proper type and the value is between 'from' and 'to' inclusive.
+		Otherwise, it returns false.</dd>
+		<dt>Each</dt>
+		<dd>Creates an iterator (closure) through the range of values.
+		Every call of the closure will return two values: either true and the iterated value
+		or else null, null if the iterated value exceeds 'to'.
+		Assigning a value to the closure resets the current value of the iterator.</dd>
+		<dt>from</dt>
+		<dd>Get or set this range's 'from' value.</dd>
+		<dt>step</dt>
+		<dd>Get or set this range's 'step' value.</dd>
+		<dt>to</dt>
+		<dd>Get or set this range's 'to' value.</dd>
+		</dl>
+	</div>
+	</body>
+</html>

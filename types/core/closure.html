@@ -1,0 +1,42 @@
+<html>
+  <head>
+	  <title>Closure - Acorn Core Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Closure type</div>
+		</div>
+
+    <div class="text">
+
+		<p>A <b>closure</b> is a stateful procedure which receives some values, does some work using those value,
+		and returns one or more values. New closures are typically defined either by compiling an Acorn source program
+		or from loading a shared library containing types defined using the C API.</p>
+		
+		<h3>Class Properties <i>(see Type)</i></h3>
+		<dl>
+		<dt>New</dt> 
+		<dd>[getmeth, setmeth, var1, var2, ...] -> closure
+		<p>Create a new closure, establishing the two methods and the initial values for closure variables</p>
+		</dd>
+		</dl>
+		
+		<h3>Traits</h3>
+		<dl>
+		<dt>[]</dt> 
+		<dd>[...] -> values
+		<p>Get or set the values of the closure's state (closure variables).</p></dd>
+		<dt>getmethod</dt>
+		<dd>Get or set the 'get' method for the closure</dd>
+		<dt>setmethod</dt>
+		<dd>Get or set the 'set' method for the closure</dd>
+		<dt>size</dt>
+		<dd>Get the number of values in the closure's state</dd>
+		</dl>
+	</div>
+	</body>
+</html>

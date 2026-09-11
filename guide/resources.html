@@ -1,0 +1,130 @@
+<html>
+  <head>
+	  <title>Acorn Resources</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Be Resourceful</div>
+		</div>
+
+    <div class="text">
+		<p>Most 3-D worlds are complex, rich with many parts. The information needed to render and animate a scene
+		is best organized across many files, each providing valuable detail about one aspect of the scene, such
+		as the geometry of a castle, the colorful design of a flag, or the complex animation of dragon fire.</p>
+		<p>Acorn calls each file a resource.
+		Each resource's location is specified using a uniform resource locator (or URL),
+		a schema that delivers on the Web3D vision of Internet-delivered 3-D worlds.
+		When loaded, a resource always results in a part.</p>
+		<p>To make sense of this concept,
+		let's explore several common resource scenarios, beginning with entering a new world.</p>
+
+		<h2>A Brave New World</h2>
+		<p>Entering a new world is as easy as visiting a website. You specify its address, for example:
+		<span class="pre">//w3d.futureworld.com</span>.
+		The 3-D browser knows this is shorthand for <span class="pre">http://w3d.futureworld.com/world.acn</span>.</p>
+		<p>A world located on a local storage device might have the Url:
+		<span class="pre">file://c/user/public/worlds/futureworld</span> 
+		(<span class="pre">/world.acn</span> is assumed to follow).</p>
+		<p>As you see, the default resource name for any world is world.acn. 
+		The .acn extension means the resource is an Acorn program.</p>
+		<p>The world.acn program defines the World part. For example:</p>
+<pre>
+#
+#  Future World. (c) Magic Immersion, Inc.
+#
+World[
+	# Specify the entry scene
+	entry: @xanadu/xan_scene.acn
+
+	# lots more stuff that sets up the world
+	# ...
+</pre>
+		<p>The Web3D browser loads and executes this Acorn program.
+		The World part it defines will be returned and assigned by the browser to 
+		the global variable <span class="pre">$</span>, which represents the current world.</p>
+		<p>The browser then initializes the world's rules, such as the physics of how things move and collide, 
+		and how explorers interact with it.
+		Details on how the World Part works are explained in helpful depth in the
+		<a href="wom.jondgoodwin.com">World Object Model</a>.</p>
+		<p>For this chapter, let's focus on the 'entry' attribute,
+		which specifies the scene to render for any explorer that enters the world.</p>
+		
+		<h2>Setting the Stage</h2>
+		<p>Acorn uses the at sign (@) to specify a resource that needs to be loaded. 
+		In this case, 'xanadu/xan_scene.acn' is a relative Url pointing to the Xanadu scene resource.
+		It is a relative Url, because its actual location is relative to the Url of the resource requesting it.
+		That means its complete Url is: "http://w3d.futureworld.com/xanadu/xan_scene.acn".</p>
+		<p>xan_scene.acn is another Acorn program, which might look like this:</p>
+<pre>
+# Xanadu: The Paradise Island
+Scene[
+	name: 'Xanadu'
+
+	# The scene's parts:
+	@terrain.acn                    # the island land and sea
+	@sky.acn
+	@frosty.acn
+	@clocktower.acn                 # the clock tower
+	@//fantanimals.com/dragon.acn   # another site's dragon creature
+</pre>
+		<p>This is generally how resources are progressively loaded.
+		The world program is a skeletal framework that establishes generic world information and 
+		"points" to the location and name of a specific scene resource to load.
+		The scene resource specifies all of its parts, each with its own Url address.
+		Scene parts may specify the parts they own, and so on, going as deep as necessary.
+		Acorn loads all these resources and properly stitches them together.</p>
+		<p>A world's resources do not have to all be found on the same site.
+		The scene's dragon creature demonstrates the flexibility in using Urls to load resources,
+		as this part is owned (and managed) by a completely different organization (Fantanimals)
+		which creates and makes available fantastical beast for use in other worlds.</p>
+		<p>Although most parts are Acorn program, they do not have to be.
+		For example, the clock tower part could be an Entity which specifies its 3-D shape (the mesh)
+		and texture skin (material). Neither of these two part resources are Acorn programs.</p>
+<pre>
+Entity[
+	name: 'Clock Tower'
+	at:   Tm[1504., 884.5, 10.45]
+	mesh: @clocktower.mesh
+	skin: @clocktower.mat
+</pre>
+		
+		<h2>Type Resources</h2>
+		<p>Let's imagine the scene also includes many trees of different sizes and species. 
+		We want trees that can bend and blow in the wind, a type of part that
+		"Trees Unlimited" licenses for use. Our scene would first need to load up the 
+		type definition for Tree. Then it could use the type to add trees to the scene:</p>
+<pre>
+require
+	Tree = @treesunlimited.com/Tree.acn
+
+Scene[
+	Tree[type: oak; age: 2; at: Tm[15,20,10]]
+	Tree[type: elm; age: 5; at: Tm[104,22,8]]
+	# lots more trees here, along with the castle, statue and tower.
+</pre>
+		<p>The use of the <span class="pre">require</span> block is pretty important here, 
+		due to how resource loading works. In general, when a resource is being loaded from a Url,
+		Acorn may return a "blank" value at first, replacing it with the loaded part once the resource
+		has been fully loaded (which might take a while).</p>
+		<p>For some parts, this may not be a significant problem as the not-yet-loaded parts
+		are simply not rendered or active. However, a type resource needs to be fully loaded before the
+		rest of the scene code is executed, so that the creation of Trees actually works.</p>
+	
+		<h2>Conclusion</h2>
+		<p>Although it is not necessary for every part to be a separate resource, 
+		this part-based modularity can be very convenient for maintaining an evolving, growing world.</p>
+		<p>Although Acorn is well-suited for defining static 3-D content,
+		a content-based standard for 3-D risks limiting ourselves to creating view-only worlds.
+		To make our 3-D worlds "sticky", we need to set them in motion and make them compulsively interactive.
+		To accomplish that, let's explore Acorn's procedural capabilities which bring static content to life.</p>
+		
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="expression.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</div>
+	</body>
+</html>

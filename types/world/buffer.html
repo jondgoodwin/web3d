@@ -1,0 +1,46 @@
+<html>
+  <head>
+	  <title>Buffer Type</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="../standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">World</div></a>
+			<div id="sub">Buffer Type</div>
+		</div>
+
+    <div class="text">
+
+	<p><b>Buffer</b> contains a collection of numbers, all of the same type.
+	Typically, these hold a Shape's vertex information, such as position (Xyz) or color.
+	For example:</p>
+<pre>
+position: +Buffer(Xyz, 20)
+	1.0, 0.0, 2.5
+	2.0, 0.4, 2.4 # ...
+</pre>
+		
+		<h2>Class Properties <i>(see Type)</i></h2>
+		<dl>
+		<dt>New</dt>
+		<dd>(itemType, size)-> buffer.  
+		Create a new buffer containing space for <i>size</i> items of itemType (e.g., Xyz).
+		<p>The itemType should be the class constructor for that type.
+		itemType's instance type must have the .itemcount and .varspace properties.
+		</dd>
+		<dt>_newtype</dt>
+		<dd>-> mixin.
+		The type used by buffer instances.</dd>
+		</dl>
+
+		<h2>Instance Properties</h2>
+		<dl>
+		<dt>&lt;&lt;</dt>
+		<dd>(value)-> self.  
+		Append a single value or item of the declared type. If needed, this will grow the size of the buffer.</dd>
+		</dl>
+	</div>
+	</body>
+</html>

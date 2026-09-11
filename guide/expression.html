@@ -1,0 +1,359 @@
+<html>
+  <head>
+	  <title>Acorn Expressions</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">That's Just an Expression</div>
+		</div>
+
+    <div class="text">
+		<p>In the previous chapters, we have shown how literal values within resources
+		can be assembled to form static content for a 3-D world.
+		In this chapter, we break the straight-jacket of static content, 
+		by showing how to use dynamically calculated expressions in the place of literal values.</p>
+		<p>Essentially, an expression is an organized sequence of operations which result in a value.
+		Expressions make use of a broad range of capabilities:
+		variables, assignment, methods, members, and operators.
+		Each of these are explained in this chapter.</p>
+
+		<h2>Variables and Assignment</h2>
+		<p>Let's start by talking about how to store and retrieve values using variables.</p>
+
+		<h3>Variable Names</h3>
+		<p>A variable is a named identifier used to store and retrieve a single value of any type.
+		In effect, a variable name is like a claim ticket you get when checking in your baggage;
+		hand in the ticket (variable) and you get back your baggage (value).
+		It is a way to have Acorn remember a value and then get that value back later when you need it.</p>
+		<p>A variable name starts with a letter, underscore or dollar sign.
+		The rest of the variable name can include numbers as well as letters, underscores, and dollar signs.
+		<span class="pre">a21</span>, <span class="pre">first</span>, <span class="pre">Animal</span>, 
+		<span class="pre">_private_var</span>, <span class="pre">camelCase</span> and <span class="pre">$</span>
+		are all valid variable names.</p>
+		<p><b>Warning:</b> Acorn <a href="reftoken.html#reserved">reserves several identifiers</a> 
+		(e.g., <span class="pre">if</span> or <span class="pre">true</span>) for specific language features. 
+		These cannot be used as variable names.</p>
+		
+		<h3>Assignment</h3>
+		<p>The assignment operator '=' is used to store a value into a variable. 
+		The right side is an expression, which is evaluated to a value, then stored into the variable on the left:</p>
+<pre>
+pi = 3.15159  # stores the value of pi into a variable named pi
+x = pi        # the value of a pi is retrieved and stored into the variable named x
+
+x = pi = 3.14159   # Equivalent to above, since assignment expressions return a value
+x = 1.618          # The value in a variable can be changed as often as desired
+
+# Create a indexed look-up for scientific constants
+constants = Index[
+	pi: pi    # equivalent to the property 'pi': 3.14159
+	e:  2.71828
+</pre>
+		<p>The last example shows that a variables can just as easily store a collection, such as an Index.
+		So, you could create a 3-D snowman, and assign that part value to a variable named frosty.
+		Later on, you might use the variable frosty to make changes to the 3-D snowman (maybe by telling
+		him to walk across the street). All changes will be visible to anyone else looking at frosty's value.</p>
+
+		<h3>Multi-value assignments</h3>
+		<p>As a convenient shortcut, the assignment operator supports the assignment of multiple, 
+		comma-separated values at one time.
+		All values on the right are evaluated before storing them into the variables on the left.</p>
+<pre>
+a,b = b,a   # swaps the values of a and b
+a,b = 3     # a is 3, b is null
+c = a,b     # changes c. b is evaluated but not assigned to anything
+</pre>
+
+		<h3>Global vs. Local variables</h3>
+		<p>Acorn supports two very different types of variables:</p>
+		<ul>
+		<li>A <b>global</b> variable begins with either a capital letter or a '$'.
+		A global variable's value may be accessed or changed by any program.
+		Type names are typically global, so they are capitalized (e.g., Integer).
+		<a href="env.html">Environment values</a> (such as the current world <span class="pre">$</span>) 
+		are global variables that begin with the '$'. Global variables persist forever.</li>
+		<li>A <b>local</b> variable begins with a lower-case letter or a '_'.
+		Local variables are private, only usable within the code they are part of 
+		(explained more fully in chapter describing <a href="methods.html">Methods and Functions</a>.
+		Space for local variables are allocated and destroyed each time the method or function is called.</li>
+		</ul>
+		<p>In general, it is better to use lower-case local variables which perform faster and make less messy code
+		(unless, of course, global access to the value is needed).
+		Using local variables reduces the risk of variable collision with other parts of the Acorn code
+		(which might use the same variable name for a very different purpose).</p>
+
+		<h2>Methods</h2>
+		<p>Methods are the workhorses of Acorn, the engine for getting stuff done.
+		Pretty much everything that is done with a value is done using methods.</p>
+		<p>Every type has its own methods for manipulating values of that type.
+		The <a href="types/index.html">Types</a> appendix lists and describes all methods for each type.</p>
+		<p>A method is invoked by placing a period between the value and a method name..
+		Comma-separated parameter values, if any, follow the method name.</p>
+<pre>
+2.0.sqrt           # returns 1.4142135, the square root of 2
+"Expression".size  # returns 10
+List[12, 2].size   # returns 2
+</pre>
+		<p>In those examples, the .size method is applied to both a Text and List value.
+		Although the concept is the same (to return how many members are in a collection), 
+		each type implements its method in its own way. 
+		Duplicate use of method names is common across types.
+		<p>Methods can be chained together in arbitrarily long sequences,
+		and are performed in left-to-right order. For example,</p>
+<pre>
+-4.0.abs.sqrt      # returns 2.0
+</pre>
+		<p><b>Note</b> A method name may look like a variable, 
+		but actually it is an implied symbol (due to the preceding period).
+		To use a non-alphabetic method, put single quotes around it.
+		To use a method  name calculated using an expression,
+		enclose it in parentheses after the period:</p>
+<pre>
+# Another example of duplicate use of a method name
+3.'+' 4     # The '+' method applied to integers adds them, resulting in 7
+add = '+'   # Put the method name (a symbol) into a variable
+"He".(add) "llo"    # Applying the '+' method concatenates texts into "Hello"
+</pre>
+		<p>Hopefully, you are about to complain about this cumbersome way of doing addition.
+		Surely, Acorn allows you to say "3+4" without the dot and quotes? Surely?</p>
+		<p>Why yes ... yes it does. Phew!</p>
+		
+		<h2>Arithmetic Operators</h2>
+		<p>What a lovely way to transition into the rest of this chapter,
+		where we discuss several common methods and a tidier notation for using them. 
+		We begin with arithmetic.</p>
+		<p>Acorn offers several arithmetic operators: 
+		add (+), subtract (-), multiply (*), divide (/), modulo (%) and power (**).
+		The negative operator (-) is also supported.</p>
+		<p>In general, calculations are performed from left-to-right. 
+		However, power operations are calculated first, then multiply or divide, and then finally add and subtract.
+		Parentheses can be used to override the order for performing the operations.</p>
+<pre>
+-2 + 3*4            # Returns 10 (spaces may be sprinkled in to improve readability)
+-(2+3)*4            # Returns -20 (shows use of parentheses)
+a = 2.6 + 3.*4.**2. # Stores 50.6 into a (assignment is done after calculations)
+</pre>
+
+		<h3>Add and Subtract Assignment</h3>
+		<p>As another nice shortcut, Acorn also offers two operators that are a nice hybrid
+		arithmetic and assignment: 
+		<span class="pre">+=</span> and <span class="pre">-=</span>. For numbers, these are a useful way to increase
+		or decrease an existing value by a certain amount:</p>
+<pre>
+val = 7
+val += 4   # val is now 11
+val -= 1   # val is now 10
+</pre>
+		
+		<h3>Non-numeric Arithmetic</h3>
+		<p>So, what happens if we try to use the arithmetic operators on values that are not numbers?
+		Conceptually, they are meaningful when applied to quasi-numeric values, 
+		such as numeric matrices, Xyz coordinates, or Colors. 
+		Some of the operators are meaningful when applied to collections.</p>
+		<p>In practice, the result depends entirely on whether the value's type 
+		implements the operator's underlying method:</p>
+<pre>
+a = List[1; 2]
+b = List[1; 4]
+c = a+b          # List[1;2;1;4] (+ is concatenation for collections)
+d = c-List[1]    # List[2;4] (- removes matching members)
+</pre>
+		<p>The add and subtract assignment operators also work on collections, making them a
+		great way to add or subtract members from a collection. If desired, the right hand
+		can be just a [] collection of members (the type does not need to be specified).</p>
+<pre>
+a += [1; 4]      # Adds two members to a. a now looks like c (above).
+a -= [1]         # Looks like d (above)
+</pre>
+		<p>For an Index or Part, if the member being deleted is a symbol, it deletes the attribute
+		whose key is that symbol.</p>
+<pre>
+frosty = Part[
+	age: 2
+frosty -= 'age'  # frosty's age is now unknown
+</pre>
+		<p>If a type does not support the arithmetic operator, null is returned.</p>
+<pre>
+e = c**2.0       # returns null, since collections do not implement '**'
+</pre>
+		<p>The last example shows that Acorn uses the type of the value to the left of the operator
+		to determine which method to use. Order matters:</p>
+<pre>
+"-" * 5      # returns "-----", using the Text '*' method
+5 * "-"      # returns null, since the Integer '*' method cannot handle a Text value
+</pre>
+
+		<h3>Type Conversion</h3>
+		<p>If two values are of different types, will Acorn automatically convert
+		the second value to match the first value's type? 
+		As a general rule, no, as many methods want parameter values of a different type.
+		However, some methods will perform a limited form of type conversion. 
+		For example, the arithmetic operators will do this between integers and floats
+		with the type of operator calculation determined by the value on the left:</p>
+<pre>
+4.5 * 2       # 9.0 (2 is converted to 2.0)
+# Use decimal points in floats to ensure the expected result...
+2 * 4.5       # 8 (4.5 is converted to 4)
+5 / 2         # Returns the Integer 2
+2 + 4.1       # Returns 6. Since 2 is an integer, 4.1 is converted to the Integer 4
+2.0 + 4**2.5  # Returns 18.0
+</pre>
+		<p>If type conversion is explicitly desired, the standard way to request it 
+		(where supported by the originating type) is to use a 
+		method whose name is the same as the desired type, for example:</p>
+<pre>
+2.0.Integer  # converts the Float number 2.0 to the Integer 2
+2..sqrt.Text # "1.4142135"
+</pre>
+
+		<h3>Uh-Oh! To Infinity and Beyond!</h3>
+		<p>As already mentioned, integers and floats have built-in precision limits.
+		Multiply two gigantic numbers and you will blow past those limits.
+		Acorn won't warn you. 
+		Instead, it will calculate a really strange number that you would never expect.</p>
+		<p>So, be careful with your calculations and perhaps do appropriate tests ahead of time
+		to check whether you are getting too close to those limits.
+		If you are not sufficiently careful with your math, 
+		your 3-D scenes may exhibit some truly bizarre behaviors!</p>
+		<p>Floats do offer in interesting safeguard, should you decide to divide a number 
+		by zero or take the square-root of a negative number.
+		The result is still a Float, but no longer looks like a number:</p>
+<pre>
+-1.0/0.0        # Division by zero, result is -Float::Infinity
+0.0.sqrt        # Imaginary number i, result is Float::NaN
+</pre>
+		<p>Infinity and not-a-number can be used in 
+		<a href="http://www.gnu.org/software/libc/manual/html_node/Infinity-and-NaN.html">further calculations</a>,
+		but the results are rarely useful for 3-D situations.</p>
+
+		<h2>Comparison and Boolean Operators</h2>
+		<p>Acorn also provides operators for comparing values and for boolean logic.
+		Let's delay talking about these until a later <a href="flow.html">chapter</a> on control flow decisions,
+		where those operators are mostly commonly used.</p>
+
+		<h2>Collection Selector</h2>
+		<p>Let's talk now about a very different type of operator,
+		used to access members of a collection.
+		When you put a selector value within parentheses right after a collection value,
+		you can work with the selected member(s) of that collection. 
+		How this work depends on the type of the selector.</p>
+
+		<h3>Integer Selector</h3>
+		<p>To retrieve a value from an ordered collection, such as a Text, List or Part, 
+		use an integer to represent its position in the collection (where 0 is the first member).
+		Use negative numbers to count backwards from the end (with -1 being the last member:</p>
+<pre>
+mix = List[23; "Hello", true]
+mbr = mix(1)   # "Hello", the second member of the list
+mbr(-1)        # Returns the Text value of "o", the last character in "Hello"
+mbr(6)         # Returns null, as there is no 7th character
+</pre>
+		<p>Used on the left side of an assignment, integer indexing will alter that member of the collection:</p> 
+<pre>
+item(-1) = "e"  # item now has the value "Helle"
+</pre>
+
+		<h3>Range Selector</h3>
+		<p>Use of a Range value, instead of an integer, will access all the indexed members in that range:</p>
+<pre>
+item(0..-2)     # Returns "Hell"
+item(1,-2)="op" # Stores "Hope" in item
+</pre>
+
+		<h3>Symbol Selector</h3>
+		<p>Using a symbol index accesses the value of a property within an Index or Part value:</p>
+<pre>
+tree = Part[
+	age: 4
+	species: 'oak'
+tree('age')    # Returns the value 4
+</pre>
+		<p>Acorn provides the member operator (double colon) as a shortcut whenever the symbol selector
+		is an alphabetic literal:</p>
+<pre>
+tree::age      # An alternative to above, also returning 4
+tree::age = 5  # Resets the tree's age to 5
+tree::x        # returns null, as there is no 'x' property
+tree::name = "Big Brother"   # Adds the new 'name' property to tree
+tree::species = 'oak'  # changes the species
+tree::color            # null, because the tree does not have a color property
+tree::age = null       # A null value deletes a property. The age is now unknown.</pre>
+		<p>The member operator is similarly useful for accessing type-specific constants 
+		(generally capitalized) or functions:</p>
+<pre>
+Float::Pi       # returns the float value 3.14159
+Float::rand     # returns a random number between 0.0 and 1.0
+</pre>
+
+		<h3>Pattern Selector</h3>
+		<p>Using a pattern (such as a Regex or Selector) as an index retrieves the members that
+		match the pattern. These are discussed later.</p>
+
+		<h2>Assembling Expressions</h2>
+		<p>Early on, we said an expression is an organized sequence of operations which result in a value.
+		Then we dug into the details of several techniques for building expressions:
+		variables, assignment, methods, arithmetic operators and collection selectors.
+		These are flexible building blocks, which can be assembled in so many myriad ways, 
+		both simple and complex, whatever is needed to get the solve the problem at hand.
+		So many combinations are possible.</p>
+		<p>For example, an assignment is itself an expression that returns a value. 
+		Thus, it can be embedded into another expression.</p>
+<pre>
+area = 3.141592 * (r=4.1)*r     # Sets the radius, then calculates the area of a circle
+</pre>
+		<p>Even though we have not yet talked about collection iterators,
+		The tools presented so far are very useful for managing collections:</p>
+<pre>
+prompts = List[]         # Creates an empty list
+prompts.empty?           # this list method returns true
+prompts += [
+	"Who are you?"
+	"How old are you?"
+	"Why are you here?"
+prompts(0) = "Who r u?"  # Changes the first prompt
+prompts.empty?           # returns false now
+prompts -= prompts(1)    # Deletes the 2nd element: "How old are you?"
+</pre>
+
+
+		<h2>Conclusion: Creating Dynamic Content</h2>
+		<p>At the beginning of this chapter, we talked about moving beyond static content.
+		Expressions allows us to create dynamic 3-D content
+		whose properties and parts can be calculated based on other values and parts.</p>
+		<p>The original scene in the second chapter was built entirely with literal values.
+		Any time we want, we can use expressions in place of literal values.
+		Here are a few examples:</p>
+<pre>
+# A range
+from,sz = 4,3
+from..(from+sz)     # A range built from two variables, same as 4..7
+
+# Properties
+prop,val = 'password','twink28'
+(prop): val         # Same as: password: twink28
+force: obj::mass*a  # force property is a calculated value
+
+# Escape allows an expression inside a text or symbol
+# prompt becomes "I have a question: Why are you here?"	
+prompt = "I have a question: \(prompts(1))"
+
+@(myhouse)          # A resource whose Url is stored in a variable
+
+tree::pos += Xyz(10, 0, 0)  # Moves the tree
+
+# Parts
+scene += [
+	Frosty         # Adds the frosty part to the scene
+</pre>
+		<p>The use of expressions starts the journey towards dynamic content.
+		Now let's look at how to make parts smart.</p>
+
+		<p style="text-align: right; margin-top: 2em;">
+			<a href="methods.html"><img alt="_" src="next.png" /></a>
+		</p>
+	</body>
+</html>

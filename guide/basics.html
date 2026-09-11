@@ -1,0 +1,224 @@
+<html>
+  <head>
+	  <title>Acorn Values, Variables and Expressions</title>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	  <link rel="stylesheet" type="text/css" href="standard.css" />
+	</head>
+  <body>
+		<div id="header">
+			<a href="/"><div id="title">Acorn</div></a>
+			<div id="sub">Values, Variables and Expressions</div>
+		</div>
+
+    <div class="text">
+		<h2>Values and Types</h3>
+		<p>All data values in Acorn are typed.
+		For example, <span class="pre">1</span> is an Integer, <span class="pre">4.5</span> is a Float, 
+		and <span class="pre">"Hello"</span> is Text.</p>
+		<p>A value's type may be either one of Acorn's <a href="types/index.html">built-in types</a>
+		(described in subsequent chapters) or a new type defined using
+		<a href="types.html">Acorn</a> or <a href="extension.html">C</a> code.
+		Values with code-defined types are manipulated using the same Acorn features as built-in types.
+		
+		<h2>Variables</h2>
+		<p>A variable is a named identifier which holds a single value of any type.
+		Thus, the variable <span class="pre">color</span> could be given the Text value "red", 
+		then later be changed to the value "green".</p>
+		<p>A variable name starts with a letter, underscore or dollar sign.
+		The rest of the variable name can include numbers as well as letters, underscores, and dollar signs.
+		<span class="pre">a21</span>, <span class="pre">first</span>, <span class="pre">First</span>, 
+		<span class="pre">_private_var</span>, <span class="pre">camelCase</span> and <span class="pre">$</span>
+		are all valid variable names.</p>
+		<p>Any variable name that starts with an uppercase letter or dollar sign is a <b>global</b> variable. 
+		A global variable's value can be viewed or changed by any program.
+		By convention, global variables starting with an uppercase letter are Acorn types
+		(for example, <a href="types/index.html">Acorn's built-in types</a>).
+		The global variables starting with $ are for other global data, 
+		including <a href="env.html">environment values</a> provided by Acorn, such as
+		<span class="pre">$</span> (the current scene) 
+		and <span class="pre">$$</span> (the current environment).</p>
+		<p>If a variable name starts with a lowercase letter or underscore, it is a <b>local</b> variable.
+		A local variable's value can only be viewed and changed by the function where its value has been set. 
+		Any other function that uses the same variable name will have its own distinct value.</p>
+		<p>Unless a variable needs to be accessed by many functions, 
+		it is better to make the variable local, as it improves performance and 
+		reduces the likelihood of code problems.</p>
+		<p><b>Note:</b> Acorn <a href="reftoken.html#reserved">reserves several identifiers</a> for special purposes. 
+		These cannot be used as variable names.</p>
+
+		<h2>Methods</h2>
+		<p>A value's type establishes both its possible values and the ways that value can be manipulated.
+		Each specific way that a value can be manipulated is called a method.
+		Each method uses the original value to calculate (in a very specific manner)
+		a new value (of any type) which is returned by the method.</p>
+		<p>Method names typically look like variable names, but do not act like them. 
+		Acorn can tell the difference between them, as methods are preceded by 
+		a value and a period. To specify a method name that would not be permissible as
+		a variable name (e.g., one that uses unusual punctuation characters), put single quotes around it.</p>
+		<p>The methods that can be applied to a value are established by that value's type
+		(and are therefore listed and described in the descriptive information about each 
+		<a href="types/index.html">type</a>).
+		Different types can have identically-named methods that do similar, but technically 
+		different things.
+		For example, the size method can be applied to any Text value,
+		returning back a count of its characters. Thus, 'abc'.size returns the Integer value of 3.
+		The size method on a list counts the number of its elements.</p>
+		<p>Here are some other examples (the '#' indicates that what follows is a comment which
+		describes what the line of code accomplishes):</p>
+<pre>
+2.0.sqrt               # returns the square root of 2: 1.4142135
+'abc'.reverse          # returns the value 'cba'
+'The End'.split(' ')   # returns a List ['The', 'End']
+</pre>
+		<p>In the last example, notice that additional information was provided to the split
+		method in parentheses (which are optional in most cases). When 
+		providing multiple parameters to a method, separate them with commas.</p>
+		<p>Methods can be chained together in arbitrarily long sequences,
+		and are performed in left-to-right order:</p>
+<pre>
+'abc'.reverse.size     # returns 3
+</pre>
+		
+		<h2>Type Conversion</h2>
+		<p>In general, Acorn does not automatically convert values from one type to another.
+		However, some methods may automatically perform type conversions in certain situations.</p>
+		<p>If type conversion is explicitly desired, the typical way to do that 
+		(where supported by the originating type) is to use a 
+		method whose name is the same as the desired type.</p>
+		<p>For example:</p>
+<pre>
+2.0.Integer  # converts the floating point number 2.0 to the integer 2
+"2.34".Float # returns the floating point number 2.34
+</pre>
+
+		<h2>Operators</h2>
+		<p>Acorn provides a more convenient way to invoke certain common methods
+		using punctuation-based operators. Many of these operators look
+		(and, for numbers, act) like operators used in arithmetic expressions (such as '+', '-', '*' and '/').
+		Using these operators makes code more concise and easier to read 
+		than using the equivalent method (compare <i>x+1</i> to <i>x.'+' 1</i>).</p>
+		<p>There are several flavors of operators. 
+		<b>Binary</b> operators, which require two values, are the most common.
+		As shown above, a binary operator is placed between the two values being operated on.
+		Under the covers, Acorn uses the method with the same name as the operator.</p>
+		<p>It is important to realize that the left-hand value determines
+		which method's operation is performed on both values.
+		Thus, <i>2.0+4.1</i> yields a different result than <i>2+4.1</i>, as 
+		the first uses the floating point '+' method (giving a result of <i>6.1</i>),
+		while the second uses the Integer '+' method, resulting in the Integer value of <i>6</i>.</p>
+		<p>In this example, the '+' operator invokes a character-oriented method for '+',
+		performing a different kind of calculation:</p>
+<pre>
+'ab'+'cd' # concatenates them to return 'abcd'
+</pre>
+		<p><b>Unary</b> operators are another flavor, operating on just one value.
+		Unary operators are placed before the value. 
+		With the exception of the '-' unary operator, they invoke a method of the same name.
+		The '-' unary operator invokes the '@-' method, to distinguish it from the '-' binary method.</p>
+		<p><b>Note:</b> To make sure that Acorn correctly distinguishes a prefix operator such as as the negative <b>-</b> prefix
+		operator from the minus <b>-</b>, be sure the prefix operator has white space before it,
+		but not between it and its value.</p>
+<pre>
+-2*5 # returns -10
+</pre>
+		<p>More information about these operators and what they do 
+		can be found in the type-specific chapters that follow.</p>
+
+		<h2>Expressions</h2>
+		<p>The features explained so far (values, variables, methods and operators)
+		can be assembled together to form simple or complex expressions.
+		These precedence rules are used to determine the order of evaluating 
+		the expression's operations:</p>
+		<ol>
+		<li>Operations within parentheses are evaluated before those outside</li>
+		
+		<li>Operations are performed in left-to-right order.</li>
+		</ol>
+		<p>Operator precedence and left-to-right arrangements dictate the order in which operations 
+		are performed. The precedence rules are similar to those of arithmetic expressions (e.g., exponents
+		before multiply and divide before addition and subtraction), but more involved due to the 
+		greater number of available operators.
+<pre>
+2+3*4**2 # returns 50
+</pre>
+		<p>In most cases, an expression yields a single value, though it can yield multiple values.</p>
+		
+		<p><b>White Space</b>
+		Except for line indentation and within Text literals, multiple spaces and tabs are treated the same as a single space,
+		and used to separate any token from the next.</p>
+		</ul>
+		
+
+		
+		<h2>Assignment</h2>
+		<p>All operators that end with "=" are assignment operators. 
+		They are used to change a variable's value.</p>
+		<p>To the right of the operator is an expression whose resulting value will be used to change the variable.
+		The left indicates the variable(s) (or part of them) to be altered.
+		The assignment is itself an expression, whose value is the new value of the variable.</p>
+		<p>A straight assignment (using <b>=</b>) just sets a new value.
+		The other assignment operators operate in two steps, performing the appropriate binary operation
+		and then doing a straight assignment.</p>
+<pre>
+area = 3.141592*r*r # area of a circle
+counter += 1 # Adds 1 to counter, then assigns that to counter
+mighty += (expvalu *= 2) # mighty incremented by new value of expvalu
+</pre>
+		<p>Assignment expressions can also have multiple values before or after the assignment operator.
+		All values on the right are evaluated before performing the assignment to the variables on the left.</p>
+<pre>
+a,b = b,a # swaps the values of a and b
+a,b = 3 # a is 3, b is null
+c = a,b # changes c. b is evaluated but not assigned to anything
+</pre>
+		
+				
+		<p>Assignments are part of expressions, and can be embedded deeply in any expression. For straight assignments, 
+		they return whatever values are on the right side of the expression regardless of the left hand terms.</p>
+		
+		<p>Although the right hand consists of an expression that evaluates to one or more values, the left hand side
+		is more restrictive on the terms (no literals) that may be used which are treated differently 
+		than if found on the right hand side:
+		
+		<ul>
+		<li>A local or global <a href="variable.html">variable</a>. 
+		Its stored value is changed to the evaluated value on the right side.
+<pre>
+pi = 3.14159
+Mixup = p,q -> {Flu(p) = q; Flu(q) = p}
+</pre>
+		</li>
+		<li>A <b>call/get.</b> A term followed by a list of parameters. When on the left hand side,
+		this store the right side value into the indexed element (using the .put method, if needed).
+		In effect, the right hand side value(s) is appended to the left side parameters.
+		<p>The part syntax, using ::, can also be employed to similar effect.</p>
+<pre>
+"abc"(2) = "x" # "axc"
+(p,q->{return Storage(p) = q}) 3 = 'a' # Storage(3) is now 'a'
+[:a: 1, :c: 3]::b = 2 # [:a: 1, :b: 2, :c: 3]
+</pre>
+		</li>
+		<li>A <b>method call.</b> A term followed by a period, a member name, and optional parameters.
+		This will search for a method symbol that has an appended '=' (thus: a.b = c looks for a type method
+		for a called "b=". If a function, it is called passing the parameters with the value as an added parameter.
+		If it is a property, the properties value is updated with the right side value.
+		</li>
+		</ul>
+
+		<h3>Multiple value assignments</h3>
+		<p>Can have lists on left and right, improves conciseness and enables swapping of values.</p>
+		<p>TBD on the rules when the nbr in lists disagree</p>
+		
+		<h3>Calculating Assignments</h3>
+		<p>+=, etc. TBD.</p>
+
+		<p>Line formatting is used to make programs more compact and readable. 
+		Rather than require end-of-statement semi-colons (';') and block braces	('{}'), 
+		Acorn uses intuitive line formatting rules to delineate statements and blocks.
+		</p>
+		
+
+		</div>
+	</body>
+</html>
