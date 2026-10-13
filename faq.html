@@ -77,8 +77,7 @@
 	It never took off, though it featured better integration with HTML, Javascript, and eventually WebGL.
 	It still <a href="http://www.web3d.org/x3d/content/examples/Basic/">lacks pizzazz</a>.</li>
 	<li><a href="https://en.wikipedia.org/wiki/WebGL">WebGL</a> (2006).
-	This thin layer over OpenGL offers a lot of promise.
-	WebGL looks much better: consider this 
+	This thin layer over OpenGL looks much better: consider this
 	<a href="http://madebyevan.com/webgl-water/">water simulation</a> or this
 	<a href="http://reath.free.fr/HDR/test.html">train island</a> (warning, it takes forever to load!).
 	WebGL itself is solid, but accessing it via Javascript is not, due to performance and language deficiencies.
@@ -93,7 +92,7 @@
 	</ul>
 	
 	<p><b>So, the 3D Web is just WebAssembly and WebGL?</b></p>
-	<p>No. These technologies are necessary but not sufficient.
+	<p>No. These technologies are still insufficient.
 	For convenience and power, 3D world builders need a higher-level language and rich 3D web libraries.
 	This is what Cone brings to the table, similar to the role HTML and Javascript play for the 2D web.
 	Cone is better suited to 3D web delivery,
@@ -102,7 +101,7 @@
 	and offers a rich, modular collection of 3D world-managing libraries.</p>
 	<p>Cone's 3D libraries provide built-in support for features typically found in 3D engines,
 	making it possible for 3D worlds to: create 3D objects (including procedural generation), 
-	render physically-realistic scenes and heads-up display controls via WebGL, 
+	render physically-realistic scenes and heads-up display controls via the video graphics GPU,
 	oversee particle motion and rendering,
 	calculate motion and collision physics, animate skeletons,
 	handle user input, networking and timer event communications, and so on.</p>
@@ -111,8 +110,8 @@
 	Complex behaviors can be facilitated in simple ways using various built-in rules engines.</p>
 	
 	<p><b>How are Cone 3D worlds delivered via web browsers?</b></p>
-	<p>3D worlds are a combination of Cone programs as well as other assets, such as texture images, sounds, models, etc. 
-	The Cone programs are pre-compiled to WebAssembly's wasm files and stored with other assets on the world's server.
+	<p>3D worlds operate similarly to current web pages: they are represented by a collection of file assets
+	that procedurally describe the shapes, textures, images, animation and interaction rules, etc.
 	When a browser is pointed to the URL for a 3D world, the browser automatically loads all necessary
 	assets (just as it does for the 2D web) and then brings the world to life,
 	ready to interact with each user according to its rules.</p>
