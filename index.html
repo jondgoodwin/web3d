@@ -1,57 +1,250 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="stylesheet" type="text/css" href="standard.css" />
-	<link rel="icon" href="pegicon.png">
-<title>Web3D</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The web, as a place</title>
+<meta name="description" content="Step through a link into a world: lit by a real sun and moon, alive, and there almost as soon as you arrive. Coming soon.">
+<meta property="og:title" content="The web, as a place">
+<meta property="og:description" content="Worlds you step into from a link. Coming soon.">
+<meta property="og:image" content="https://web3d.jondgoodwin.com/img/hero.jpg">
+<link rel="icon" href="mark.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* One night-sky page that scrolls like a film: the hero, the previews, imagine, why it's different, coming soon */
+:root {
+  --sky: #0f1529;          /* the island's sky after dusk */
+  --sky-2: #18213d;
+  --card: #1b2443;
+  --lantern: #f0b45e;      /* the lanterns along the path */
+  --lantern-soft: #f6cf93;
+  --text: #edeef3;
+  --muted: #a5adc2;
+  --rule: #2b3557;
+  --display: "Marcellus", "Cormorant Garamond", Georgia, serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--sky); }
+body { margin: 0; background: var(--sky); color: var(--text); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+a { color: var(--lantern-soft); }
+a:hover { color: var(--lantern); }
+:focus-visible { outline: 2px solid var(--lantern); outline-offset: 3px; }
+img { max-width: 100%; display: block; }
+.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.inner { max-width: 1120px; margin: 0 auto; }
+.label { font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lantern); font-weight: 600; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+
+/* ---- hero ---- */
+.hero { position: relative; min-height: min(92vh, 900px); display: grid; align-items: end; overflow: hidden; }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.hero::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(15,21,41,0.55) 0%, rgba(15,21,41,0) 28%, rgba(15,21,41,0) 50%, rgba(15,21,41,0.92) 100%); }
+.topbar { position: absolute; z-index: 2; top: 0; left: 0; right: 0; padding-top: max(20px, env(safe-area-inset-top, 0px));
+  display: flex; align-items: center; gap: 12px; }
+.topbar img { position: static; width: 40px; height: 40px; border-radius: 9px; }
+.topbar span { font-family: var(--display); font-size: 1.15rem; letter-spacing: 0.06em; }
+.hero-text { position: relative; z-index: 1; padding-block: 0 clamp(40px, 8vh, 88px); display: grid; gap: 18px; max-width: 720px; }
+.hero h1 { font-size: clamp(2.6rem, 7vw, 5.2rem); line-height: 1.02; }
+.hero p.sub { font-size: clamp(1.05rem, 2vw, 1.3rem); color: #dfe2ec; max-width: 34em; }
+.soon { display: inline-flex; align-items: center; gap: 10px; align-self: start; justify-self: start; padding: 10px 18px; border-radius: 999px;
+  border: 1px solid rgba(240,180,94,0.55); color: var(--lantern-soft); font-weight: 500; letter-spacing: 0.04em; background: rgba(15,21,41,0.45); }
+.soon::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lantern); box-shadow: 0 0 12px var(--lantern); }
+
+section { padding-block: clamp(56px, 9vw, 104px); }
+.section-head { display: grid; gap: 12px; margin-bottom: 28px; max-width: 46ch; }
+.section-head h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.1; }
+
+/* ---- previews: a slow gallery ---- */
+.gallery { position: relative; border-radius: 14px; overflow: hidden; background: #0a0f1f; aspect-ratio: 16 / 9; max-width: 100%; }
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
+.slide.on { opacity: 1; }
+.slide img { width: 100%; height: 100%; object-fit: cover; }
+.slide figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 24px 22px;
+  background: linear-gradient(180deg, rgba(10,15,31,0) 0%, rgba(10,15,31,0.82) 100%); font-family: var(--display); font-size: clamp(1.05rem, 2.2vw, 1.45rem); }
+.controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+.dots { display: flex; gap: 10px; }
+.dots button { width: 34px; height: 4px; padding: 0; border: 0; border-radius: 2px; background: var(--rule); cursor: pointer; }
+.dots button[aria-current="true"] { background: var(--lantern); }
+.dots button:hover { background: var(--lantern-soft); }
+.steps { display: flex; gap: 8px; }
+.steps button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--rule); background: transparent; color: var(--text); font-size: 1.1rem; cursor: pointer; }
+.steps button:hover { border-color: var(--lantern); color: var(--lantern); }
+.counter { color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+
+/* ---- imagine ---- */
+.imagine { background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%); }
+.worlds { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+.worlds li { background: var(--sky-2); padding: 26px 24px 28px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.worlds .kind { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.worlds p { font-family: var(--display); font-size: 1.28rem; line-height: 1.3; }
+
+/* ---- why it's different ---- */
+.why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+.why div { display: grid; gap: 12px; align-content: start; border-top: 1px solid var(--lantern); padding-top: 20px; }
+.why h3 { font-size: 1.55rem; line-height: 1.2; }
+.why p { color: var(--muted); }
+.why strong { color: var(--text); font-weight: 500; }
+
+/* ---- coming soon ---- */
+.closing { text-align: left; }
+.closing .inner { display: grid; gap: 18px; max-width: 720px; margin: 0 auto; }
+.closing h2 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.05; }
+.closing p { color: var(--muted); font-size: 1.1rem; }
+footer { border-top: 1px solid var(--rule); padding-block: 32px 40px; color: var(--muted); font-size: 0.92rem; }
+footer .inner { display: flex; flex-wrap: wrap; gap: 20px 40px; justify-content: space-between; }
+footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--lantern-soft); text-decoration: underline; }
+
+@media (max-width: 820px) { .why { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+@media (max-width: 560px) { .gallery { aspect-ratio: 4 / 3; } .hero { min-height: 78vh; } }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; } }
+</style>
 </head>
 <body>
-	<div id="header">
-		<div class="column">
-		<a href="/">
-			<img src="pegicon.png" width="56" height="56" alt="logo">
-		</a>
-		</div>
-		<span id="title">Web3D</span>
-		<div id="mainnav" class="column flow-opposite">
-		<ul>
-		<li><a href="vision.html">Vision</a></li>
-		<li><a href="principles.html">Principles</a></li>
-		<li><a href="challenges.html">Challenges</a></li>
-		<li><a href="projects.html">Projects</a></li>
-		<li><a href="faq.html">FAQ</a></li>
-		</ul>
-		</div>
-	</div>
 
-	<div class="text">
-	<p style="text-align:center; font-size: 1.3em; font-style: italic;">
-	The real world is not flat. Why should the web be?</p><br/>
-	</div>
+<header class="hero">
+  <img src="img/hero.jpg" alt="A cottage at nightfall on an island: stars overhead, smoke from the chimney, warm windows, lanterns lit along the path, a hot-air balloon behind">
+  <div class="topbar gutter"><img src="mark.svg" alt=""><span>web3d</span></div>
+  <div class="hero-text gutter">
+    <span class="label">A new kind of web</span>
+    <h1>The web, as a place.</h1>
+    <p class="sub">Step through a link into a world: lit by a real sun and moon, alive, and there almost as soon as you arrive.</p>
+    <span class="soon">Coming soon</span>
+  </div>
+</header>
 
-	<div class="text">
-	<div class="column half" style="margin-left: 2em; padding-right:2rem;">
-	<h3>The 3D browser</h3>
-	<p><a href="downloads/pegasus3d-browser-win64-09570f65.zip">
-		<img src="downloadbutton.png" width="145" height="40" alt="Download the 3D browser">
-	</a><br/>
-	<span style="font-size:80%">pegasus3d-browser-win64-09570f65.zip, 20.4 MB<br/>SHA-256 <code style="word-break:break-all">18b23b29946e508b5f34764ee9bd8e8b683ca241e0228c19b5989f5e0d087cf5</code></span></p>
-	<p>Unzip it anywhere and run it. Needs 64-bit Windows 10 or 11 and a Vulkan-capable graphics card.
-	It is not code-signed, so Windows warns the first time: choose "More info", then "Run anyway".</p>
-	<p>To play with others, press F9 to ask; once you are approved, press Join.</p>
-	</div>
-	
-	<div class="column" id="news" style="width:image width px; font-size:80%; text-align:center;">
-	  <a href="example/index.html">
-	    <img src="stilllife.jpg" height="250" width="250">
-	  </a>
-	<p><i>Click picture to run a <a href="faq.html">3D web</a> program</i></p>
-	</div>
-	</div>
-	
-	<div class="text">
-	</div>
-	
+<main>
+  <section class="gutter" aria-labelledby="previews">
+    <div class="inner">
+      <div class="section-head">
+        <span class="label">Previews</span>
+        <h2 id="previews">Early views of what's coming</h2>
+      </div>
+      <div class="gallery" id="gallery" aria-roledescription="carousel" aria-label="Previews">
+        <figure class="slide on"><img src="img/preview-1.jpg" alt="The cottage in the afternoon, the path leading to it, the balloon in the yard, hills behind"><figcaption>Afternoon on the island.</figcaption></figure>
+        <figure class="slide"><img src="img/preview-2.jpg" loading="lazy" alt="The same view at nightfall, lanterns lit and windows glowing"><figcaption>The sun sets. The lanterns come on.</figcaption></figure>
+        <figure class="slide"><img src="img/preview-3.jpg" loading="lazy" alt="The hot-air balloon in flight in front of the island's mountain"><figcaption>Take the balloon up.</figcaption></figure>
+        <figure class="slide"><img src="img/preview-4.jpg" loading="lazy" alt="The balloon over a long sandy peninsula, surf on the shore and open sea beyond"><figcaption>Over the peninsula, the surf below.</figcaption></figure>
+        <figure class="slide"><img src="img/preview-5.jpg" loading="lazy" alt="A red throne room beneath the island, with columns, a frieze of griffins and glass vessels on stands"><figcaption>Under it all, a palace no one has walked for three thousand years.</figcaption></figure>
+        <figure class="slide"><img src="img/preview-6.jpg" loading="lazy" alt="Two lacquered chess rooks, one standing and one fallen, on polished slate"><figcaption>Even the small things.</figcaption></figure>
+      </div>
+      <div class="controls">
+        <div class="dots" id="dots" role="group" aria-label="Choose a preview"></div>
+        <div class="steps">
+          <span class="counter" id="counter" aria-live="polite"></span>
+          <button type="button" id="prev" aria-label="Previous preview">&#8592;</button>
+          <button type="button" id="next" aria-label="Next preview">&#8594;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="imagine gutter" aria-labelledby="imagine">
+    <div class="inner">
+      <div class="section-head">
+        <span class="label">Imagine</span>
+        <h2 id="imagine">Places you could step into</h2>
+      </div>
+      <ul class="worlds">
+        <li><span class="kind">Travel</span><p>Fly a winged horse over Iceland's fjords under the aurora.</p></li>
+        <li><span class="kind">History</span><p>Walk the palace of Knossos as it stood.</p></li>
+        <li><span class="kind">Wonder</span><p>Climb a staircase out of an Escher drawing.</p></li>
+        <li><span class="kind">Play</span><p>Meet friends on an island of your own, from a link.</p></li>
+        <li><span class="kind">Learning</span><p>A science museum you walk into, the tree of life around you.</p></li>
+        <li><span class="kind">Space</span><p>Stand on another world and watch its two moons rise.</p></li>
+        <li><span class="kind">Shopping</span><p>A shop you browse by walking through it.</p></li>
+        <li><span class="kind">Making</span><p>A place you make yourself and share as easily as a photo.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="gutter" aria-labelledby="different">
+    <div class="inner">
+      <div class="section-head">
+        <span class="label">Why it's different</span>
+        <h2 id="different">Worlds as easy to visit as pages</h2>
+      </div>
+      <div class="why">
+        <div>
+          <h3>It arrives almost at once.</h3>
+          <p>A world travels as a compact description, and your own computer builds it as you arrive. <strong>A whole hot-air balloon fits in less space than a thumbnail photo:</strong> hundreds to thousands of times smaller than the models it replaces.</p>
+        </div>
+        <div>
+          <h3>It looks like a real place.</h3>
+          <p>A sun and moon that cross the sky, clouds and weather, light through glass, lanterns that come on at dusk. Cinematic, and alive.</p>
+        </div>
+        <div>
+          <h3>It's one link away.</h3>
+          <p>Worlds link to each other the way pages do. Step from one into the next, and meet your friends there.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing gutter" aria-labelledby="soon">
+    <div class="inner">
+      <span class="label">Coming soon</span>
+      <h2 id="soon">The island is being finished now.</h2>
+      <p>New previews appear here as it grows. Come back and see what's changed.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="gutter">
+  <div class="inner">
+    <nav aria-label="For builders">
+      <span>For builders:</span>
+      <a href="/conescript/">The world language</a>
+      <a href="https://cone.jondgoodwin.com">The Cone language</a>
+      <a href="vision.html">Earlier writing</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+    <span>Made by <a href="https://jondgoodwin.com">Jonathan Goodwin</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('#gallery .slide'));
+  var dots = document.getElementById('dots');
+  var counter = document.getElementById('counter');
+  var gallery = document.getElementById('gallery');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var at = 0, timer = null, held = false;
+  slides.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Preview ' + (i + 1) + ' of ' + slides.length);
+    b.addEventListener('click', function () { show(i); restart(); });
+    dots.appendChild(b);
+  });
+  function show(i) {
+    at = (i + slides.length) % slides.length;
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === at); s.setAttribute('aria-hidden', k === at ? 'false' : 'true'); });
+    Array.prototype.forEach.call(dots.children, function (d, k) { d.setAttribute('aria-current', k === at ? 'true' : 'false'); });
+    counter.textContent = (at + 1) + ' / ' + slides.length;
+  }
+  function restart() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (!still && !held) { timer = setInterval(function () { show(at + 1); }, 6000); }
+  }
+  document.getElementById('prev').addEventListener('click', function () { show(at - 1); restart(); });
+  document.getElementById('next').addEventListener('click', function () { show(at + 1); restart(); });
+  gallery.addEventListener('mouseenter', function () { held = true; restart(); });
+  gallery.addEventListener('mouseleave', function () { held = false; restart(); });
+  gallery.addEventListener('focusin', function () { held = true; restart(); });
+  gallery.addEventListener('focusout', function () { held = false; restart(); });
+  show(0);
+  restart();
+})();
+</script>
 </body>
 </html>
